@@ -1465,6 +1465,7 @@ function App() {
   const [studioSaved, setStudioSaved] = useState(() => safeLSGet("gh-cc-studio-saved") || []);
   const [studioView, setStudioView] = useState("create"); // create | saved
   const [studioSubTab, setStudioSubTab] = useState("create"); // create | calendar | history | agent
+  const [studioNepqMode, setStudioNepqMode] = useState(""); // "" | connection | situation | problem | solution | consequence | qualifying
   const [studioPromoted, setStudioPromoted] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("gh-cc-studio-promoted")||"[]")); } catch(e){ return new Set(); }});
   const [studioOaiKey, setStudioOaiKey] = useState(() => localStorage.getItem("gh-cc-oai-key")||"");
   const [studioShowOaiKey, setStudioShowOaiKey] = useState(false);
@@ -4336,6 +4337,18 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             prompt += "RESPOND ONLY IN THIS EXACT JSON FORMAT (no markdown, no backticks, no preamble):\n";
             prompt += '[{"title":"Short punchy title (5-8 words)","angle":"1-2 sentence description of the approach/hook","hook":"The opening line of the post"}]\n\n';
             prompt += "Examples of distinct angles:\n- Educational/myth-busting\n- Story/empathy\n- Urgency/deadline: Tie to enrollment periods\n- Question/curiosity\n- Local/community: Connect to NC specifically\n- Savings/value: Lead with the financial benefit";
+            var nepqLabels = {connection:"CONNECTION QUESTIONS (NEPQ)",situation:"SITUATION QUESTIONS (NEPQ)",problem:"PROBLEM AWARENESS QUESTIONS (NEPQ)",solution:"SOLUTION AWARENESS QUESTIONS (NEPQ)",consequence:"CONSEQUENCE QUESTIONS (NEPQ)",qualifying:"QUALIFYING QUESTIONS (NEPQ)"};
+            var nepqGuide = {
+              connection:"Frame the post around building trust and personal rapport. Open with a warm, human question or statement that invites the reader to reflect on their own experience — not a sales pitch. The goal is to make them feel understood before anything else. Example opener: 'What made you start thinking about Medicare coverage this year?' Make the post feel like a conversation starter from a local neighbor, not an ad.",
+              situation:"Frame the post around understanding where the reader currently stands. Use situation-discovery language — acknowledge different stages people are at (turning 65, already on Medicare, transitioning off employer plan) and make them feel seen. Example: 'Whether you just got your Medicare card or you've had coverage for years, here's something most people in NC don't realize...'",
+              problem:"Use NEPQ Problem Awareness framing — surface a problem the reader may not realize they have yet. Lead with a question or scenario that reveals a hidden gap or risk in their current situation. Don't give the solution immediately — let the problem land first. Example: 'Most people don't find out their Medicare plan has a gap until they actually need it. By then, it's often too late to change.'",
+              solution:"Use NEPQ Solution Awareness framing — paint a picture of what having the RIGHT coverage actually looks like and feels like. Create contrast between their current uncertain situation and the relief/clarity of a good plan. Don't pitch a product — sell the outcome. Example: 'Imagine opening an EOB and not being shocked by what you owe. That's what the right Medicare plan feels like.'",
+              consequence:"Use NEPQ Consequence framing — amplify the real cost of inaction or a wrong decision. Make the reader feel the weight of what could happen if they don't act. Be specific, not scary. Focus on financial, health, and peace-of-mind consequences that are real and relatable to NC seniors.",
+              qualifying:"Use NEPQ Qualifying framing — write as if speaking to someone who is almost ready to make a move. The post should feel like a quiet, confident call to action to people who are already thinking about this. Use language that pre-qualifies: 'If you've been meaning to review your Medicare plan...' or 'If you're turning 65 in the next 3-6 months, this is for you.'"
+            };
+            if(studioNepqMode && nepqGuide[studioNepqMode]){
+              prompt += "\n\n\u26a0\ufe0f NEPQ FRAMING REQUIRED \u2014 "+nepqLabels[studioNepqMode]+":\n"+nepqGuide[studioNepqMode]+"\nAll 3 angle suggestions MUST apply this NEPQ question type as the primary framing lens. This is non-negotiable.";
+            }
             var resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
             var data = await resp.json();
             var text = (data.content||[]).map(function(b){return b.text||"";}).join("");
@@ -4364,6 +4377,17 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             prompt += "---LINKEDIN---\n[LinkedIn post — professional, insightful, 2-3 paragraphs, establish expertise, end with CTA]\n---END LINKEDIN---\n";
             prompt += "---NEXTDOOR---\n[Nextdoor post — hyper-local, neighborly tone, brief and friendly, mention Durham/Wake NC, end with phone]\n---END NEXTDOOR---\n\n";
             prompt += "GUIDELINES:\n- Write as Rob, a real local NC insurance broker — warm, knowledgeable, not salesy\n- Facebook: 150-300 words, personal, storytelling, hashtags\n- GMB: 50-120 words, concise, action-oriented\n- LinkedIn: 150-250 words, professional, thought leadership angle\n- Nextdoor: 80-150 words, community-oriented, local focus, conversational\n- All: include page link and phone (828) 761-3326, focus on helping people";
+            var nepqDraftGuide = {
+              connection:"\ud83e\udde0 NEPQ \u2014 CONNECTION QUESTIONS MODE: Write ALL four posts using connection-building language first. Every post must open by creating rapport and making the reader feel understood before any information is shared. Use warm, curious, non-pushy language. The reader should feel like Rob is asking about THEIR situation, not broadcasting at them. Posts should invite a reply or reflection, not just deliver facts.",
+              situation:"\ud83e\udde0 NEPQ \u2014 SITUATION QUESTIONS MODE: Write ALL four posts using situation-discovery framing. Open each post by acknowledging where the reader might currently be in their Medicare journey (turning 65, reviewing existing coverage, recently retired, confused about their options). Use language like 'If you're currently...' or 'Depending on where you're at with Medicare...' Make readers feel seen in their specific situation before offering insight.",
+              problem:"\ud83e\udde0 NEPQ \u2014 PROBLEM AWARENESS MODE: Write ALL four posts to surface a problem the reader may not fully realize they have. Don't open with solutions — open with the hidden gap or risk. Use contrast and storytelling: 'Most people don't find out until...' or 'The thing nobody tells you about Medicare is...' Make the problem land emotionally before any mention of Generation Health or a solution.",
+              solution:"\ud83e\udde0 NEPQ \u2014 SOLUTION AWARENESS MODE: Write ALL four posts around the desired outcome — what life looks like WITH the right coverage. Paint a clear picture of the relief, confidence, and financial clarity of having the right plan. Use contrast: 'Before vs After' framing. Don't pitch a specific product. Sell the transformation and feeling. Rob is the guide who helps them get there.",
+              consequence:"\ud83e\udde0 NEPQ \u2014 CONSEQUENCE QUESTIONS MODE: Write ALL four posts to make the cost of inaction or a wrong decision real and tangible. Use specific financial, medical, or peace-of-mind consequences relevant to NC Medicare beneficiaries. Be direct but not fearful. The tone is: 'I've seen this happen to real people and I don't want it to happen to you.' Urgency without manipulation.",
+              qualifying:"\ud83e\udde0 NEPQ \u2014 QUALIFYING QUESTIONS MODE: Write ALL four posts as if speaking directly to someone who is ALMOST ready to act. Use pre-qualifying language: 'If you've been putting this off...' or 'If you're turning 65 in the next few months...' The tone is confident and selective — not desperate. Rob is the trusted local expert who helps the right people make the right move. Soft but clear CTA."
+            };
+            if(studioNepqMode && nepqDraftGuide[studioNepqMode]){
+              prompt += "\n\n"+nepqDraftGuide[studioNepqMode]+"\nThis NEPQ framing OVERRIDES generic copywriting guidelines above for tone and opening structure. Apply it to every platform post.";
+            }
             var resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
             var data = await resp.json();
             var text = (data.content||[]).map(function(b){return b.text||"";}).join("\n");
@@ -4602,6 +4626,39 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               ):null,
 
               studioPage?[
+
+                // NEPQ Mode selector
+                React.createElement("div",{key:"nepq",style:{marginBottom:16,padding:"12px 16px",background:"rgba(139,92,246,0.06)",border:"1px solid rgba(139,92,246,0.2)",borderRadius:12,display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}},
+                  React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6,flexShrink:0}},
+                    React.createElement("span",{style:{fontSize:16}},"\ud83e\udde0"),
+                    React.createElement("span",{style:{fontSize:11,fontWeight:700,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.08em"}},"NEPQ Framing")
+                  ),
+                  React.createElement("select",{
+                    value:studioNepqMode,
+                    onChange:function(e){
+                      setStudioNepqMode(e.target.value);
+                      setStudioTopics([]); setStudioTopicPick(null);
+                      setStudioFb(""); setStudioGmb(""); setStudioLinkedin(""); setStudioNextdoor("");
+                    },
+                    style:{flex:1,minWidth:220,padding:"6px 10px",borderRadius:8,border:"1px solid rgba(139,92,246,0.3)",background:"rgba(15,20,30,0.8)",color:studioNepqMode?"#A78BFA":"#6B7B8D",fontSize:12,fontWeight:studioNepqMode?700:400,outline:"none",cursor:"pointer"}
+                  },
+                    React.createElement("option",{value:""},"\u2014 No NEPQ framing (standard mode) \u2014"),
+                    React.createElement("option",{value:"connection"},"\ud83e\udd1d Connection Questions \u2014 Build rapport first"),
+                    React.createElement("option",{value:"situation"},"\ud83d\udd0d Situation Questions \u2014 Meet them where they are"),
+                    React.createElement("option",{value:"problem"},"\u26a0\ufe0f Problem Awareness \u2014 Surface the hidden gap"),
+                    React.createElement("option",{value:"solution"},"\u2728 Solution Awareness \u2014 Paint the desired outcome"),
+                    React.createElement("option",{value:"consequence"},"\ud83d\udd25 Consequence Questions \u2014 Cost of inaction"),
+                    React.createElement("option",{value:"qualifying"},"\ud83c\udfaf Qualifying Questions \u2014 Speak to the almost-ready")
+                  ),
+                  studioNepqMode?React.createElement("div",{style:{width:"100%",fontSize:10,color:"#8B7EC8",lineHeight:1.5,marginTop:2}},{
+                    connection:"Opens with warmth and curiosity \u2014 makes the reader feel understood before any pitch.",
+                    situation:"Acknowledges where the reader is in their Medicare journey \u2014 makes them feel seen.",
+                    problem:"Surfaces a hidden gap or risk \u2014 the problem lands before any solution is offered.",
+                    solution:"Paints the outcome of having the right plan \u2014 sells the transformation, not the product.",
+                    consequence:"Makes the cost of inaction real and tangible \u2014 urgency without manipulation.",
+                    qualifying:"Speaks to the almost-ready buyer \u2014 confident, selective, soft CTA."
+                  }[studioNepqMode]):null
+                ),
 
                 // Step 1: Angle selection
                 React.createElement("div",{key:"step1",style:{marginBottom:20,padding:"16px 18px",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:14}},
