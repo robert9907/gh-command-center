@@ -5392,8 +5392,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               {isExp&&<div style={{padding:"0 24px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
                 {cluster.gameplanNote&&<div style={{margin:"16px 0",padding:"12px 16px",background:"#FFFBEB",borderLeft:"3px solid #D97706",borderRadius:"0 8px 8px 0",fontSize:13,color:"#92400E"}}><strong>Note:</strong> {cluster.gameplanNote}</div>}
                 {cluster.templateUsed&&<div style={{margin:"16px 0",padding:"12px 16px",background:"#EFF6FF",borderLeft:"3px solid #2563EB",borderRadius:"0 8px 8px 0",fontSize:13,color:"#1E40AF"}}><strong>Master Template v3.0</strong></div>}
-
-                {}
                 <div style={{marginTop:16}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
                     <span style={{fontSize:11,fontWeight:800,letterSpacing:"0.1em",color:ph.color,textTransform:"uppercase"}}>Pages ({cluster.posts.filter(p=>p.status==="done").length}/{cluster.posts.length})</span>
@@ -5437,8 +5435,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     </div>;
                   })}
                 </div>
-
-                {}
                 <div style={{marginTop:24}}>
                   <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.1em",color:"#0D9488",textTransform:"uppercase",marginBottom:10}}>
                     Optimization Checklist ({STD_TASKS.filter(t=>isDone(`std-${cluster.id}-${t.id}`)).length}/{STD_TASKS.length})
@@ -5463,8 +5459,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     })}
                   </div>
                 </div>
-
-                {}
                 {cluster.phase1Tasks.length>0&&<div style={{marginTop:20}}>
                   <div style={{fontSize:11,fontWeight:700,color:"#D97706",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:10}}>
                     Cluster-Specific Tasks ({cluster.phase1Tasks.filter((_,i)=>isDone(`cl-${cluster.id}-${i}`)).length}/{cluster.phase1Tasks.length})
@@ -5595,7 +5589,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
 
               {/* Expanded: per-page optimization */}
               {isExp&&<div style={{padding:"0 24px 24px",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
-                {}
                 <div style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",marginBottom:8,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
                   <button onClick={async()=>{
                     const posts=allPosts.filter(p=>p.status==="done"&&p.slug);
@@ -5679,8 +5672,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>}
             </div>;
           })}
-
-          {}
           <div style={{marginTop:32}}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.12em",color:"#60A5FA",textTransform:"uppercase",marginBottom:16}}>AEO Intelligence \u2014 HubSpot Grader Insights (Feb 2026)</div>
 
@@ -5794,9 +5785,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           </div>
         </div>;
       })()}
-
-
-      {}
       {view==="operations"&&(()=>{
         const isDark = theme==="dark";
         const card = {background:isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.03)",border:`1px solid ${isDark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)"}`,borderRadius:16,padding:20,marginBottom:16};
@@ -6112,9 +6100,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         );
       })()}
 
-      {/* PERFORMANCE */}
-      {}
-      {      {}
+      
       {view==="social"&&(()=>{
 
         // ── Data: All live pages from Architecture ──
@@ -6667,9 +6653,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           ) // end main area
         ); // end outer flex
       })()}
-
-
-      {}
       {view==="keywords"&&(()=>{
         var GROUPS = [{id:"medicare",label:"Medicare",color:"#4B9CD3"},{id:"aca",label:"ACA",color:"#16A34A"},{id:"local",label:"Local",color:"#F97316"}];
         var groupMap = {}; GROUPS.forEach(function(g){groupMap[g.id]=g});
@@ -6916,7 +6899,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       })()}
 
       {view==="performance"&&<div>
-        {}
         
         {(()=>{
 // Parse GA4 data for display
@@ -7093,8 +7075,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>}
           </div>;
         })()}
-
-        {}
         <div style={{marginBottom:28}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexWrap:"wrap",gap:12}}>
             <div>
@@ -7121,8 +7101,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               Go to <strong style={{color:"#C4CDD5"}}>Growth Channels → 🔗 GA4 Live</strong> and connect your Google account. The same OAuth token works for both GA4 and Search Console. Make sure you also enabled the <strong style={{color:"#C4CDD5"}}>Search Console API</strong> in your Google Cloud project.
             </div>
           </div>}
-
-          {}
           {gscData.daily?.rows&&(()=>{
             const rows = gscData.daily.rows||[];
             const totClicks = rows.reduce((a,r)=>a+(r.clicks||0),0);
@@ -7139,8 +7117,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               )}
             </div>;
           })()}
-
-          {}
           {gscData.daily?.rows&&gscData.daily.rows.length>0&&(()=>{
             const rows = [...gscData.daily.rows].sort((a,b)=>(a.keys?.[0]||"").localeCompare(b.keys?.[0]||""));
             const maxC = Math.max(...rows.map(r=>r.clicks||0),1);
@@ -7166,8 +7142,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>
             </div>;
           })()}
-
-          {}
           {Object.keys(gscData.tracked||{}).length>0&&<div style={{background:"linear-gradient(135deg, rgba(255,199,44,0.05), rgba(99,102,241,0.05))",border:"1px solid rgba(255,199,44,0.2)",borderRadius:14,padding:"18px 16px",marginBottom:16}}>
             <div style={{fontSize:13,fontWeight:700,color:"#FFC72C",marginBottom:14}}>🏔️ Tracked Keyword Rankings</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))",gap:10}}>
@@ -7224,8 +7198,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </span>)}
             </div>
           </div>}
-
-          {}
           {gscData.queries?.rows&&<div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 16px",marginBottom:16}}>
             <div style={{fontSize:13,fontWeight:700,color:"#FFF",marginBottom:12}}>🔍 Top Queries ({gscData.queries.rows.length})</div>
             <div style={{overflowX:"auto"}}>
@@ -7246,8 +7218,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </table>
             </div>
           </div>}
-
-          {}
           {gscData.pages?.rows&&<div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 16px",marginBottom:16}}>
             <div style={{fontSize:13,fontWeight:700,color:"#FFF",marginBottom:12}}>📄 Top Pages ({gscData.pages.rows.length})</div>
             <div style={{overflowX:"auto"}}>
@@ -8126,12 +8096,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           )
         );
       })()}
-
-            {}
       {view==="wp-builder"&&window.GHWPBuilder&&React.createElement(window.GHWPBuilder,{wpUrl,wpUser,wpPass,wpConnected,wpConnecting,wpConnectMsg,wpHtml,wpResults,wpPageTitle,wpPageSlug,wpPageId,wpStatus,wpPushMsg,wpPushing,wpPushLog,wpFindSlug,wpFinding,setWpUrl,setWpUser,setWpPass,setWpHtml,setWpResults,setWpPageTitle,setWpPageSlug,setWpStatus,setWpFindSlug})}
-
-
-      {}
       {view==="aiAgent"&&<div>
         {/* Header */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"20px 24px",background:"rgba(255,199,44,0.08)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:16,marginBottom:16,boxShadow:"none"}}>
