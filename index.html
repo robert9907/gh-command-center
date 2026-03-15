@@ -5290,7 +5290,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
   }, [aiApiKey]);
 
   return <div style={{minHeight:"100vh"}}>
-    {/* Header */}
     <div style={{background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.08)",padding:"20px 24px",boxShadow:"none"}}>
       <div style={{maxWidth:1100,margin:"0 auto"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16}}>
@@ -5311,19 +5310,15 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             <div style={{display:"flex",gap:4,background:"rgba(255,199,44,0.08)",borderRadius:12,padding:4,border:"1px solid rgba(255,199,44,0.2)"}}>
               <button onClick={()=>{setView("aiAgent");setBellOpen(false);}} style={{padding:"8px 16px",borderRadius:10,border:"none",cursor:"pointer",fontSize:13,fontWeight:600,background:view==="aiAgent"?"rgba(255,199,44,0.25)":"transparent",color:view==="aiAgent"?"#FFC72C":"#A08C5A",transition:"all 0.2s"}}>🧠 AI Agent</button>
             </div>
-            {/* Theme toggle */}
             <button onClick={function(){setTheme(function(p){return p==="dark"?"light":"dark"})}} title={isDark?"Switch to Light Mode":"Switch to Dark Mode"} style={{width:40,height:40,borderRadius:12,border:"1px solid rgba(255,255,255,0.08)",background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,transition:"all 0.3s"}}>{isDark?"☀️":"🌙"}</button>
-            {/* Save/Backup button */}
             {hasChanges&&<button onClick={doBackup} style={{height:40,padding:"0 16px",borderRadius:12,border:"1px solid rgba(74,222,128,0.3)",background:"rgba(22,163,74,0.15)",cursor:"pointer",display:"flex",alignItems:"center",gap:6,animation:"savePulse 2s ease-in-out infinite"}}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
               <span style={{fontSize:12,fontWeight:700,color:"#4ADE80"}}>Backup</span>
             </button>}
             {!hasChanges&&lastSaveTime&&<span style={{fontSize:10,color:"#4B5C6E",padding:"0 8px"}}>Backed up {lastSaveTime.toLocaleTimeString()}</span>}
-            {/* Restore button */}
             <button onClick={doRestore} title="Restore from backup" style={{width:40,height:40,borderRadius:12,border:"none",background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={"#6B7B8D"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
             </button>
-            {/* Bell icon */}
             <div style={{position:"relative"}}>
               <button onClick={()=>setBellOpen(!bellOpen)} style={{width:40,height:40,borderRadius:12,border:"none",background:activeReminders.length>0?"rgba(251,146,60,0.15)":(isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"),cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={activeReminders.length>0?"#FB923C":"#6B7B8D"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -5353,7 +5348,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
     </div>
 
     <div style={{maxWidth:1100,margin:"0 auto",padding:"24px 24px 80px"}}>
-      {/* Stats */}
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(150px, 1fr))",gap:12,marginBottom:28}}>
         {[{label:"Tasks Done",value:calDone+opsDone,sub:`of ${totalCalTasks+opsTotalTasks}`},{label:"Live Pages",value:livePages,sub:`of ${totalPages}`},{label:"Clusters Built",value:clusters.length-plannedClusters,sub:`of ${clusters.length}`},{label:"County Hubs",value:"7 Live",sub:"all complete"},{label:"Top Source",value:"ChatGPT",sub:"460 users"}].map((s,i)=>
           <div key={i} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 20px",boxShadow:"none"}}>
@@ -5363,8 +5357,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           </div>
         )}
       </div>
-
-      {/* ARCHITECTURE */}
       {view==="tree" && <>
         <div style={{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"}}>
           <button onClick={()=>setPhaseFilter(0)} style={{padding:"8px 18px",borderRadius:10,border:"none",cursor:"pointer",fontSize:12,fontWeight:700,background:phaseFilter===0?(isDark?"rgba(255,255,255,0.15)":"rgba(0,0,0,0.1)"):(isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.04)"),color:phaseFilter===0?"#FFF":"#6B7B8D"}}>All</button>
@@ -5473,8 +5465,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           })}
         </div>
       </>}
-
-      {/* OPTIMIZE */}
       {view==="optimize"&&(()=>{
         // Build flat list of all live pages for priority queue
         const liveClust = optimizedClusterIds.size>0?clusters.filter(c=>optimizedClusterIds.has(c.id)):clusters.filter(c=>c.posts.some(p=>p.status==="done"));
@@ -5492,7 +5482,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         const pct = allOptTotal>0?Math.round(allOptDone/allOptTotal*100):0;
 
         return <div>
-          {/* Overall progress */}
           <div style={{background:"linear-gradient(135deg, rgba(13,148,136,0.08), rgba(37,99,235,0.08))",border:"1px solid rgba(13,148,136,0.2)",borderRadius:16,padding:28,marginBottom:28}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:8}}>
               <div>
@@ -5535,8 +5524,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               <div style={{width:`${pct}%`,height:"100%",background:"linear-gradient(90deg,#0D9488,#2DD4BF)",borderRadius:100,transition:"width 0.5s"}}/>
             </div>
           </div>
-
-          {/* URL Search Tool */}
           <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:14,padding:"16px 20px",marginBottom:24}}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.1em",color:"#FFC72C",textTransform:"uppercase",marginBottom:10}}>🔍 Find a Page by URL</div>
             <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
@@ -5547,11 +5534,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             {optSearchResult&&optSearchResult.found&&<div style={{marginTop:10,padding:"10px 14px",background:"rgba(74,222,128,0.08)",border:"1px solid rgba(74,222,128,0.25)",borderRadius:10,fontSize:13}}><span style={{color:"#4ADE80",fontWeight:700}}>✓ Found:</span> <span style={{color:"#FFF"}}>{optSearchResult.pageName}</span> <span style={{color:"#6B7B8D"}}>in</span> <span style={{color:"#FFC72C",fontWeight:600}}>{optSearchResult.clusterName}</span> <span style={{color:"#6B7B8D"}}>— cluster expanded &amp; scrolled ↓</span></div>}
             {optSearchResult&&!optSearchResult.found&&<div style={{marginTop:10,padding:"10px 14px",background:"rgba(251,146,60,0.08)",border:"1px solid rgba(251,146,60,0.25)",borderRadius:10,fontSize:13}}><span style={{color:"#FB923C",fontWeight:700}}>✗ Not found:</span> <span style={{color:"#6B7B8D"}}>"/{optSearchResult.slug}" is not in any cluster yet.</span></div>}
           </div>
-
-          {/* Priority queue intro */}
           <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.12em",color:"#FFC72C",textTransform:"uppercase",marginBottom:16}}>Clusters ranked by SEO + AEO + GEO impact — highest priority first</div>
-
-          {/* Cluster cards */}
           {sortedClust.map(cluster=>{
             const ph = PHASES.find(p=>p.id===cluster.phase);
             const isExp = expandedOptCluster===cluster.id;
@@ -5569,7 +5552,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               border:isExp?`2px solid ${ph.color}`:"1px solid rgba(255,255,255,0.06)",
               borderRadius:16,marginBottom:12,overflow:"hidden",
             }}>
-              {/* Cluster header */}
               <div onClick={()=>setExpandedOptCluster(isExp?null:cluster.id)} style={{padding:"18px 24px",cursor:"pointer",display:"flex",alignItems:"center",gap:16}}>
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}>
@@ -5586,8 +5568,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   <div style={{fontSize:11,color:"#6B7B8D"}}>{clusterOptDone}/{clusterOptTotal}</div>
                 </div>
               </div>
-
-              {/* Expanded: per-page optimization */}
               {isExp&&<div style={{padding:"0 24px 24px",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
                 <div style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",marginBottom:8,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
                   <button onClick={async()=>{
@@ -5618,7 +5598,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   const wasScan = !!lastScanResults[scanKey];
                   const hasSavedHTML = !!(savedHTML[scanKey] && savedHTML[scanKey].length > 100);
                   return <div key={post.idx} id={post.slug?"opt-page-"+post.slug:undefined} style={{marginTop:16,opacity:isLive?1:0.6,transition:"box-shadow 0.4s",boxShadow:optSearchHighlight&&post.slug===optSearchHighlight?"0 0 0 2px #FFC72C, 0 0 24px rgba(255,199,44,0.3)":"none",borderRadius:optSearchHighlight&&post.slug===optSearchHighlight?10:0}}>
-                    {/* Page header */}
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
                       <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
                         {isPillar&&<span style={{fontSize:9,fontWeight:800,background:`${ph.color}30`,color:ph.color,padding:"2px 6px",borderRadius:4,textTransform:"uppercase",flexShrink:0}}>Pillar</span>}
@@ -5626,7 +5605,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                         <span style={{fontSize:14,fontWeight:600,color:isLive?"#FFF":"#6B7B8D"}}>{post.name}</span>
                       </div>
                       <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
-                        {/* Auto-fetch from live site */}
                         {post.slug && isLive && <button onClick={async()=>{
                           const fk=`${cluster.id}-${post.idx}`;
                           setFetchingPages(p=>({...p,[fk]:true}));
@@ -5645,8 +5623,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                       </div>
                     </div>
                     {post.slug&&<div style={{fontSize:11,color:"#4B5C6E",marginBottom:8,marginTop:-6}}>/{post.slug}</div>}
-
-                    {/* Optimization items */}
                     <div style={{background:"rgba(255,255,255,0.03)",borderRadius:12,padding:"8px 14px",border:"1px solid rgba(255,255,255,0.04)"}}>
                       {OPT_ITEMS.map((oi,oIdx)=>{
                         const tid=`op-${cluster.id}-${post.idx}-${oi.id}`;
@@ -6960,7 +6936,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             };
 
             return <div>
-              {/* Connection Setup */}
               <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
                 <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 4px",fontFamily:"Georgia,serif"}}>🔗 Google Analytics 4 — Live Connection</h3>
                 <p style={{fontSize:11,color:"#6B7B8D",margin:"0 0 16px"}}>Connect to pull real-time users, sessions, traffic sources, and top pages directly from GA4.</p>
@@ -6981,8 +6956,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     Connect Google Analytics
                   </button>
                   {ga4Error && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:"rgba(248,113,113,0.1)",border:"1px solid rgba(248,113,113,0.2)",color:"#F87171",fontSize:11}}>{ga4Error}</div>}
-
-                  {/* Setup Instructions */}
                   <div style={{marginTop:16,padding:16,background:"rgba(255,255,255,0.02)",borderRadius:12,border:"1px solid rgba(255,255,255,0.04)"}}>
                     <div style={{fontSize:12,fontWeight:700,color:"#FFC72C",marginBottom:8}}>Setup Instructions:</div>
                     <div style={{fontSize:11,color:"#6B7B8D",lineHeight:1.8}}>
@@ -7169,7 +7142,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     <span>{totalImpr.toLocaleString()} impr</span>
                     <span style={{color:improving?"#4ADE80":"#EF4444",fontWeight:700}}>{improving?"↑":"↓"} {Math.abs(posDelta)} pos</span>
                   </div>
-                  {/* Mini sparkline */}
                   {sorted.length>=3&&(()=>{
                     const positions = sorted.map(r=>r.position||50);
                     const minP = Math.min(...positions);
@@ -7186,7 +7158,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 </div>;
               })}
             </div>
-            {/* Add/remove tracked keywords */}
             <div style={{marginTop:14,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
               <input id="gsc-new-kw" placeholder="Add tracked keyword..." style={{padding:"6px 10px",borderRadius:6,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.03)",color:"#FFF",fontSize:11,outline:"none",width:200}} onKeyDown={e=>{if(e.key==="Enter"&&e.target.value.trim()){setGscTrackedKW(prev=>[...prev,e.target.value.trim()]);e.target.value="";}}} />
               <span style={{fontSize:9,color:"#4B5C6E"}}>Press Enter to add · Click ✕ on tag to remove</span>
@@ -7282,10 +7253,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       </div>}
 
 
-      {/* ANALYTICS */}
-      {     {/* PROJECTIONS */}
-      {{/* CALENDAR */}
-      {view==="calendar"&&<div>
+            {view==="calendar"&&<div>
         <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 24px",marginBottom:20,boxShadow:"none"}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{fontSize:13,fontWeight:700,color:"#FFF"}}>Overall Progress</span><span style={{fontSize:13,fontWeight:800,color:"#4ADE80"}}>{calDone+opsDone}/{totalCalTasks+opsTotalTasks} ({Math.round((calDone+opsDone)/(totalCalTasks+opsTotalTasks)*100)}%)</span></div>
           <div style={{width:"100%",height:8,background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.08)",borderRadius:100,overflow:"hidden"}}><div style={{width:`${((calDone+opsDone)/(totalCalTasks+opsTotalTasks))*100}%`,height:"100%",background:"linear-gradient(90deg,#16A34A,#4ADE80)",borderRadius:100,transition:"width 0.5s"}}/></div>
@@ -7338,8 +7306,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           <button onClick={()=>{if(confirm("Reset all progress?")){setDone({});setNotes({});setReminders([]);setLearnings([]);setSavedHTML({});idbClearAllHTML();[SKEY,SKEY_DONE,SKEY_NOTES,SKEY_REMINDERS,SKEY_PERF,SKEY_LEARNINGS,SKEY_META].forEach(k=>localStorage.removeItem(k));}}} style={{background:"none",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,padding:"8px 20px",fontSize:12,color:"#6B7B8D",cursor:"pointer"}}>Reset All Progress</button>
         </div>
       </div>}
-
-      {/* REMINDERS */}
       {     {view==="pagebuilder"&&(()=>{
         var iS={width:"100%",padding:"9px 13px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
         var cS={background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:"22px 24px",marginBottom:18};
@@ -8098,7 +8064,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       })()}
       {view==="wp-builder"&&window.GHWPBuilder&&React.createElement(window.GHWPBuilder,{wpUrl,wpUser,wpPass,wpConnected,wpConnecting,wpConnectMsg,wpHtml,wpResults,wpPageTitle,wpPageSlug,wpPageId,wpStatus,wpPushMsg,wpPushing,wpPushLog,wpFindSlug,wpFinding,setWpUrl,setWpUser,setWpPass,setWpHtml,setWpResults,setWpPageTitle,setWpPageSlug,setWpStatus,setWpFindSlug})}
       {view==="aiAgent"&&<div>
-        {/* Header */}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"20px 24px",background:"rgba(255,199,44,0.08)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:16,marginBottom:16,boxShadow:"none"}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg,#FFC72C,#FFD54F)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>&#129504;</div>
@@ -8116,8 +8081,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             <button onClick={function(){setAiMessages([])}} style={{padding:"6px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#6B7B8D",fontSize:11,cursor:"pointer"}}>Clear Chat</button>
           </div>
         </div>
-
-        {/* Learnings Panel */}
         <div style={{marginBottom:16,border:"1px solid rgba(255,199,44,0.2)",borderRadius:14,overflow:"hidden",boxShadow:"none"}}>
           <button onClick={function(){setShowLearnings(!showLearnings)}} style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%",padding:"12px 18px",background:"rgba(255,199,44,0.08)",border:"none",cursor:"pointer",color:"#FFF"}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -8128,12 +8091,10 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             <span style={{fontSize:11,color:"#6B7B8D"}}>{showLearnings?"\u25B2":"\u25BC"}</span>
           </button>
           {showLearnings&&<div style={{padding:"12px 18px",background:"rgba(0,0,0,0.15)",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
-            {/* Add new learning */}
             <div style={{display:"flex",gap:8,marginBottom:learnings.length>0?12:0}}>
               <input value={newLearning} onChange={function(e){setNewLearning(e.target.value)}} onKeyDown={function(e){if(e.key==="Enter"&&newLearning.trim()){setLearnings(function(prev){return prev.concat([{id:Date.now(),text:newLearning.trim(),date:new Date().toISOString().slice(0,10),category:""}])});setNewLearning("");setHasChanges(true)}}} placeholder="Add a learning... e.g. 'My pages use styled divs, not HTML tables' or 'Always check for author byline first'" style={{flex:1,padding:"10px 14px",borderRadius:10,border:"1px solid rgba(255,199,44,0.2)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:12,outline:"none"}} />
               <button onClick={function(){if(newLearning.trim()){setLearnings(function(prev){return prev.concat([{id:Date.now(),text:newLearning.trim(),date:new Date().toISOString().slice(0,10),category:""}])});setNewLearning("");setHasChanges(true)}}} disabled={!newLearning.trim()} style={{padding:"10px 18px",borderRadius:10,border:"none",background:newLearning.trim()?"#16A34A":"#333",color:"#FFF",fontSize:12,fontWeight:700,cursor:newLearning.trim()?"pointer":"not-allowed",whiteSpace:"nowrap"}}>+ Add</button>
             </div>
-            {/* List learnings */}
             {learnings.length===0&&<div style={{textAlign:"center",padding:"20px",color:"#4B5C6E",fontSize:12}}>No learnings yet. Add your first one above. These get fed into every AI conversation so it learns from your feedback.</div>}
             {learnings.map(function(l,i){return React.createElement("div",{key:l.id,style:{display:"flex",alignItems:"flex-start",gap:10,padding:"8px 0",borderBottom:i<learnings.length-1?"1px solid rgba(255,255,255,0.04)":"none"}},
               React.createElement("span",{style:{fontSize:10,color:"#6B7B8D",minWidth:60,paddingTop:2}},l.date),
@@ -8143,8 +8104,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             )})}
           </div>}
         </div>
-
-        {/* Fetch Page URL Bar */}
         <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
           <div style={{flex:1,display:"flex",gap:8,padding:"10px 16px",background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,boxShadow:"none"}}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={"#6B7B8D"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,marginTop:2}}><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
@@ -8188,8 +8147,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             {fullScanActive?"🔄 Scanning...":"📊 Full Site Scan"}
           </button>
         </div>
-
-        {/* Full Scan Progress Bar */}
         {fullScanProgress&&<div style={{marginBottom:16,padding:"12px 16px",background:"rgba(74,222,128,0.06)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:12}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
             <span style={{fontSize:12,fontWeight:700,color:"#4ADE80"}}>📊 Scanning {fullScanProgress.total} pages...</span>
@@ -8200,8 +8157,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           </div>
           <div style={{fontSize:10,color:"#6B7B8D",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Currently: {fullScanProgress.current}</div>
         </div>}
-
-        {/* Full Scan Results Summary (shown after scan, before AI responds) */}
         {fullScanResults&&!fullScanActive&&<div style={{marginBottom:16,padding:"12px 16px",background:"rgba(74,222,128,0.04)",border:"1px solid rgba(74,222,128,0.15)",borderRadius:12}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
             <span style={{fontSize:13,fontWeight:700,color:"#4ADE80"}}>✅ Scan Complete — {fullScanResults.length} pages</span>
@@ -8224,8 +8179,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             })()}
           </div>
         </div>}
-
-        {/* Quick Actions */}
         {aiMessages.length===0&&aiApiKey.trim()&&!aiShowKey&&<div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}}>
           {[
             {label:"Site Health Report",msg:"Give me a complete site health report. Use my full 24-week performance data to identify trends and opportunities."},
@@ -8237,10 +8190,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             {label:"AEO Gaps",msg:"Which pages are weakest for AEO? What changes would make them more citable by ChatGPT and Perplexity?"}
           ].map(function(qa,i){return React.createElement("button",{key:i,onClick:function(){sendAiMessage(qa.msg)},style:{padding:"10px 16px",borderRadius:12,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(255,255,255,0.03)",color:"#C4CDD5",fontSize:12,boxShadow:"none",fontWeight:500,cursor:"pointer"}},qa.label)})}
         </div>}
-
-        {/* Chat Area */}
         <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,boxShadow:"none",display:"flex",flexDirection:"column",height:"calc(100vh - 440px)",minHeight:350}}>
-          {/* Messages */}
           <div ref={aiChatRef} style={{flex:1,overflowY:"auto",padding:"20px 24px",display:"flex",flexDirection:"column",gap:14}}>
             {aiMessages.length===0&&<div style={{textAlign:"center",padding:"60px 40px",color:"#4B5C6E"}}>
               <div style={{fontSize:48,marginBottom:16}}>&#129504;</div>
@@ -8297,8 +8247,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               <span style={{fontSize:12,color:"#A08C5A"}}>AI Agent thinking...</span>
             </div>}
           </div>
-
-          {/* Input */}
           <div style={{padding:"16px 20px",borderTop:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.15)",borderRadius:"0 0 16px 16px"}}>
             {aiAttachedPage&&(function(){var pg=allPagesFlat.find(function(p){return p.key===aiAttachedPage});var label=pg?pg.name:aiAttachedPage.indexOf("ai-fetch")===0?"Fetched page":"Attached";var size=pg?Math.round(pg.htmlSize/1024):savedHTML[aiAttachedPage]?Math.round(savedHTML[aiAttachedPage].length/1024):0;return React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",marginBottom:8,background:"rgba(255,199,44,0.08)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:8}},
               React.createElement("span",{style:{fontSize:11,color:"#FFC72C"}},"Attached: "+label),
@@ -8309,7 +8257,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               <div style={{fontSize:10,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.1em",padding:"4px 8px",marginBottom:4}}>Attach cached page HTML</div>
               {allPagesFlat.filter(function(p){return p.hasHTML}).map(function(pg){return React.createElement("button",{key:pg.key,onClick:function(){setAiAttachedPage(pg.key);setAiAttachOpen(false)},style:{display:"block",width:"100%",textAlign:"left",padding:"6px 8px",borderRadius:6,border:"none",background:aiAttachedPage===pg.key?"rgba(255,199,44,0.08)":"transparent",color:"#C4CDD5",fontSize:11,cursor:"pointer",marginBottom:2}},pg.name+" /"+pg.slug)})}
             </div>}
-            {/* File upload preview */}
             {aiFile&&<div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",marginBottom:8,background:"rgba(75,156,211,0.08)",border:"1px solid rgba(75,156,211,0.25)",borderRadius:10}}>
               <span style={{fontSize:16}}>{aiFile.type?.includes("pdf")?"📄":"🖼️"}</span>
               {aiFile.type?.includes("image")&&<img src={aiFile.data} style={{height:40,borderRadius:6,border:"1px solid rgba(255,255,255,0.1)"}} alt="preview"/>}
@@ -8340,8 +8287,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
     </div>
     {scanTarget && <ScanModal onScan={handleScan} onClose={()=>setScanTarget(null)} initialHTML={savedHTML[`${scanTarget.clusterId}-${scanTarget.postIdx}`]||""} T={T} />}
     {saveTarget && <ScanModal onScan={handleSaveOnly} onClose={()=>setSaveTarget(null)} initialHTML={savedHTML[`${saveTarget.clusterId}-${saveTarget.postIdx}`]||""} saveOnly={true} T={T} />}
-
-    {/* File Preview Modal */}
     {previewFile&&<div style={{position:"fixed",inset:0,zIndex:10000,display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div onClick={()=>setPreviewFile(null)} style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.85)",backdropFilter:"blur(8px)"}}></div>
       <div style={{position:"relative",zIndex:2,maxWidth:"90vw",maxHeight:"90vh",background:"#1A2840",borderRadius:16,border:"1px solid rgba(255,255,255,0.12)",overflow:"hidden",display:"flex",flexDirection:"column"}}>
