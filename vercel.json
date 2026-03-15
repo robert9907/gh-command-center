@@ -1,10 +1,8 @@
 {
   "version": 2,
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
   "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
     {
       "src": "api/fetch-page.js",
       "use": "@vercel/node"
