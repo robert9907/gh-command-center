@@ -12,31 +12,45 @@ async function build() {
   
   console.log(`Compiling Babel block: ${babelCode.length} chars...`);
   
-  const result = await babel.transformAsync(babelCode, {
-    presets: [
-      ['@babel/preset-react', { runtime: 'classic' }],
-      ['@babel/preset-env', { 
-        targets: { browsers: ['last 2 versions'] },
-        modules: false
-      }]
-    ],
-    filename: 'app.jsx'
-  });
+  let compiled;
+  try {
+    const result = await babel.transformAsync(babelCode, {
+      presets: [
+        ['@babel/preset-react', { runtime: 'classic' }],
+        ['@babel/preset-env', { 
+          targets: { browsers: ['last 2 versions'] },
+          modules: false
+        }]
+      ],
+      filename: 'app.jsx'
+    });
+    compiled = result.code;
+    console.log(`Compiled successfully: ${compiled.length} chars`);
+  } catch(err) {
+    console.error('Babel compile error:', err.message);
+    // Fallback: serve with Babel standalone (original file)
+    compiled = null;
+  }
   
-  const compiled = result.code;
-  console.log(`Compiled: ${compiled.length} chars`);
+  let newHtml;
+  if (compiled) {
+    newHtml = 
+      html.slice(0, babelStart) +
+      '<script>' +
+      compiled +
+      html.slice(babelEnd);
+  } else {
+    newHtml = html;
+  }
   
-  // Replace the babel script block with plain JS
-  const newHtml = 
-    html.slice(0, babelStart) +
-    '<script>' +
-    compiled +
-    html.slice(babelEnd);
-  
-  // Write to output directory
   fs.mkdirSync('dist', { recursive: true });
   fs.writeFileSync('dist/index.html', newHtml);
-  console.log('✅ Built dist/index.html');
+  
+  // Copy API file
+  fs.mkdirSync('dist/api', { recursive: true });
+  fs.copyFileSync('api/fetch-page.js', 'dist/api/fetch-page.js');
+  
+  console.log('Built dist/index.html');
 }
 
 build().catch(err => {
