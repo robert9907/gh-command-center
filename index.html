@@ -8281,7 +8281,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             <div style={{fontSize:10,color:"#4B5C6E",marginTop:6}}>Shift+Enter for new line &middot; Enter to send &middot; 📎 Attach page &middot; ⬆ Upload screenshot/PDF</div>
           </div>
         </div>
-      </div>}
+      </div>)}
 
     </div>
     {scanTarget && <ScanModal onScan={handleScan} onClose={()=>setScanTarget(null)} initialHTML={savedHTML[`${scanTarget.clusterId}-${scanTarget.postIdx}`]||""} T={T} />}
