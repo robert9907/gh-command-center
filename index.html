@@ -6963,7 +6963,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                       1. Go to <span style={{color:"#60A5FA"}}>console.cloud.google.com</span> → Create project<br/>
                       2. Enable <strong style={{color:"#C4CDD5"}}>Google Analytics Data API</strong><br/>
                       3. Go to Credentials → Create <strong style={{color:"#C4CDD5"}}>OAuth 2.0 Client ID</strong> (Web application)<br/>
-                      4. Add this as Authorized redirect URI: <code style={{color:"#FFC72C",fontSize:10}}>{(() => { try { return window.location.origin + window.location.pathname; } catch { return "your-file-url"; }
+                      4. Add this as Authorized redirect URI: <code style={{color:"#FFC72C",fontSize:10,fontFamily:"monospace"}}>{(() => { try { return window.location.origin + window.location.pathname; } catch(e) { return "your-file-url"; } })()}</code>
           })()}
         {(()=>{
           const todayLabel2 = new Date().toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
