@@ -6912,7 +6912,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               if(data.length===0) return null;
               const gMax = Math.max(...data.flatMap(d=>bars.map(b=>d[b.key]||0)),1);
               return <div>
-                {title&&<div style={{fontSize:13,fontWeight:700,color:"#FFF",marginBottom:12}}>{title}</div>)}                <div style={{display:"flex",alignItems:"flex-end",gap:Math.max(1,Math.floor(40/data.length)),height,padding:"0 2px"}}>
+                {title&&<div style={{fontSize:13,fontWeight:700,color:"#FFF",marginBottom:12}}>{title}</div>}                <div style={{display:"flex",alignItems:"flex-end",gap:Math.max(1,Math.floor(40/data.length)),height,padding:"0 2px"}}>
                   {data.map((d,i)=><div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center"}}>
                     <div style={{display:"flex",gap:1,alignItems:"flex-end",height:height-24,width:"100%",justifyContent:"center"}}>
                       {bars.map(b=>{
@@ -8079,7 +8079,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             {(!aiApiKey.trim()||aiShowKey)&&<div style={{display:"flex",gap:6,alignItems:"center"}}>
               <input type={aiShowKey?"text":"password"} value={aiApiKey} onChange={function(e){setAiApiKey(e.target.value)}} placeholder="sk-ant-..." style={{padding:"8px 12px",borderRadius:8,border:"1px solid rgba(255,199,44,0.2)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:12,outline:"none",width:220}} />
               <button onClick={function(){setAiShowKey(false)}} style={{padding:"8px 14px",borderRadius:8,border:"none",background:aiApiKey.trim()?"#16A34A":"#333",color:"#FFF",fontSize:11,fontWeight:700,cursor:aiApiKey.trim()?"pointer":"not-allowed"}} disabled={!aiApiKey.trim()}>Save Key</button>
-            </div>)}            {aiApiKey.trim()&&!aiShowKey&&<button onClick={function(){setAiShowKey(true)}} style={{padding:"6px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#6B7B8D",fontSize:11,cursor:"pointer"}}>API Key</button>}
+            </div>}            {aiApiKey.trim()&&!aiShowKey&&<button onClick={function(){setAiShowKey(true)}} style={{padding:"6px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#6B7B8D",fontSize:11,cursor:"pointer"}}>API Key</button>}
             <button onClick={function(){setAiMessages([])}} style={{padding:"6px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#6B7B8D",fontSize:11,cursor:"pointer"}}>Clear Chat</button>
           </div>
         </div>
