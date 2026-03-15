@@ -7305,7 +7305,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           <button onClick={()=>{if(confirm("Reset all progress?")){setDone({});setNotes({});setReminders([]);setLearnings([]);setSavedHTML({});idbClearAllHTML();[SKEY,SKEY_DONE,SKEY_NOTES,SKEY_REMINDERS,SKEY_PERF,SKEY_LEARNINGS,SKEY_META].forEach(k=>localStorage.removeItem(k));}}} style={{background:"none",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,padding:"8px 20px",fontSize:12,color:"#6B7B8D",cursor:"pointer"}}>Reset All Progress</button>
         </div>
       </div>)}
-      {     {view==="pagebuilder"&&(()=>{
+      {view==="pagebuilder"&&(()=>{
         var iS={width:"100%",padding:"9px 13px",borderRadius:10,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:13,outline:"none",fontFamily:"inherit",boxSizing:"border-box"};
         var cS={background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:"22px 24px",marginBottom:18};
         var OPT_KEYS_PB=["opt-instant","opt-faq","opt-citations","opt-author","opt-charts","opt-graphics","opt-tables","opt-fresh"];
