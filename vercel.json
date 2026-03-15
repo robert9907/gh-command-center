@@ -1,8 +1,7 @@
 {
   "version": 2,
   "framework": null,
-  "buildCommand": "npm install && node build.js",
-  "outputDirectory": "dist",
+  "outputDirectory": ".",
   "routes": [
     {
       "src": "/api/fetch-page",
