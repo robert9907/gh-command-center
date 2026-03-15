@@ -4874,14 +4874,14 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           {m:"Avg Position",now:"~30-38",w6:"~18-25",w12:"~10-18",c:"#2DD4BF",d:"Structured data + instant answers show 5-15 position gains on YMYL.",r:"High-comp keywords may need 6+ months for page 1."},
           {m:"Organic Sessions",now:"335 (6mo)",w6:"150-250/mo",w12:"400-700/mo",c:"#A78BFA",d:"Position 30→18 dramatically increases CTR. Long-tail clusters rank faster.",r:"Algorithm updates could temporarily impact."},
           {m:"AI Referrals",now:"460+19",w6:"800-1,200",w12:"1,500-2,500",c:"#FB923C",d:"AEO formatting increases citation rate. Mistakes/conditions = AI magnets.",r:"AI algorithms are opaque. Diversify platforms."},
-          {m:"Users/Month",now:"~230",w6:"500-800",w12:"1,200-2,000",c:"#F472B6",d:"Combined organic + AI + county local intent growth.",r:"Medicare peaks Oct-Dec. Real payoff = AEP 2026."}].map((p,i)=><div key={i} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,marginBottom:16,padding:"24px 28px"}}>
+          {m:"Users/Month",now:"~230",w6:"500-800",w12:"1,200-2,000",c:"#F472B6",d:"Combined organic + AI + county local intent growth.",r:"Medicare peaks Oct-Dec. Real payoff = AEP 2026."}].map((p,i)=>(<div key={i} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,marginBottom:16,padding:"24px 28px"}}>
           <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}><div style={{width:4,height:28,borderRadius:4,background:p.c}}/><h4 style={{fontSize:17,fontWeight:700,color:"#FFF",margin:0}}>{p.m}</h4></div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12,marginBottom:20}}>
-            {[{l:"Now",v:p.now,x:0},{l:"Week 6",v:p.w6,x:1},{l:"Week 12",v:p.w12,x:2}].map(s=><div key={s.x} style={{background:`${p.c}${s.x===0?"20":s.x===1?"12":"08"}`,border:`1px solid ${p.c}${s.x===0?"40":s.x===1?"25":"15"}`,borderRadius:12,padding:"16px 18px",textAlign:"center"}}><div style={{fontSize:10,fontWeight:700,color:p.c,textTransform:"uppercase",marginBottom:6}}>{s.l}</div><div style={{fontSize:18,fontWeight:800,color:"#FFF"}}>{s.v}</div></div>)}
+            {[{l:"Now",v:p.now,x:0},{l:"Week 6",v:p.w6,x:1},{l:"Week 12",v:p.w12,x:2}].map(s=><div key={s.x} style={{background:p.c+(s.x===0?"20":s.x===1?"12":"08"),border:"1px solid "+p.c+(s.x===0?"40":s.x===1?"25":"15"),borderRadius:12,padding:"16px 18px",textAlign:"center"}}><div style={{fontSize:10,fontWeight:700,color:p.c,textTransform:"uppercase",marginBottom:6}}>{s.l}</div><div style={{fontSize:18,fontWeight:800,color:"#FFF"}}>{s.v}</div></div>)}
           </div>
           <div style={{fontSize:13,color:"#C4CDD5",lineHeight:1.7,marginBottom:12}}><strong style={{color:"#FFF"}}>Driver:</strong> {p.d}</div>
           <div style={{fontSize:12,color:"#FB923C",padding:"10px 14px",background:"rgba(251,146,60,0.06)",borderRadius:8,borderLeft:"3px solid rgba(251,146,60,0.3)"}}><strong>Risk:</strong> {p.r}</div>
-        </div>)}
+        </div>))}
         <div style={{background:"rgba(13,148,136,0.08)",border:"1px solid rgba(13,148,136,0.2)",borderRadius:16,padding:28}}>
           <h3 style={{fontSize:18,fontWeight:700,color:"#2DD4BF",margin:"0 0 12px",fontFamily:"Georgia,serif"}}>Phone Impact</h3>
           <div style={{fontSize:14,color:"#C4CDD5",lineHeight:1.8}}>
