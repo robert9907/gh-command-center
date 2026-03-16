@@ -334,6 +334,178 @@ window.GH_SHIMMER_SCRIPT = "<scr"+"ipt>(function(){function shimmerCard(card){va
 <script>
 window.GH_CAT_COLORS = {Schema:"#A78BFA",NEPQ:"#F472B6",SEO:"#60A5FA",Tech:"#FB923C",Content:"#2DD4BF","E-E-A-T":"#FFC72C",Delivery:"#4ADE80",Accuracy:"#F87171"};
 </script>
+<script>
+window.GH_NEPQ_FRAMEWORK = [
+  {id:"connecting", label:"🤝 Connecting Questions", color:"#60A5FA", phrases:[
+    "What made you start looking into your Medicare options right now?",
+    "What's your current situation — are you turning 65, losing employer coverage, or looking to change plans?",
+    "What would be most helpful for you to get out of our conversation today?",
+    "How long have you been on your current plan, and what prompted you to reach out?",
+    "What does getting the right Medicare coverage mean for you personally?"
+  ]},
+  {id:"situation", label:"🔍 Situation Questions", color:"#34D399", phrases:[
+    "Walk me through what your current coverage looks like right now.",
+    "Which doctors and specialists are you currently seeing that are important to keep?",
+    "Are you on any ongoing prescriptions I should know about when we run comparisons?",
+    "Do you have any upcoming procedures or surgeries scheduled that would affect your choice of plan?",
+    "Are you still working, or do you have any employer or retiree coverage active right now?"
+  ]},
+  {id:"problem", label:"⚠️ Problem Awareness Questions", color:"#FFC72C", phrases:[
+    "Have you ever gotten a bill you weren't expecting from your current plan?",
+    "Most people in NC don't realize their plan network changes every January — has that ever affected you?",
+    "Do you know if your current doctors are still in-network for next year?",
+    "Are you aware of what your plan's out-of-pocket maximum is if something serious happened?",
+    "What would happen to your coverage if you needed a hospital stay or specialist referral tomorrow?"
+  ]},
+  {id:"two_truths", label:"⚖️ Two Truths Questions", color:"#A78BFA", phrases:[
+    "Here's what most people find: a $0 premium plan can end up costing more than a $150/month Medigap plan if you use healthcare regularly. Does that match what you've been told?",
+    "Most brokers will push the plan with the highest commission. I'm going to show you both sides — the plan that looks cheapest and what it actually costs you. Does that sound fair?",
+    "There are really only two decisions here: how much risk you want to carry, and how much you want to pay monthly. Everything else follows from that. Make sense?",
+    "Medicare Advantage and Medigap solve the same problem two different ways. I want to show you both with your actual numbers before you decide anything.",
+    "The call center quote doesn't check your doctors or your drugs. That's the difference between a quote and an analysis. Would you like to see the actual analysis?"
+  ]},
+  {id:"solution", label:"✨ Solution Awareness Questions", color:"#818CF8", phrases:[
+    "If I could show you a plan that covers your current doctors and costs less than what you're paying now — would that be worth a 15-minute conversation?",
+    "What would it mean to you to know your coverage is right before something happens, not after?",
+    "If your doctors were verified, your drugs priced, and your total annual cost calculated — would you feel confident making a decision?",
+    "What would a 'perfect' Medicare plan look like for you? Let's start there.",
+    "If the plan you picked today was still the right plan in three years — what would need to be true about it?"
+  ]},
+  {id:"consequence", label:"🔥 Consequence Questions", color:"#FB923C", phrases:[
+    "Do you know what happens to your Part B premium if you delay enrollment past your window?",
+    "If your plan drops your doctor in January, what's your backup? Most people don't have one.",
+    "A 10% Part B penalty per year of late enrollment is permanent — it never goes away. Were you aware of that?",
+    "What's the financial impact if you hit your plan's out-of-pocket maximum this year — do you know what that number is?",
+    "If you needed a specialist outside your network, what would that cost you under your current plan?"
+  ]},
+  {id:"qualifying", label:"🎯 Qualifying Questions", color:"#4ADE80", phrases:[
+    "On a scale of 1–10, how urgent is it for you to get this figured out before your next enrollment window?",
+    "If everything looked right — doctors covered, drugs priced, costs clear — is there anything else that would stop you from enrolling?",
+    "Are you the primary decision-maker on this, or is there a spouse or family member I should include in the conversation?",
+    "What would need to happen in the next 30 days for you to feel like you made the right call?",
+    "Is your main priority keeping costs low, keeping your current doctors, or having the most predictable coverage?"
+  ]},
+  {id:"transition", label:"↗️ Transition Questions", color:"#F472B6", phrases:[
+    "Based on what you've shared, I want to show you two specific plans — is now a good time to walk through the numbers?",
+    "You've mentioned your doctors and your prescriptions — let me pull up what that looks like side by side. Ready?",
+    "Everything you've told me points toward one type of plan. Before I show you, is there anything else I should factor in?",
+    "I've got enough context to run a real comparison. Want to see what your actual cost difference is between the top two options?",
+    "Let me show you what this looks like with your specific situation — doctors, drugs, county. Give me one minute."
+  ]},
+  {id:"committing", label:"✅ Committing Questions", color:"#2DD4BF", phrases:[
+    "If this plan covers your doctors, prices your drugs correctly, and fits your budget — is there a reason we wouldn't move forward today?",
+    "You've seen the numbers. Does this feel like the right plan for where you are right now?",
+    "I want to make sure you're confident, not rushed. What else do you need to see before you feel ready?",
+    "Most of my clients make a decision after one conversation when the numbers are clear. Does this feel clear to you?",
+    "If I handled the enrollment paperwork right now while we're on the call — would that work for you?"
+  ]},
+  {id:"resolving", label:"🔓 Resolving Questions", color:"#38BDF8", phrases:[
+    "It sounds like the main concern is whether your doctors are covered — let me verify that right now while you're on the call.",
+    "What would it take to resolve the concern about cost? Let me show you what the worst-case scenario actually looks like.",
+    "Is the hesitation about the plan itself, or about making a decision before you've had more time to think?",
+    "If I could address that one concern completely — would you be ready to move forward?",
+    "What's the real question behind the question? I'd rather get to that now than have you second-guess it later."
+  ]},
+  {id:"pre_situation", label:"📋 Pre-Situation Questions", color:"#94A3B8", phrases:[
+    "Before we talk, can you send me your current Medicare card and a list of your doctors and medications?",
+    "Do you know offhand what plan type you're on — Medicare Advantage, Medigap, or Original Medicare?",
+    "Are you coming up on a birthday or enrollment window? That affects what options are available.",
+    "Have you already gotten quotes from other brokers or online tools? I want to know what you've already seen.",
+    "Is there a specific coverage concern that prompted you to reach out — cost, a doctor leaving your network, an upcoming procedure?"
+  ]},
+  {id:"past_situation", label:"📜 Past Situation Questions", color:"#A78BFA", phrases:[
+    "Tell me about the last time your plan changed or your costs went up — what happened?",
+    "Have you ever been in a situation where your insurance didn't cover something you expected it to?",
+    "What plan were you on before this one, and why did you switch?",
+    "Have you ever worked with a broker before, and how did that go?",
+    "Looking back, what's one thing you wish you'd known when you first signed up for Medicare?"
+  ]},
+  {id:"clarifying", label:"🔎 Clarifying Questions", color:"#67E8F9", phrases:[
+    "When you say the costs are too high — is that the monthly premium, or what you're paying when you use it?",
+    "Help me understand what 'good coverage' means to you specifically.",
+    "You mentioned your doctor might not be covered — did they tell you that, or is it something you're concerned about?",
+    "When you say you want something simple — does that mean fewer decisions, or fewer bills?",
+    "What exactly happened that made you start questioning your current plan?"
+  ]},
+  {id:"probing", label:"🔬 Probing Questions", color:"#FCD34D", phrases:[
+    "Say more about that — why does that matter most to you?",
+    "How long has that been a concern, and what have you done about it so far?",
+    "What's the impact of that on your day-to-day life right now?",
+    "If that problem went away completely, what would change for you?",
+    "Is that a new issue, or something that's been building for a while?"
+  ]},
+  {id:"decision", label:"🧭 Decision Making Questions", color:"#F9A8D4", phrases:[
+    "How do you typically make a decision like this — do you like to research first, or do you prefer to talk it through?",
+    "Who else is involved in this decision — is there a spouse, adult child, or financial advisor I should know about?",
+    "What's your timeline — do you have an enrollment deadline coming up, or are you planning ahead?",
+    "What would make you feel 100% confident you made the right call?",
+    "Have you set a budget for what you're comfortable paying monthly, or is that still open?"
+  ]},
+  {id:"more_problem", label:"⚠️+ More Problem Awareness", color:"#FBBF24", phrases:[
+    "Most people don't realize their plan's formulary — the drug list — changes every year. Has that ever cost you money?",
+    "Did you know that prior authorization requirements can delay or deny care even on a plan you're paying for?",
+    "If your primary care doctor retired or left your network, do you know how your plan handles that?",
+    "Are you aware that Medicare Advantage plans have service area restrictions — if you travel or winter somewhere else, your coverage may not follow you?",
+    "Do you know what your plan's star rating is, and what happens if it drops below 3 stars?"
+  ]},
+  {id:"more_solution", label:"✨+ More Solution Awareness", color:"#A5B4FC", phrases:[
+    "What if you could have the same doctors, same drugs, and pay $0 more per month — would you want to know if that's possible?",
+    "I can run a side-by-side in about 10 minutes that shows your total annual cost under each plan type. Want to see that?",
+    "One of the things I do that most brokers don't is verify your doctors by NPI number before recommending anything. Does that kind of verification matter to you?",
+    "There's a program that may pay your Part B premium for you — $202.90/month — if you qualify. Do you want me to check?",
+    "What if I told you the plan you're on now might not be the best fit anymore — and I could show you exactly why in plain numbers?"
+  ]},
+  {id:"more_consequence", label:"🔥+ More Consequence Questions", color:"#FCA5A5", phrases:[
+    "The Medicare Advantage MOOP in North Carolina can be up to $9,350 in 2026. Do you have that set aside if you hit it?",
+    "If you're on a Special Needs Plan and your condition changes, do you know how that affects your eligibility?",
+    "Part D's $2,100 out-of-pocket cap is new in 2026 — but only if your plan is structured correctly. Is yours?",
+    "If you miss the SEP window after losing employer coverage, you could face permanent penalties. Do you know when your window closes?",
+    "What happens to your coverage if you're hospitalized for more than a few days — do you know your plan's skilled nursing facility benefit?"
+  ]},
+  {id:"disrupt_vendor", label:"🔄 Disrupt Vendor Relationship", color:"#FB7185", phrases:[
+    "When was the last time your current broker proactively called you to review your plan — not just at enrollment?",
+    "Did your current broker check your doctors by NPI number, or did they just ask 'are your doctors in-network?'",
+    "Most 1-800 brokers move on after enrollment. Who do you call when you have a billing issue or a claim denied?",
+    "Has anyone ever sat down with you and shown you your total annual cost — not just the premium — for the plan you're on?",
+    "If you found out there was a better plan that your current broker never showed you, how would that make you feel?"
+  ]},
+  {id:"keep_customers", label:"🛡️ Keep Customers Questions", color:"#86EFAC", phrases:[
+    "Before you look at other options, I want to make sure we've fully explored what's possible within your current situation.",
+    "What would need to change about your current coverage for you to feel like you were in the right plan?",
+    "If cost is the concern, let me show you whether we can address that before you make any changes.",
+    "Is there something specific that happened that made you want to look around, or is it more of a general feeling?",
+    "What would make you feel confident that you're already in the best plan — or would you want me to verify that?"
+  ]},
+  {id:"external_customers", label:"👥 External Customer Questions", color:"#FDE68A", phrases:[
+    "Do you have a spouse, parent, or family member who also needs to sort out their Medicare?",
+    "Have you talked to anyone else — a neighbor, friend, or family member — who's been through this process recently?",
+    "Is there someone in your life who influences your healthcare decisions that I should include in this conversation?",
+    "Do you know anyone else in the Durham or Wake County area who might benefit from a free plan review?",
+    "Would you be comfortable referring a friend or family member if you felt like I did a good job for you?"
+  ]},
+  {id:"budgeting", label:"💰 Budgeting Questions", color:"#6EE7B7", phrases:[
+    "What are you currently paying all-in for Medicare coverage — premium, drug plan, and any cost-sharing?",
+    "Do you have a monthly budget in mind for healthcare, or is your goal simply to minimize total annual cost?",
+    "If a slightly higher premium guaranteed no surprise bills — is that a trade-off you'd consider?",
+    "Are there any fixed costs you're working around — pension, Social Security income, other insurance?",
+    "When you think about healthcare spending in retirement, what number would feel uncomfortable to you on a monthly basis?"
+  ]},
+  {id:"agreement", label:"✔️ Checking Agreement Questions", color:"#A7F3D0", phrases:[
+    "Does that make sense based on what you've shared with me?",
+    "Are we aligned on what the right priorities are before I pull up the comparison?",
+    "Am I understanding your situation correctly — or is there something I'm missing?",
+    "Based on everything we've covered, does this feel like the right direction?",
+    "I want to make sure we're on the same page before we move forward — does everything I've summarized sound right to you?"
+  ]},
+  {id:"proposal", label:"📄 Proposal Questions", color:"#BAE6FD", phrases:[
+    "Before I make a recommendation, I want to confirm a few things — is it okay if I ask a few more questions?",
+    "What would you need to see in a proposal to feel confident it's the right plan?",
+    "Would you prefer I walk you through the comparison verbally, or would a written summary be more helpful?",
+    "If the proposal shows exactly what I think it will, are you ready to move forward — or is there a specific concern I should address first?",
+    "After everything we've discussed, what's the most important thing you want me to solve for in this recommendation?"
+  ]}
+];
+</script>
 <script type="text/babel">
 const { useState, useMemo, useEffect, useCallback, useRef } = React;
 
@@ -1592,7 +1764,9 @@ function App() {
   const [pbSaveProgress, setPbSaveProgress] = useState(0); // 0-100
   const [pbSaving, setPbSaving] = useState(false);
   const [pbSaveNotice, setPbSaveNotice] = useState(""); // "saved" | "applied" | ""
-  const [pbNepqInsert, setPbNepqInsert] = useState(""); // which NEPQ section to insert
+  const [pbNepqInsert, setPbNepqInsert] = useState(""); // legacy — kept for compat
+  const [pbNepqFramework, setPbNepqFramework] = useState(""); // selected framework type
+  const [pbNepqPicked, setPbNepqPicked] = useState([]); // selected phrase indices
   const [pbNepqMode, setPbNepqMode] = useState(""); // AI framing mode
   const [pbFixResults, setPbFixResults] = useState({}); // {checklistId: htmlString}
   const [pbFixing, setPbFixing] = useState({}); // {checklistId: bool}
@@ -5799,7 +5973,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           for(const [pct,ms] of [[30,120],[65,200],[90,150],[100,120]]){
             await new Promise(r=>setTimeout(r,ms)); setPbSaveProgress(pct);
           }
-          try{ localStorage.setItem("gh-cc-pb-"+(pbPage?.slug||"draft"),text); if(!html) setPbOutput(text); }catch(e){}
+          try{ localStorage.setItem("gh-cc-pb-"+(pbPage?.slug||"draft"),text); setPbOutput(text); }catch(e){}
           await new Promise(r=>setTimeout(r,300));
           setPbSaving(false); setPbSaveProgress(0);
           setPbSaveNotice(noticeType||"saved");
@@ -6059,28 +6233,58 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 
                 <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(167,139,250,0.2)",borderRadius:14,overflow:"hidden"}}>
 
-                  
-                  <div style={{padding:"10px 14px",background:"rgba(167,139,250,0.06)",borderBottom:"1px solid rgba(167,139,250,0.12)",display:"flex",gap:12,flexWrap:"wrap",alignItems:"flex-end"}}>
-                    
-                    <div style={{minWidth:150}}>
-                      <div style={{fontSize:9,fontWeight:800,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>🎭 NEPQ Mode</div>
-                      <select value={pbNepqMode} onChange={e=>setPbNepqMode(e.target.value)} style={{width:"100%",padding:"6px 8px",borderRadius:8,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:activeModeObj.color||"#C4CDD5",fontSize:11,fontWeight:600,outline:"none",cursor:"pointer"}}>
-                        {nepqModesList.map(m=><option key={m.id} value={m.id} style={{background:"#1A2332",color:"#FFF"}}>{m.label}</option>)}
-                      </select>
-                    </div>
-                    
-                    <div style={{minWidth:200,flex:1}}>
-                      <div style={{fontSize:9,fontWeight:800,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>⚡ Insert NEPQ Section</div>
-                      <div style={{display:"flex",gap:6}}>
-                        <select value={pbNepqInsert} onChange={e=>setPbNepqInsert(e.target.value)} style={{flex:1,padding:"6px 8px",borderRadius:8,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.06)",color:"#C4CDD5",fontSize:11,outline:"none",cursor:"pointer"}}>
-                          <option value="" style={{background:"#1A2332"}}>— Choose section to insert —</option>
-                          {nepqSectionsList.map(s=><option key={s.id} value={s.id} style={{background:"#1A2332",color:"#FFF"}}>{s.label}</option>)}
-                        </select>
-                        <button onClick={handleNepqInsert} disabled={!pbNepqInsert||pbAgentLoading} style={{padding:"6px 14px",borderRadius:8,border:"none",background:pbNepqInsert&&!pbAgentLoading?"linear-gradient(135deg,#FFC72C,#FFD54F)":"#333",color:pbNepqInsert&&!pbAgentLoading?"#1A2332":"#666",fontWeight:700,fontSize:12,cursor:pbNepqInsert&&!pbAgentLoading?"pointer":"not-allowed",whiteSpace:"nowrap"}}>⚡ Insert</button>
+                  {(()=>{
+                    const frameworks = window.GH_NEPQ_FRAMEWORK||[];
+                    const activeF = frameworks.find(f=>f.id===pbNepqFramework)||null;
+                    return <div style={{borderBottom:"1px solid rgba(167,139,250,0.12)"}}>
+                      {/* Framework type selector row */}
+                      <div style={{padding:"8px 14px",background:"rgba(167,139,250,0.05)",display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                        <div style={{flex:1,minWidth:220}}>
+                          <div style={{fontSize:8,fontWeight:800,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:3}}>⚡ NEPQ Framework Type</div>
+                          <select
+                            value={pbNepqFramework}
+                            onChange={e=>{setPbNepqFramework(e.target.value); setPbNepqPicked([]);}}
+                            style={{width:"100%",padding:"6px 8px",borderRadius:8,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:activeF?activeF.color:"#C4CDD5",fontSize:11,fontWeight:600,outline:"none",cursor:"pointer"}}
+                          >
+                            <option value="" style={{background:"#1A2332",color:"#888"}}>— Select a NEPQ framework type —</option>
+                            {frameworks.map(f=><option key={f.id} value={f.id} style={{background:"#1A2332",color:"#FFF"}}>{f.label}</option>)}
+                          </select>
+                        </div>
+                        <div style={{display:"flex",gap:6,alignItems:"flex-end",paddingBottom:1}}>
+                          {pbNepqPicked.length>0&&<button
+                            onClick={()=>{
+                              const phrases = pbNepqPicked.map(i=>activeF.phrases[i]).join(" | ");
+                              setPbChatInput((pbChatInput?pbChatInput+" — ":"")+phrases);
+                              setPbNepqPicked([]);
+                            }}
+                            style={{padding:"6px 14px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#A78BFA,#7C3AED)",color:"#FFF",fontWeight:700,fontSize:11,cursor:"pointer",whiteSpace:"nowrap"}}
+                          >+ Add {pbNepqPicked.length} to Chat</button>}
+                          {pbAgentMsgs.length>0&&<button onClick={()=>{if(window.confirm("Clear chat?"))setPbAgentMsgs([]);}} style={{fontSize:9,color:"#4B5C6E",background:"none",border:"none",cursor:"pointer"}}>Clear</button>}
+                        </div>
                       </div>
-                    </div>
-                    {pbAgentMsgs.length>0&&<button onClick={()=>{if(confirm("Clear chat?"))setPbAgentMsgs([]);}} style={{fontSize:9,color:"#4B5C6E",background:"none",border:"none",cursor:"pointer",alignSelf:"flex-end",paddingBottom:6}}>Clear</button>}
-                  </div>
+                      {/* Phrase pills — shown when a framework is selected */}
+                      {activeF&&<div style={{padding:"6px 14px 10px",background:"rgba(167,139,250,0.03)",borderTop:"1px solid rgba(167,139,250,0.08)"}}>
+                        <div style={{fontSize:8,fontWeight:700,color:activeF.color,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:6}}>Click to select phrases — then add to chat:</div>
+                        <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                          {activeF.phrases.map((phrase,i)=>{
+                            const picked = pbNepqPicked.includes(i);
+                            return <button
+                              key={i}
+                              onClick={()=>setPbNepqPicked(prev=>picked?prev.filter(x=>x!==i):[...prev,i])}
+                              style={{
+                                textAlign:"left",padding:"7px 10px",borderRadius:7,
+                                border:`1px solid ${picked?activeF.color:"rgba(167,139,250,0.2)"}`,
+                                background:picked?activeF.color+"22":"rgba(255,255,255,0.02)",
+                                color:picked?"#FFF":"#C4CDD5",fontSize:10,cursor:"pointer",
+                                lineHeight:1.4,fontFamily:"inherit",fontWeight:picked?600:400,
+                                transition:"all 0.15s"
+                              }}
+                            >{picked?"✓ ":""}{phrase}</button>;
+                          })}
+                        </div>
+                      </div>}
+                    </div>;
+                  })()}
 
                   
                   <div style={{minHeight:200,maxHeight:360,overflowY:"auto",padding:"12px 14px",display:"flex",flexDirection:"column",gap:10}}>
