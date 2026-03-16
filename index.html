@@ -4387,7 +4387,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 {[
                   {label:"Improve headline clarity",detail:"Make the value prop immediately obvious"},
                   {label:"Add trust badges",detail:"AHIP certification, carrier logos, BBB"},
-                  {label:"Phone number above fold",detail:"828-761-3324 visible without scrolling"},
+                  {label:"Phone number above fold",detail:"828-761-3326 visible without scrolling"},
                   {label:"Add \"Free Help\" clarity",detail:"Users need to know there's no cost to them"},
                   {label:"Shorten form fields",detail:"Name + phone + zip is often enough"},
                   {label:"Add social proof",detail:"Google reviews, testimonials, years of experience"},
@@ -5687,15 +5687,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           setPbFixing(prev=>({...prev,[item.id]:true}));
           const existing = pbAuditResults._html||"";
           const keyword = pbKeyword||pbPage?.name||"Medicare NC";
-          const prompt = `You are fixing a specific issue on a GenerationHealth.me v5.2 NEPQ page.
-PAGE: ${pbPage?.name||""} | /${pbPage?.slug||""} | Keyword: ${keyword}
-ISSUE TO FIX: ${item.label}
-WHAT TO DO: ${item.fix}
-Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
-Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350. Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes.
-${existing?"CURRENT PAGE HTML (first 5000 chars):
-"+existing.substring(0,5000):""}
-OUTPUT: Only the HTML block that fixes this issue. Start with <div, <style, or <script. No explanation.`;
+          const prompt = "Fix GH v5.2 NEPQ page issue. PAGE:"+( pbPage?.name||"")+"|/"+(pbPage?.slug||"")+"|Keyword:"+keyword+"\nFIX:"+item.label+"\nACTION:"+item.fix+"\nPhone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350\nStyle:dark navy #0F1A2E,gold #FFC72C,.gh- classes."+(existing?"\nCURRENT HTML:"+existing.substring(0,4000):"")+"\nOUTPUT: Raw HTML only, start with <div <style or <script, no explanation.";
           try {
             const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
             const data = await resp.json();
@@ -5714,11 +5706,7 @@ OUTPUT: Only the HTML block that fixes this issue. Start with <div, <style, or <
           setPbAgentLoading(true);
           const nepqModes = window.GH_PB_NEPQ_MODES||[];
           const modeObj = nepqModes.find(m=>m.id===pbNepqMode);
-          const sys = `GH Page Builder AI — generationhealth.me. Robert Simm #10447418.${pbNepqMode?" NEPQ:"+pbNepqMode+" "+modeObj?.desc:""}
-Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting|Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350
-Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings. HTML=raw only. Advice=direct+specific.
-PAGE:${pbPage?.name||"none"}|/${pbPage?.slug||""}|Cluster:${pbCluster?.name||""}
-FAILING:${PB_CHECKLIST.filter(i=>pbAuditResults._html&&!pbAuditResults[i.id]).map(i=>i.id).join(",")||"none"}`;
+          const sys = `GH Page Builder AI — generationhealth.me. Robert Simm #10447418.${pbNepqMode?" NEPQ:"+pbNepqMode+" "+modeObj?.desc:""}\nPhone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting|Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350\nStyle:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings. HTML=raw only. Advice=direct+specific.\nPAGE:${pbPage?.name||"none"}|/${pbPage?.slug||""}|Cluster:${pbCluster?.name||""}\nFAILING:${PB_CHECKLIST.filter(i=>pbAuditResults._html&&!pbAuditResults[i.id]).map(i=>i.id).join(",")||"none"}`;
           const imgBlocks = files.filter(f=>f.mimeType?.startsWith("image/")).map(f=>({type:"image",source:{type:"base64",media_type:f.mimeType,data:f.data}}));
           const apiMsgs = msgs.map((m,mi)=>{
             if(m.role==="user"&&mi===msgs.length-1&&imgBlocks.length>0) return {role:"user",content:[...imgBlocks,{type:"text",text:m.content||"Analyze this."}]};
@@ -5747,9 +5735,7 @@ FAILING:${PB_CHECKLIST.filter(i=>pbAuditResults._html&&!pbAuditResults[i.id]).ma
           if(!pbNepqInsert||!aiApiKey.trim()) return;
           const section = (window.GH_PB_NEPQ_SECTIONS||[]).find(s=>s.id===pbNepqInsert);
           if(!section) return;
-          const prompt = `Build v5.2 NEPQ HTML section. Page:${pbPage?.name||"Medicare NC"}|${section.label}|${section.desc}|NEPQ:${section.mode}
-Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Part B:$202.90/mo
-Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes. Output:raw HTML only,start with <div or <style.`;
+          const prompt = "Build v5.2 NEPQ HTML section. Page:"+(pbPage?.name||"Medicare NC")+"|"+section.label+"|"+section.desc+"|NEPQ:"+section.mode+"\nPhone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Part B:$202.90/mo\nStyle:dark navy #0F1A2E,gold #FFC72C,.gh- classes. Output:raw HTML only,start with <div or <style.";
           setPbAgentLoading(true);
           setPbAgentMsgs(prev=>[...prev,{role:"user",content:"Insert section: "+section.label,ts:Date.now()}]);
           try {
