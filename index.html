@@ -328,7 +328,58 @@ window.GH_NEPQ_QUICK_DROPS = [
 ];
 </script>
 <script>
-window.GH_SHIMMER_SCRIPT = "<scr"+"ipt>(function(){function activate(card){var s=document.createElement('div');s.className='gh-card-sweep';card.appendChild(s);card.classList.add('gh-shimmer-active');}if(window.IntersectionObserver){var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)activate(e.target);});},{threshold:0.2});document.querySelectorAll('.gh-cta-card').forEach(function(c){obs.observe(c);});}else{document.querySelectorAll('.gh-cta-card').forEach(activate);}})();</"+"script>";
+window.GH_SHIMMER_SCRIPT = "<scr"+"ipt>(function(){
+  // Keyframe CSS still needed — inject into document
+  var style=document.createElement('style');
+  style.textContent='@keyframes ghCardShimmer{0%{left:-150%}100%{left:220%}}@keyframes ghGlowCompare{0%,28%{background:rgba(75,156,211,.08);border-color:rgba(75,156,211,.3);box-shadow:none}30%{background:rgba(75,156,211,.35);border-color:rgba(75,156,211,.95);box-shadow:0 0 24px rgba(75,156,211,.55)}100%{background:rgba(75,156,211,.12);border-color:rgba(75,156,211,.45);box-shadow:0 0 10px rgba(75,156,211,.2)}}@keyframes ghGlowCall{0%,40%{background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.3);box-shadow:none}42%{background:rgba(22,163,74,.35);border-color:rgba(22,163,74,.95);box-shadow:0 0 24px rgba(22,163,74,.55)}100%{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.45);box-shadow:0 0 10px rgba(22,163,74,.2)}}@keyframes ghGlowText{0%,52%{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.3);box-shadow:none}54%{background:rgba(139,92,246,.35);border-color:rgba(139,92,246,.95);box-shadow:0 0 24px rgba(139,92,246,.55)}100%{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.45);box-shadow:0 0 10px rgba(139,92,246,.2)}}@keyframes ghGlowSched{0%,64%{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);box-shadow:none}66%{background:rgba(245,158,11,.35);border-color:rgba(245,158,11,.95);box-shadow:0 0 24px rgba(245,158,11,.55)}100%{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.45);box-shadow:0 0 10px rgba(245,158,11,.2)}}';
+  document.head.appendChild(style);
+
+  function applyBtn(btn,kf,delay){
+    // Force pill — direct inline override beats Elementor
+    btn.style.setProperty('border-radius','9999px','important');
+    btn.style.setProperty('animation',kf+' 3.5s ease-in-out infinite','important');
+    if(delay) btn.style.setProperty('animation-delay',delay,'important');
+    btn.style.setProperty('display','block','important');
+    btn.style.setProperty('text-align','center','important');
+  }
+
+  function activateCard(card,delay){
+    // Card sweep div
+    var s=document.createElement('div');
+    s.style.cssText='position:absolute;top:0;left:-150%;width:65%;height:100%;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,.22) 50%,transparent 80%);transform:skewX(-18deg);pointer-events:none;z-index:10;animation:ghCardShimmer 3.5s ease-in-out infinite;'+(delay?'animation-delay:'+delay+';':'');
+    card.style.setProperty('position','relative','important');
+    card.style.setProperty('overflow','hidden','important');
+    card.appendChild(s);
+
+    // Wire up each button by class
+    var d=delay||'0s';
+    card.querySelectorAll('.gh-ghost--compare,.gh-ghost--primary').forEach(function(b){applyBtn(b,'ghGlowCompare',d);});
+    card.querySelectorAll('.gh-ghost--call').forEach(function(b){applyBtn(b,'ghGlowCall',d);});
+    card.querySelectorAll('.gh-ghost--text').forEach(function(b){applyBtn(b,'ghGlowText',d);});
+    card.querySelectorAll('.gh-ghost--sched').forEach(function(b){applyBtn(b,'ghGlowSched',d);});
+
+    // Also pill-ify ALL other buttons in card
+    card.querySelectorAll('a,button').forEach(function(b){
+      b.style.setProperty('border-radius','9999px','important');
+    });
+  }
+
+  var cards=document.querySelectorAll('.gh-cta-card');
+  if(window.IntersectionObserver){
+    var obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var idx=Array.from(cards).indexOf(e.target);
+          activateCard(e.target,idx===1?'1.75s':'0s');
+          obs.unobserve(e.target);
+        }
+      });
+    },{threshold:0.2});
+    cards.forEach(function(c){obs.observe(c);});
+  } else {
+    cards.forEach(function(c,i){activateCard(c,i===1?'1.75s':'0s');});
+  }
+})();</"+"script>";
 
 </script>
 <script>
@@ -6758,4 +6809,4 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
 ReactDOM.render(<App/>, document.getElementById('root'));
 </script>
 </body>
-</html> good morning good morning
+</html>
