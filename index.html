@@ -316,7 +316,7 @@ window.GH_PB_CHECKLIST = [
         ]
 </script>
 <script>
-window.GH_SANDBOX_CSS = "<style>.gh-ghost{border-radius:100px!important;display:block!important;text-align:center!important;}.gh-ghost--call{background:rgba(22,163,74,.18)!important;border-color:rgba(22,163,74,.55)!important;}.gh-ghost--text{background:rgba(139,92,246,.18)!important;border-color:rgba(139,92,246,.55)!important;}.gh-ghost--sched{background:rgba(245,158,11,.18)!important;border-color:rgba(245,158,11,.55)!important;}.gh-ghost--compare,.gh-ghost--primary{background:rgba(75,156,211,.18)!important;border-color:rgba(75,156,211,.55)!important;}.gh-hero-btn{border-radius:100px!important;display:inline-flex!important;}</style>";
+window.GH_SANDBOX_CSS = "<style>.gh-ghost{border-radius:100px!important;display:block!important;text-align:center!important;overflow:hidden!important;position:relative!important;}.gh-ghost--call{background:rgba(22,163,74,.12)!important;border-color:rgba(22,163,74,.45)!important;}.gh-ghost--text{background:rgba(139,92,246,.12)!important;border-color:rgba(139,92,246,.45)!important;}.gh-ghost--sched{background:rgba(245,158,11,.12)!important;border-color:rgba(245,158,11,.45)!important;}.gh-ghost--compare,.gh-ghost--primary{background:rgba(75,156,211,.12)!important;border-color:rgba(75,156,211,.45)!important;}.gh-ghost::before{content:\"\";position:absolute;top:0;left:-150%;width:80%;height:100%;transform:skewX(-15deg);animation-duration:5s!important;}.gh-ghost--compare::before,.gh-ghost--primary::before{background:linear-gradient(120deg,transparent 20%,rgba(75,156,211,.8) 50%,transparent 80%)!important;animation-delay:0s!important;}.gh-ghost--call::before{background:linear-gradient(120deg,transparent 20%,rgba(22,163,74,.85) 50%,transparent 80%)!important;animation-delay:1.5s!important;}.gh-ghost--text::before{background:linear-gradient(120deg,transparent 20%,rgba(139,92,246,.82) 50%,transparent 80%)!important;animation-delay:3s!important;}.gh-ghost--sched::before{background:linear-gradient(120deg,transparent 20%,rgba(245,158,11,.85) 50%,transparent 80%)!important;animation-delay:4.5s!important;}.gh-hero-btn{border-radius:100px!important;display:inline-flex!important;}</style>";
 window.GH_NEPQ_QUICK_DROPS = [
   {label:"🤝 Connect opener",text:"What's your current situation with Medicare — are you turning 65, or looking at a plan change?"},
   {label:"⚠️ Problem surface",text:"Most people in NC don't realize their plan may not cover their doctors next year. Have you checked?"},
@@ -5685,11 +5685,16 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         const pbTabSty = (a) => ({padding:"7px 16px",borderRadius:9,border:"none",background:a?"rgba(255,199,44,0.18)":"transparent",color:a?"#FFC72C":"#6B7B8D",fontSize:12,fontWeight:600,cursor:"pointer",transition:"all 0.2s"});
 
         // ── Scan handler ──
-        const handlePbScan = async () => {
+        const handlePbScan = async (useEditorHtml) => {
           if(!pbPage||!pbPage.slug) return;
-          setPbAuditLoading(true); setPbAuditResults({});
+          // Preserve existing sandbox html if re-scanning after a fix
+          const prevHtml = pbAuditResults._html||null;
+          setPbAuditLoading(true); setPbAuditResults(prevHtml?{_html:prevHtml}:{});
           try {
-            const html = await fetchPageHTML(pbPage.slug) || "";
+            // If called after fix (useEditorHtml=true) and we have editor output, scan that
+            // Otherwise fetch live from server
+            const editorOrLive = (useEditorHtml && pbOutput) ? pbOutput : (await fetchPageHTML(pbPage.slug)||"");
+            const html = editorOrLive;
             if(!html){ setPbAuditResults({error:"Could not fetch page — check proxy"}); setPbAuditLoading(false); return; }
             const lower = html.toLowerCase();
             const doc = new DOMParser().parseFromString(html,"text/html");
@@ -5735,6 +5740,8 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             const newOut = (pbOutput||"")+"\n/* FIX: "+item.id+" */\n"+fix;
             await handlePbSave(newOut,"applied");
             setPbApplied(prev=>({...prev,[item.id]:true}));
+            // Auto re-scan so checklist updates green if fix worked
+            setTimeout(()=>handlePbScan(true), 400);
           } catch(e){ setPbFixResults(prev=>({...prev,[item.id]:"Error: "+e.message})); }
           setPbFixing(prev=>({...prev,[item.id]:false}));
         };
@@ -5761,6 +5768,8 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             setPbSelectedSection(prev=>({...prev,html:edited}));
             setPbSectionEditInput("");
             setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"✅ Section updated and applied to page.",ts:Date.now()}]);
+            // Auto re-scan so checklist reflects the edit
+            setTimeout(()=>handlePbScan(true), 400);
           } catch(e){ alert("Edit error: "+e.message); }
           setPbSectionEditing(false);
         };
