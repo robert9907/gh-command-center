@@ -1552,6 +1552,7 @@ function App() {
   const [pbAuditLoading, setPbAuditLoading] = useState(false);
   const [pbGenLoading, setPbGenLoading] = useState(false);
   const [pbOutput, setPbOutput] = useState("");
+  const [pbSandboxMode, setPbSandboxMode] = useState(false);
   const [pbKeyword, setPbKeyword] = useState("");
   const [pbTitle, setPbTitle] = useState("");
   const [studioPromoted, setStudioPromoted] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("gh-cc-studio-promoted")||"[]")); } catch(e){ return new Set(); }});
@@ -5643,603 +5644,386 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         const pbKeyId = pbPage ? `pb-${pbCluster?.id}-${pbPage.idx}` : null;
 
         // ── Audit handler ──
-        const handlePbAudit = async () => {
-          if(!pbPage||!pbPage.slug) return;
+        // ── Auto-scan on page select ──
+        const handlePbAudit = async (pageOverride) => {
+          const pg = pageOverride || pbPage;
+          if(!pg||!pg.slug) return;
           setPbAuditLoading(true);
           try {
-            const html = savedHTML[`${pbCluster.id}-${pbPage.idx}`] || await fetchPageHTML(pbPage.slug) || "";
+            const html = savedHTML[`${pbCluster.id}-${pg.idx}`] || await fetchPageHTML(pg.slug) || "";
             if(!html){ setPbAuditResults({error:"Could not fetch page HTML"}); setPbAuditLoading(false); return; }
             const lower = html.toLowerCase();
             const doc = new DOMParser().parseFromString(html,"text/html");
             const audit = {};
-
-            // 1. Placeholders replaced
-            audit.placeholders = !html.includes("[") || !html.includes("]") || !html.match(/\[[A-Z][A-Z\- ]+\]/);
-
-            // 2. Schema @graph with 11 types
+            audit.placeholders = !html.match(/\[[A-Z][A-Z\- ]+\]/);
             const graphMatch = html.match(/"@graph"\s*:\s*\[[\s\S]*?\]/);
-            if(graphMatch){
-              const types = ["Article","FAQPage","BreadcrumbList","LocalBusiness","Person","Organization","MedicalWebPage","HowTo","SiteLinksSearchBox","ItemList","WebSite"];
-              const found = types.filter(t=>graphMatch[0].includes('"@type":"'+t+'"')||graphMatch[0].includes('"@type": "'+t+'"'));
-              audit.schema = found.length >= 8; // 11 ideal, 8+ pass
-            } else { audit.schema = false; }
-
-            // 3. FAQPage schema matches accordion (6 items)
-            const faqSchemaCount = (html.match(/"@type"\s*:\s*"Question"/g)||[]).length;
-            audit.faq_schema = faqSchemaCount >= 6;
-
-            // 4. Hero H1 NEPQ formula (question mark or pain-first)
-            const h1 = (doc.querySelector("h1")||{}).textContent||"";
-            audit.hero_nepq = h1.includes("?") || lower.includes("gh-hero");
-
-            // 5. CTA approved language
-            audit.cta_lang = lower.includes("figure out") || lower.includes("check your") || lower.includes("talk to rob") || lower.includes("let's") || lower.includes("lets ");
-
-            // 6. Quiz NEPQ Q1/Q2/Q3
-            audit.quiz_nepq = lower.includes("gh-quiz") && (lower.includes("situation") || lower.includes("connecting") || lower.includes("currently"));
-
-            // 7. Quiz result NEPQ format
-            audit.quiz_results = html.includes("title") && html.includes("gh-quiz") && html.includes("text");
-
-            // 8. Internal cross-links 3+
-            const internalLinks = doc.querySelectorAll('a[href*="generationhealth.me"]');
-            audit.cross_links = internalLinks.length >= 3;
-
-            // 9. Related guides 8 slots
-            const relatedLinks = doc.querySelectorAll('.gh-rlink, .gh-related a');
-            audit.related_guides = relatedLinks.length >= 6;
-
-            // 10. No placeholder hrefs
-            audit.no_placeholders_href = !html.includes("[RELATED-SLUG]") && !html.includes("[RELATED GUIDE]") && !html.includes("RELATED-SLUG");
-
-            // 11. Pillar linked
-            audit.pillar_link = internalLinks.length >= 1 && pbCluster?.pillar ? lower.includes(pbCluster.pillar) : internalLinks.length >= 1;
-
-            // 12. County grid 8 links
-            const countyGrid = doc.querySelectorAll('.gh-county-grid a, .gh-county a');
-            audit.county_grid = countyGrid.length >= 6 || (lower.includes("durham") && lower.includes("wake") && lower.includes("guilford") && lower.includes("forsyth"));
-
-            // 13. Elementor dark sections inline !important
-            audit.elementor_dark = html.includes("!important") && (lower.includes("color:#fff") || lower.includes("color: #fff") || lower.includes("color:rgba(255,255,255"));
-
-            // 14. .gh-costs-src inline color
-            audit.costs_src = lower.includes("gh-costs-src") && html.includes("rgba(255,255,255,.75");
-
-            // 15. IIFE (no DOMContentLoaded)
-            audit.iife = !lower.includes("domcontentloaded") && (html.includes("(function(){") || html.includes("(()=>{") || html.includes("(function () {"));
-
-            // 16. Stat row
-            audit.stat_row = lower.includes("gh-stat-row") || lower.includes("gh-stat");
-
-            // 17. .gov sources 5+
-            const govLinks = (html.match(/medicare\.gov|cms\.gov|ncdoi\.gov|ssa\.gov|healthcare\.gov/g)||[]).length;
-            audit.gov_sources = govLinks >= 5;
-
-            // 18. Branded infographic
-            audit.infographic = lower.includes("gh-infographic") || lower.includes("gh-info") || (lower.includes("background:#000") || lower.includes("background: #000")) && lower.includes("font-size:clamp");
-
+            audit.schema = graphMatch ? (["Article","FAQPage","BreadcrumbList","LocalBusiness","Person","Organization","MedicalWebPage"].filter(t=>graphMatch[0].includes('"'+t+'"')).length>=6) : false;
+            audit.faq_schema = (html.match(/"@type"\s*:\s*"Question"/g)||[]).length>=6;
+            audit.hero_nepq = (doc.querySelector("h1")||{}).textContent?.includes("?") || lower.includes("gh-hero");
+            audit.cta_lang = lower.includes("figure out")||lower.includes("check your")||lower.includes("talk to rob")||lower.includes("one call");
+            audit.quiz_nepq = lower.includes("gh-quiz")&&(lower.includes("situation")||lower.includes("connecting")||lower.includes("currently"));
+            audit.quiz_results = html.includes("title")&&html.includes("gh-quiz")&&html.includes("text");
+            audit.cross_links = (doc.querySelectorAll('a[href*="generationhealth.me"]')||[]).length>=3;
+            audit.related_guides = (doc.querySelectorAll('.gh-rlink,.gh-related a')||[]).length>=6;
+            audit.no_placeholders_href = !html.includes("[RELATED-SLUG]")&&!html.includes("[RELATED GUIDE]");
+            audit.pillar_link = (doc.querySelectorAll('a[href*="generationhealth.me"]')||[]).length>=1;
+            audit.county_grid = lower.includes("durham")&&lower.includes("wake")&&lower.includes("guilford")&&lower.includes("forsyth");
+            audit.elementor_dark = html.includes("!important")&&(lower.includes("color:#fff")||lower.includes("color:rgba(255,255,255"));
+            audit.costs_src = lower.includes("gh-costs-src")&&html.includes("rgba(255,255,255,.75");
+            audit.iife = !lower.includes("domcontentloaded")&&(html.includes("(function(){")||html.includes("(()=>{")||html.includes("(function () {"));
+            audit.stat_row = lower.includes("gh-stat-row")||lower.includes("gh-stat");
+            audit.gov_sources = (html.match(/medicare\.gov|cms\.gov|ncdoi\.gov|ssa\.gov|healthcare\.gov/g)||[]).length>=5;
+            audit.infographic = lower.includes("gh-infographic")||lower.includes("gh-info")||(lower.includes("background:#000")&&lower.includes("font-size:clamp"));
             audit._html = html;
             setPbAuditResults(audit);
+            if(html) setPbOutput(html);
           } catch(e) { setPbAuditResults({error:e.message}); }
           setPbAuditLoading(false);
         };
 
-        // ── Generate handler ──
+        // ── Generate full page ──
         const handlePbGenerate = async () => {
           if(!aiApiKey.trim()){ setAiShowKey(true); return; }
           setPbGenLoading(true);
-          setPbOutput("");
           try {
-            const targetSlug = pbPage?.slug || "";
-            const targetName = pbPage?.name || pbTitle || "New Page";
-            const clusterName = pbCluster?.name || "";
-            const keyword = pbKeyword || targetName;
-            const existingHtml = pbAuditResults._html || savedHTML[pbKeyId] || "";
+            const keyword = pbKeyword||pbPage?.name||"Medicare North Carolina";
+            const existingHtml = pbAuditResults._html||pbOutput||"";
+            const prompt = `Build v5.2 NEPQ page for GenerationHealth.me.
+Keyword:${keyword}|Page:${pbPage?.name||""}|Cluster:${pbCluster?.name||""}|Slug:/${pbPage?.slug||""}
 
-            const prompt = `You are an expert SEO content builder for GenerationHealth.me — a licensed Medicare and ACA insurance brokerage in North Carolina run by Robert Simm.
+18-POINT CHECKLIST — ALL REQUIRED:
+1.No [BRACKET] placeholders 2.Schema @graph 11 types 3.FAQPage=6 Q&A 4.Hero H1 NEPQ Formula 5.NEPQ CTA language 6.Quiz Q1=Connecting Q2=Problem Q3=Consequence 7.Quiz results NEPQ format 8.3+ cross-links 9.Related guides 8 slots 10.No placeholder hrefs 11.Pillar linked 12.County grid 8 NC counties 13.Dark sections inline !important 14..gh-costs-src inline color 15.IIFE only no DOMContentLoaded 16.Stat row 2026 figures Part B=$202.90 17.5+ .gov sources 18.Branded infographic
 
-BUILD OR REBUILD this page following the GenerationHealth v5.2 NEPQ Master Template exactly.
-
-PAGE DETAILS:
-- Target keyword: ${keyword}
-- Page name: ${targetName}
-- Cluster: ${clusterName}
-- Slug: /${targetSlug}
-
-══ 18-POINT PRE-DELIVERY CHECKLIST — ALL ITEMS REQUIRED ══
-
-[DELIVERY]
-1. NO [BRACKET] placeholders — every slot filled with real content
-
-[SCHEMA]
-2. Schema @graph with ALL 11 types: Article, FAQPage, BreadcrumbList, LocalBusiness, Person, Organization, MedicalWebPage, HowTo, SiteLinksSearchBox, ItemList, WebSite — slugs and dates filled
-3. FAQPage schema matches FAQ accordion EXACTLY — 6 question/answer pairs, identical text
-
-[NEPQ COPY]
-4. Hero H1 MUST use NEPQ Formula 1 (problem-first question), 3 (consequence), or 4 (gap reveal) — never a plain declarative headline
-5. CTA buttons use ONLY approved language: "Let's figure out what's right for you", "Check your doctors and drugs", "Talk to Rob", "One call. No strangers. No spam."
-6. Quiz: Q1=Connecting (current situation), Q2=Problem Awareness (hidden risk), Q3=Consequence (cost of inaction)
-7. Quiz result strings use {title, text} NEPQ format — each result validates and frames next step
-
-[SEO / LINKING]
-8. 3+ inline body cross-links to real generationhealth.me pages — no placeholder slugs
-9. Related Guides section — 8 slots filled with real URLs and real page titles
-10. Zero href placeholders — no [RELATED-SLUG] or [RELATED GUIDE] in any href
-11. Pillar page linked from the body (if this is a cluster post)
-12. County grid with 8 NC county links (Durham, Wake, Guilford, Forsyth, Mecklenburg, Buncombe, Cumberland, Alamance)
-
-[TECH]
-13. ALL text inside dark-background sections must have inline style with color !important
-14. .gh-costs-src lines: inline style="color:rgba(255,255,255,.75);font-size:12px"
-15. JS MUST use IIFE: (function(){ ... })(); — NEVER addEventListener or DOMContentLoaded
-
-[CONTENT]
-16. Stat row (.gh-stat-row) with 2026 figures: Part B=$202.90/mo (NEVER $185), Part A deductible=$1,676, MOOP=$9,350, Part D OOP cap=$2,100
-17. .gh-sources panel — min 5 .gov links (medicare.gov, cms.gov, ncdoi.gov, ssa.gov, healthcare.gov)
-18. Branded infographic — pure black background, dominant number treatment
-
-══ STATIC CONSTANTS ══
-Phone: (828) 761-3326 | Address: 2731 Meridian Pkwy Durham NC 27713
-SunFire: https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/
-Calendly: https://calendly.com/robert-generationhealth/new-meeting
-License: NC #10447418 | NPN: #10447418
-
-══ STYLE ══
-Dark navy (#0F1A2E→#162033), gold (#FFC72C) accents, Fraunces headings, DM Sans body. .gh- CSS classes throughout.
-
-══ DELIVERY FORMAT ══
-- Elementor HTML widget only — NO DOCTYPE, NO html/head/body wrapper
-- Begin with first <script type=\"application/ld+json\"> tag
-- CSS in <style> block at top, JS in IIFE blocks at bottom
-- Output ONLY the HTML — no explanation, no preamble, no markdown
-
-${existingHtml ? "EXISTING PAGE HTML (rebuild/improve this):\n<existing_html>\n"+existingHtml.substring(0,15000)+"\n</existing_html>" : ""}
-
-Generate the complete page now. Output only the HTML — no explanation, no preamble.`;
-
+Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
+Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings.
+Output:Elementor HTML only,no DOCTYPE,start with first <script type="application/ld+json"> tag.
+${existingHtml?"EXISTING (rebuild/improve):\n<existing_html>\n"+existingHtml.substring(0,12000)+"\n</existing_html>":""}`;
             const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4096,messages:[{role:"user",content:prompt}]})});
             const data = await resp.json();
-            const output = (data.content||[]).map(b=>b.text||"").join("");
-            setPbOutput(output);
-            setPbSubTab("output");
-          } catch(e){ setPbOutput("Error: "+e.message); }
+            const html = (data.content||[]).map(b=>b.text||"").join("");
+            setPbOutput(html);
+            setPbSandboxMode(true);
+          } catch(e){ alert("Generate error: "+e.message); }
           setPbGenLoading(false);
         };
 
-        const pbScore = PB_CHECKLIST.filter(item => pbAuditResults[item.id]).length;
-        const pbTotal = PB_CHECKLIST.length;
-        const pbPct = pbTotal > 0 ? Math.round(pbScore/pbTotal*100) : 0;
+        // ── Sandbox save with progress ──
+        const handlePbSave = async (html) => {
+          const text = html||pbOutput; if(!text) return;
+          setPbSaving(true); setPbSaveProgress(0);
+          for(const [pct,ms] of [[25,150],[60,250],[85,200],[100,150]]){
+            await new Promise(r=>setTimeout(r,ms)); setPbSaveProgress(pct);
+          }
+          try{ localStorage.setItem("gh-cc-pb-"+( pbPage?.slug||"draft"),text); setPbOutput(text); }catch(e){}
+          await new Promise(r=>setTimeout(r,400));
+          setPbSaving(false); setPbSaveProgress(0);
+        };
 
-        return <div>
-          {/* Header */}
-          <div style={{background:"linear-gradient(135deg,rgba(255,199,44,0.08),rgba(75,156,211,0.08))",border:"1px solid rgba(255,199,44,0.2)",borderRadius:16,padding:"20px 28px",marginBottom:20}}>
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
-              <div>
-                <h2 style={{fontSize:20,fontWeight:700,color:"#FFF",margin:0,fontFamily:"Georgia,serif"}}>🏗️ Page Builder</h2>
-                <p style={{fontSize:12,color:"#6B7B8D",margin:"4px 0 0"}}>18-point checklist · v5.2 NEPQ template · AI-powered page generation</p>
-              </div>
-              <div style={{display:"flex",gap:6,background:"rgba(255,255,255,0.05)",borderRadius:12,padding:4}}>
-                <button onClick={()=>setPbSubTab("audit")} style={pbTabSty(pbSubTab==="audit")}>🔍 Cluster Audit</button>
-                <button onClick={()=>setPbSubTab("build")} style={pbTabSty(pbSubTab==="build")}>⚙️ Build</button>
-                <button onClick={()=>setPbSubTab("output")} style={pbTabSty(pbSubTab==="output")}>📄 Output{pbOutput?" ✓":""}</button>
-                <button onClick={()=>setPbSubTab("agent")} style={{...pbTabSty(pbSubTab==="agent"),background:pbSubTab==="agent"?"rgba(167,139,250,0.2)":"transparent",color:pbSubTab==="agent"?"#A78BFA":"#6B7B8D"}}>🤖 AI Agent{pbAgentMsgs.length>0?" ("+pbAgentMsgs.filter(m=>m.role==="assistant").length+")":""}</button>
-              </div>
+        // ── NEPQ section insert ──
+        const handleNepqInsert = async (sectionId) => {
+          if(!aiApiKey.trim()){ setAiShowKey(true); return; }
+          const section = (window.GH_PB_NEPQ_SECTIONS||[]).find(s=>s.id===sectionId);
+          if(!section) return;
+          const keyword = pbKeyword||pbPage?.name||"Medicare NC";
+          const prompt = `Build v5.2 NEPQ HTML section for GenerationHealth.me.
+Keyword:${keyword}|Section:${section.label}|${section.desc}|NEPQ:${section.mode||"neutral"}
+Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Part B:$202.90/mo|Part A:$1,676
+Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes. Output:raw HTML only,start with <div or <style.`;
+          setPbAgentLoading(true);
+          setPbAgentMsgs(prev=>[...prev,{role:"user",content:"Insert: "+section.label,ts:Date.now()}]);
+          try{
+            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
+            const data = await resp.json();
+            const html = (data.content||[]).map(b=>b.text||"").join("");
+            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:html,isHtml:true,sectionLabel:section.label,ts:Date.now()}]);
+            const newOut = (pbOutput||"")+"/* NEPQ:"+section.label+" */\n"+html;
+            await handlePbSave(newOut);
+          }catch(e){ setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error:"+e.message,ts:Date.now()}]); }
+          setPbAgentLoading(false); setPbNepqInsert("");
+        };
+
+        // ── Send agent message ──
+        const sendPbAgentMsg = async () => {
+          if((!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()) return;
+          const userMsg = {role:"user",content:pbAgentInput,files:pbAgentFiles.map(f=>({name:f.name,type:f.type})),ts:Date.now()};
+          const msgs = [...pbAgentMsgs,userMsg];
+          setPbAgentMsgs(msgs); setPbAgentInput(""); const attachedFiles=[...pbAgentFiles]; setPbAgentFiles([]);
+          setPbAgentLoading(true);
+          const modeObj = (window.GH_PB_NEPQ_MODES||[]).find(m=>m.id===pbNepqMode);
+          const sys = `GH Page Builder AI. Edit v5.2 NEPQ pages for generationhealth.me (Robert Simm #10447418).${pbNepqMode?" NEPQ MODE:"+pbNepqMode+" — "+modeObj?.desc:""}
+Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
+Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350. Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes.
+HTML output=raw HTML only. Advice=direct+specific.
+PAGE:${pbPage?.name||"none"}/${pbPage?.slug||""}|Cluster:${pbCluster?.name||""}
+FAILING CHECKLIST:${PB_CHECKLIST.filter(i=>!pbAuditResults[i.id]&&pbAuditResults._html).map(i=>i.id).join(",")||"run scan first"}
+${pbOutput?"CURRENT HTML (first 6000):\n"+pbOutput.substring(0,6000):""}`;
+          const imgBlocks = attachedFiles.filter(f=>f.mimeType?.startsWith("image/")).map(f=>({type:"image",source:{type:"base64",media_type:f.mimeType,data:f.data}}));
+          const apiMsgs = msgs.map((m,mi)=>{
+            if(m.role==="user"&&mi===msgs.length-1&&imgBlocks.length>0)
+              return {role:"user",content:[...imgBlocks,{type:"text",text:m.content||"Analyze this screenshot."}]};
+            return {role:m.role,content:m.content};
+          });
+          try{
+            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4096,system:sys,messages:apiMsgs})});
+            const data = await resp.json();
+            const reply = (data.content||[]).map(b=>b.text||"").join("");
+            const isHtml = reply.trim().startsWith("<");
+            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:reply,isHtml,ts:Date.now()}]);
+            if(isHtml){ await handlePbSave((pbOutput||"")+"/* AI EDIT */\n"+reply); }
+          }catch(e){ setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error:"+e.message,ts:Date.now()}]); }
+          setPbAgentLoading(false);
+        };
+
+        // ── File upload ──
+        const handlePbFileUpload = (e) => {
+          Array.from(e.target.files||[]).forEach(file=>{
+            const reader = new FileReader();
+            reader.onload = ev => { const d=ev.target.result; setPbAgentFiles(prev=>[...prev,{id:Date.now()+Math.random(),name:file.name,mimeType:file.type,data:d.split(",")[1],preview:file.type.startsWith("image/")?d:null}]); };
+            reader.readAsDataURL(file);
+          });
+        };
+
+        const pbScore = PB_CHECKLIST.filter(i=>pbAuditResults[i.id]).length;
+        const pbTotal = PB_CHECKLIST.length;
+        const pbPct = pbTotal>0?Math.round(pbScore/pbTotal*100):0;
+        const pbGrade = pbPct>=95?"A+":pbPct>=85?"A":pbPct>=75?"B":pbPct>=65?"C":pbPct>=50?"D":"F";
+        const pbGradeColor = pbPct>=75?"#4ADE80":pbPct>=50?"#FFC72C":"#F87171";
+        const nepqModes = window.GH_PB_NEPQ_MODES||[];
+        const nepqSections = window.GH_PB_NEPQ_SECTIONS||[];
+        const activeModeObj = nepqModes.find(m=>m.id===pbNepqMode)||nepqModes[0]||{color:"#6B7B8D"};
+        const hasAudit = Object.keys(pbAuditResults).filter(k=>k!=="error"&&k!=="_html").length>0;
+
+        const catColors = {Schema:"#A78BFA",NEPQ:"#F472B6",SEO:"#60A5FA",Tech:"#FB923C",Content:"#2DD4BF","E-E-A-T":"#FFC72C",Delivery:"#4ADE80",Accuracy:"#F87171"};
+
+        return <div style={{display:"flex",flexDirection:"column",gap:0}}>
+
+          {/* ══ HEADER ══ */}
+          <div style={{background:"linear-gradient(135deg,rgba(255,199,44,0.08),rgba(75,156,211,0.08))",border:"1px solid rgba(255,199,44,0.2)",borderRadius:16,padding:"16px 24px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+            <div>
+              <h2 style={{fontSize:20,fontWeight:700,color:"#FFF",margin:0,fontFamily:"Georgia,serif"}}>🏗️ Page Builder</h2>
+              <p style={{fontSize:12,color:"#6B7B8D",margin:"2px 0 0"}}>18-point checklist · v5.2 NEPQ template · Section-by-section sandbox</p>
             </div>
+            {pbPage&&<div style={{display:"flex",alignItems:"center",gap:10}}>
+              {hasAudit&&<div style={{textAlign:"center",padding:"6px 14px",background:`${pbGradeColor}15`,border:`1px solid ${pbGradeColor}40`,borderRadius:10}}>
+                <div style={{fontSize:24,fontWeight:900,color:pbGradeColor,lineHeight:1}}>{pbGrade}</div>
+                <div style={{fontSize:10,color:"#6B7B8D"}}>{pbScore}/{pbTotal}</div>
+              </div>}
+              {!pbSandboxMode&&<button onClick={()=>{if(pbOutput) setPbSandboxMode(true); else handlePbGenerate();}} disabled={pbGenLoading||pbAuditLoading} style={{padding:"10px 20px",borderRadius:12,border:"none",background:pbGenLoading?"#333":"linear-gradient(135deg,#7C3AED,#A78BFA)",color:pbGenLoading?"#666":"#FFF",fontWeight:700,fontSize:13,cursor:pbGenLoading?"not-allowed":"pointer"}}>
+                {pbGenLoading?"⏳ Generating...":pbOutput?"🛠️ Enter Sandbox →":"⚡ Generate & Enter Sandbox →"}
+              </button>}
+              {pbSandboxMode&&<button onClick={()=>setPbSandboxMode(false)} style={{padding:"8px 16px",borderRadius:10,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"#C4CDD5",fontSize:12,cursor:"pointer"}}>← Back to Grade</button>}
+            </div>}
           </div>
 
-          <div style={{display:"grid",gridTemplateColumns:"280px 1fr",gap:16,minHeight:600}}>
-            {/* Left: Cluster + Page selector */}
-            <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:16,display:"flex",flexDirection:"column",gap:2,overflowY:"auto",maxHeight:700}}>
-              <div style={{fontSize:10,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8,padding:"0 4px"}}>Select Page</div>
-              {window.GH_CLUSTERS.filter(c=>c.posts.some(p=>p.status==="done")).map(c=><div key={c.id}>
-                <div style={{fontSize:10,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",padding:"8px 8px 4px",letterSpacing:"0.06em"}}>{c.name}</div>
+          {/* ══ MAIN LAYOUT ══ */}
+          <div style={{display:"grid",gridTemplateColumns:"260px 1fr",gap:16,minHeight:700}}>
+
+            {/* ── LEFT: Cluster → Page selector ── */}
+            <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:14,overflowY:"auto",maxHeight:750}}>
+              <div style={{fontSize:10,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10,padding:"0 4px"}}>Clusters & Posts</div>
+              {window.GH_CLUSTERS.filter(c=>c.posts.some(p=>p.status==="done")).map(c=><div key={c.id} style={{marginBottom:4}}>
+                <div style={{fontSize:9,fontWeight:800,color:"#FFC72C",textTransform:"uppercase",padding:"7px 8px 3px",letterSpacing:"0.08em"}}>{c.name}</div>
                 {c.posts.filter(p=>p.status==="done").map((p,i)=>{
-                  const isSelected = pbCluster?.id===c.id && pbPage?.idx===i;
-                  return <button key={i} onClick={()=>{setPbCluster(c);setPbPage({...p,idx:i});setPbAuditResults({});setPbOutput("");}} style={{display:"block",width:"100%",textAlign:"left",padding:"7px 10px",borderRadius:8,border:isSelected?"1px solid rgba(255,199,44,0.35)":"1px solid transparent",background:isSelected?"rgba(255,199,44,0.08)":"transparent",color:isSelected?"#FFC72C":"#C4CDD5",fontSize:12,cursor:"pointer",marginBottom:2}}>
+                  const isSel = pbCluster?.id===c.id&&pbPage?.idx===i;
+                  return <button key={i} onClick={()=>{
+                    setPbCluster(c); setPbPage({...p,idx:i});
+                    setPbAuditResults({}); setPbOutput(""); setPbSandboxMode(false);
+                    setPbKeyword(p.slug?.replace(/-/g," ")||""); setPbTitle(p.name);
+                    setPbAgentMsgs([]);
+                    // Auto-scan
+                    setTimeout(()=>handlePbAudit({...p,idx:i}),50);
+                  }} style={{display:"block",width:"100%",textAlign:"left",padding:"6px 10px",borderRadius:8,border:isSel?"1px solid rgba(255,199,44,0.4)":"1px solid transparent",background:isSel?"rgba(255,199,44,0.09)":"transparent",color:isSel?"#FFC72C":"#A0AEC0",fontSize:11,cursor:"pointer",marginBottom:2,transition:"all 0.15s"}}>
                     {p.name}
                   </button>;
                 })}
               </div>)}
             </div>
 
-            {/* Right: Main area */}
-            <div style={{display:"flex",flexDirection:"column",gap:16}}>
+            {/* ── RIGHT: Grade view OR Sandbox ── */}
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
 
-              {/* ── AUDIT SUB-TAB ── */}
-              {pbSubTab==="audit"&&<div>
-                {!pbPage?<div style={{textAlign:"center",padding:"60px 20px",color:"#4B5C6E"}}>
-                  <div style={{fontSize:36,marginBottom:8}}>👈</div>
-                  <div style={{fontSize:14,color:"#6B7B8D"}}>Select a page from the left to audit</div>
-                </div>:<div>
-                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexWrap:"wrap",gap:12}}>
-                    <div>
-                      <div style={{fontSize:16,fontWeight:700,color:"#FFF"}}>{pbPage.name}</div>
-                      <div style={{fontSize:11,color:"#6B7B8D"}}>/{pbPage.slug}</div>
-                    </div>
-                    <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                      {pbAuditResults.error&&<span style={{fontSize:11,color:"#F87171"}}>{pbAuditResults.error}</span>}
-                      {Object.keys(pbAuditResults).filter(k=>k!=="error"&&k!=="_html").length>0&&<div style={{textAlign:"center"}}>
-                        <div style={{fontSize:22,fontWeight:800,color:pbPct===100?"#4ADE80":pbPct>=70?"#FFC72C":"#F87171"}}>{pbPct}%</div>
-                        <div style={{fontSize:10,color:"#6B7B8D"}}>{pbScore}/{pbTotal} passing</div>
-                      </div>}
-                      <button onClick={handlePbAudit} disabled={pbAuditLoading} style={{padding:"8px 20px",borderRadius:10,border:"none",background:pbAuditLoading?"#333":"linear-gradient(135deg,#FFC72C,#FFD54F)",color:pbAuditLoading?"#666":"#1A2332",fontSize:12,fontWeight:700,cursor:pbAuditLoading?"not-allowed":"pointer"}}>{pbAuditLoading?"Scanning...":"🔍 Scan Page"}</button>
-                      <button onClick={()=>{setPbTitle(pbPage.name);setPbKeyword(pbPage.slug?.replace(/-/g," ")||"");setPbSubTab("build");}} style={{padding:"8px 20px",borderRadius:10,border:"1px solid rgba(255,199,44,0.3)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",fontSize:12,fontWeight:700,cursor:"pointer"}}>→ Build</button>
-                    </div>
+              {/* ── NO PAGE SELECTED ── */}
+              {!pbPage&&<div style={{textAlign:"center",padding:"80px 20px",color:"#4B5C6E"}}>
+                <div style={{fontSize:40,marginBottom:10}}>👈</div>
+                <div style={{fontSize:15,color:"#6B7B8D",marginBottom:6}}>Select a cluster post to begin</div>
+                <div style={{fontSize:12,color:"#4B5C6E"}}>Page will auto-scan against the 18-point checklist and display a grade</div>
+              </div>}
+
+              {/* ── SCANNING ── */}
+              {pbPage&&pbAuditLoading&&<div style={{textAlign:"center",padding:"60px 20px"}}>
+                <div style={{fontSize:32,marginBottom:12}}>🔍</div>
+                <div style={{fontSize:15,color:"#FFF",fontWeight:700,marginBottom:4}}>Scanning page...</div>
+                <div style={{fontSize:12,color:"#6B7B8D"}}>{pbPage.name}</div>
+                <div style={{marginTop:20,height:3,borderRadius:99,background:"rgba(255,255,255,0.06)",overflow:"hidden",maxWidth:300,margin:"20px auto 0"}}>
+                  <div style={{height:"100%",width:"60%",borderRadius:99,background:"linear-gradient(90deg,#FFC72C,#FFD54F)",animation:"pulse 1.5s ease-in-out infinite"}} />
+                </div>
+              </div>}
+
+              {/* ── GRADE VIEW ── */}
+              {pbPage&&!pbAuditLoading&&!pbSandboxMode&&<div>
+
+                {/* Grade hero */}
+                {hasAudit&&<div style={{background:`linear-gradient(135deg,${pbGradeColor}10,${pbGradeColor}05)`,border:`1px solid ${pbGradeColor}30`,borderRadius:16,padding:"24px 28px",marginBottom:14,display:"flex",alignItems:"center",gap:24,flexWrap:"wrap"}}>
+                  <div style={{textAlign:"center"}}>
+                    <div style={{fontSize:64,fontWeight:900,color:pbGradeColor,lineHeight:1,fontFamily:"Georgia,serif"}}>{pbGrade}</div>
+                    <div style={{fontSize:13,color:"#6B7B8D",marginTop:4}}>{pbPct}% passing</div>
                   </div>
+                  <div style={{flex:1,minWidth:200}}>
+                    <div style={{fontSize:16,fontWeight:700,color:"#FFF",marginBottom:4}}>{pbPage.name}</div>
+                    <div style={{fontSize:11,color:"#6B7B8D",marginBottom:12}}>/{pbPage.slug} · {pbCluster?.name}</div>
+                    <div style={{height:8,borderRadius:99,background:"rgba(255,255,255,0.08)",overflow:"hidden",maxWidth:320}}>
+                      <div style={{height:"100%",width:pbPct+"%",borderRadius:99,background:`linear-gradient(90deg,${pbGradeColor},${pbGradeColor}AA)`,transition:"width 0.6s ease"}} />
+                    </div>
+                    <div style={{fontSize:11,color:"#6B7B8D",marginTop:6}}>{pbScore} of {pbTotal} points passing</div>
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                    <button onClick={()=>setPbSandboxMode(true)} style={{padding:"12px 24px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#7C3AED,#A78BFA)",color:"#FFF",fontWeight:700,fontSize:14,cursor:"pointer"}}>🛠️ Enter Sandbox →</button>
+                    <button onClick={()=>handlePbGenerate()} disabled={pbGenLoading} style={{padding:"10px 24px",borderRadius:12,border:"1px solid rgba(20,184,166,0.4)",background:"rgba(20,184,166,0.08)",color:"#14B8A6",fontWeight:700,fontSize:13,cursor:pbGenLoading?"not-allowed":"pointer"}}>
+                      {pbGenLoading?"⏳ Generating...":"⚡ Generate Fresh Page"}
+                    </button>
+                  </div>
+                </div>}
 
-                  {/* Checklist */}
-                  <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:14,padding:"16px 18px"}}>
-                    {Object.keys(pbAuditResults).filter(k=>k!=="error"&&k!=="_html").length===0&&<div style={{textAlign:"center",padding:"20px",color:"#4B5C6E",fontSize:13}}>Click "Scan Page" to run the 18-point checklist</div>}
-                    {["Schema","AEO","Content","E-E-A-T","GEO","Tech","UX","CTA","SEO","Accuracy"].map(cat=>{
-                      const items = PB_CHECKLIST.filter(i=>i.cat===cat);
-                      if(items.length===0) return null;
-                      const catColors = {Schema:"#A78BFA",NEPQ:"#F472B6",SEO:"#60A5FA",Tech:"#FB923C",Content:"#2DD4BF","E-E-A-T":"#FFC72C",Delivery:"#4ADE80",AEO:"#60A5FA",GEO:"#34D399",Accuracy:"#F87171"};
-                      const c = catColors[cat]||"#6B7B8D";
-                      return <div key={cat} style={{marginBottom:12}}>
-                        <div style={{fontSize:10,fontWeight:700,color:c,textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:6,paddingBottom:4,borderBottom:`1px solid ${c}20`}}>{cat}</div>
-                        {items.map(item=>{
-                          const hasResult = Object.keys(pbAuditResults).filter(k=>k!=="error"&&k!=="_html").length>0;
-                          const pass = pbAuditResults[item.id];
-                          return <div key={item.id} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"6px 0",borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
-                            <div style={{width:18,height:18,borderRadius:6,flexShrink:0,background:!hasResult?"rgba(255,255,255,0.06)":pass?"#16A34A":"rgba(239,68,68,0.15)",border:!hasResult?"1px solid rgba(255,255,255,0.1)":pass?"none":"1px solid rgba(239,68,68,0.3)",display:"flex",alignItems:"center",justifyContent:"center",marginTop:1}}>
-                              {hasResult&&<span style={{fontSize:10,color:pass?"#FFF":"#EF4444",fontWeight:700}}>{pass?"✓":"✕"}</span>}
-                            </div>
-                            <span style={{fontSize:12,color:!hasResult?"#6B7B8D":pass?"#C4CDD5":"#E8ECF0",lineHeight:1.5}}>{item.label}</span>
-                          </div>;
-                        })}
+                {/* 18-point checklist breakdown */}
+                {hasAudit&&<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:14,padding:"16px 18px"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:14}}>18-Point Checklist Breakdown</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"2px 24px"}}>
+                    {PB_CHECKLIST.map(item=>{
+                      const pass = pbAuditResults[item.id];
+                      const c = catColors[item.cat]||"#6B7B8D";
+                      return <div key={item.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
+                        <div style={{width:16,height:16,borderRadius:5,flexShrink:0,background:pass?"#16A34A":"rgba(239,68,68,0.15)",border:pass?"none":"1px solid rgba(239,68,68,0.3)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          <span style={{fontSize:9,color:pass?"#FFF":"#EF4444",fontWeight:700}}>{pass?"✓":"✕"}</span>
+                        </div>
+                        <span style={{fontSize:10,color:pass?"#C4CDD5":"#E8ECF0",flex:1,lineHeight:1.4}}>{item.label}</span>
+                        <span style={{fontSize:8,color:c,background:`${c}15`,padding:"1px 5px",borderRadius:4,flexShrink:0}}>{item.cat}</span>
                       </div>;
                     })}
                   </div>
                 </div>}
-              </div>}
 
-              {/* ── BUILD SUB-TAB ── */}
-              {pbSubTab==="build"&&<div>
-                <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"20px 22px",marginBottom:16}}>
-                  <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 16px",fontFamily:"Georgia,serif"}}>⚙️ Build Settings</h3>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}}>
-                    <div>
-                      <label style={{fontSize:10,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",display:"block",marginBottom:4}}>Page Title</label>
-                      <input value={pbTitle} onChange={e=>setPbTitle(e.target.value)} placeholder="e.g. Medicare Plans in Durham NC" style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:13,outline:"none"}} />
-                    </div>
-                    <div>
-                      <label style={{fontSize:10,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",display:"block",marginBottom:4}}>Target Keyword</label>
-                      <input value={pbKeyword} onChange={e=>setPbKeyword(e.target.value)} placeholder="e.g. medicare plans durham nc" style={{width:"100%",padding:"9px 12px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:13,outline:"none"}} />
-                    </div>
-                  </div>
-                  {pbPage&&<div style={{padding:"10px 14px",background:"rgba(74,222,128,0.06)",border:"1px solid rgba(74,222,128,0.15)",borderRadius:10,fontSize:12,color:"#6B7B8D",marginBottom:16}}>
-                    <span style={{color:"#4ADE80",fontWeight:600}}>Selected: </span>{pbPage.name} · /{pbPage.slug}
-                    {Object.keys(pbAuditResults).filter(k=>k!=="error"&&k!=="_html").length>0&&<span style={{color:pbPct>=70?"#4ADE80":"#F87171",fontWeight:700,marginLeft:8}}>{pbPct}% passing checklist</span>}
-                  </div>}
-                  <div style={{padding:"12px 16px",background:"rgba(255,199,44,0.05)",border:"1px solid rgba(255,199,44,0.15)",borderRadius:10,marginBottom:16}}>
-                    <div style={{fontSize:11,fontWeight:700,color:"#FFC72C",marginBottom:8}}>17-Point Checklist — will be enforced in output:</div>
-                    <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                      {PB_CHECKLIST.map(item=><span key={item.id} style={{fontSize:10,padding:"2px 8px",borderRadius:5,background:"rgba(255,199,44,0.08)",color:"#FFC72C",border:"1px solid rgba(255,199,44,0.15)"}}>{item.id}</span>)}
-                    </div>
-                  </div>
-                  <button onClick={handlePbGenerate} disabled={pbGenLoading||!aiApiKey.trim()} style={{padding:"12px 32px",borderRadius:12,border:"none",background:pbGenLoading||!aiApiKey.trim()?"#333":"linear-gradient(135deg,#0D9488,#14B8A6)",color:pbGenLoading||!aiApiKey.trim()?"#666":"#FFF",fontSize:14,fontWeight:700,cursor:pbGenLoading||!aiApiKey.trim()?"not-allowed":"pointer"}}>
-                    {pbGenLoading?"🔄 Generating page...":"⚡ Generate v5.2 Page"}
-                  </button>
-                  {!aiApiKey.trim()&&<div style={{marginTop:8,fontSize:11,color:"#F87171"}}>Add your Anthropic API key in the AI Agent tab first</div>}
-                </div>
-              </div>}
-
-              {/* ── OUTPUT SUB-TAB ── */}
-              {pbSubTab==="output"&&<div>
-                {!pbOutput?<div style={{textAlign:"center",padding:"60px 20px",color:"#4B5C6E"}}>
-                  <div style={{fontSize:36,marginBottom:8}}>📄</div>
-                  <div style={{fontSize:14,color:"#6B7B8D"}}>Go to Build tab and generate a page first</div>
-                </div>:<div>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,flexWrap:"wrap",gap:8}}>
-                    <div style={{fontSize:14,fontWeight:700,color:"#FFF"}}>Generated HTML — {Math.round(pbOutput.length/1024)}KB</div>
-                    <div style={{display:"flex",gap:8}}>
-                      <button onClick={()=>navigator.clipboard.writeText(pbOutput)} style={{padding:"8px 16px",borderRadius:8,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"#C4CDD5",fontSize:12,fontWeight:600,cursor:"pointer"}}>📋 Copy</button>
-                      <button onClick={()=>{const b=new Blob([pbOutput],{type:"text/html"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=(pbPage?.slug||"page")+".html";a.click();URL.revokeObjectURL(u);}} style={{padding:"8px 16px",borderRadius:8,border:"none",background:"#0D9488",color:"#FFF",fontSize:12,fontWeight:700,cursor:"pointer"}}>⬇ Download HTML</button>
-                      <button onClick={()=>{setPbSubTab("audit");handlePbAudit();}} style={{padding:"8px 16px",borderRadius:8,border:"1px solid rgba(255,199,44,0.3)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",fontSize:12,fontWeight:600,cursor:"pointer"}}>🔍 Re-audit</button>
-                    </div>
-                  </div>
-                  <div style={{background:"rgba(0,0,0,0.3)",borderRadius:12,border:"1px solid rgba(255,255,255,0.08)",overflow:"hidden"}}>
-                    <div style={{padding:"6px 14px",background:"rgba(255,255,255,0.04)",borderBottom:"1px solid rgba(255,255,255,0.06)",fontSize:10,color:"#6B7B8D",fontWeight:600}}>HTML OUTPUT — Paste into Elementor HTML widget</div>
-                    <textarea value={pbOutput} onChange={e=>setPbOutput(e.target.value)} style={{width:"100%",minHeight:500,padding:"14px 16px",background:"transparent",border:"none",color:"#C4CDD5",fontSize:11,fontFamily:"monospace",lineHeight:1.5,resize:"vertical",outline:"none"}} />
-                  </div>
+                {!hasAudit&&pbPage&&!pbAuditLoading&&<div style={{textAlign:"center",padding:"40px 20px",color:"#4B5C6E"}}>
+                  <div style={{fontSize:12,color:"#6B7B8D"}}>Scanning {pbPage.name}...</div>
                 </div>}
               </div>}
 
-              {/* ══ AI AGENT SUB-TAB ══ */}
-              {pbSubTab==="agent"&&(()=>{
+              {/* ══ SANDBOX ══ */}
+              {pbPage&&pbSandboxMode&&<div style={{display:"flex",flexDirection:"column",gap:14}}>
 
-                // ── NEPQ section definitions (from window globals) ──
-                const NEPQ_SECTIONS = window.GH_PB_NEPQ_SECTIONS;
-                const NEPQ_MODES = window.GH_PB_NEPQ_MODES;
-
-                const activeModeObj = NEPQ_MODES.find(m=>m.id===pbNepqMode)||NEPQ_MODES[0];
-
-                // ── Save with progress bar ──
-                const handlePbSave = async (htmlToSave) => {
-                  const text = htmlToSave||pbOutput;
-                  if(!text) return;
-                  setPbSaving(true);
-                  setPbSaveProgress(0);
-                  // Simulate staged save: localStorage + optional download
-                  for(const [pct,ms] of [[20,200],[55,300],[80,200],[100,150]]){
-                    await new Promise(r=>setTimeout(r,ms));
-                    setPbSaveProgress(pct);
-                  }
-                  try {
-                    const key = `gh-cc-pb-output-${pbPage?.slug||"draft"}`;
-                    localStorage.setItem(key, text);
-                    localStorage.setItem("gh-cc-pb-output-last", JSON.stringify({slug:pbPage?.slug,name:pbPage?.name,html:text,savedAt:new Date().toISOString()}));
-                    setPbOutput(text);
-                  } catch(e) { console.warn("Save failed",e); }
-                  await new Promise(r=>setTimeout(r,400));
-                  setPbSaving(false);
-                  setPbSaveProgress(0);
-                };
-
-                // ── File upload ──
-                const handlePbFileUpload = (e) => {
-                  const files = Array.from(e.target.files||[]);
-                  files.forEach(file=>{
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                      const data = ev.target.result;
-                      setPbAgentFiles(prev=>[...prev, {
-                        id: Date.now()+Math.random(),
-                        name: file.name,
-                        type: file.type,
-                        data: data.split(",")[1], // base64
-                        preview: file.type.startsWith("image/") ? data : null,
-                        mimeType: file.type,
-                      }]);
-                    };
-                    reader.readAsDataURL(file);
-                  });
-                };
-
-                // ── NEPQ section insert ──
-                const handleNepqInsert = async (sectionId) => {
-                  if(!aiApiKey.trim()){ setAiShowKey(true); return; }
-                  const section = NEPQ_SECTIONS.find(s=>s.id===sectionId);
-                  if(!section) return;
-                  const keyword = pbKeyword||pbPage?.name||"Medicare in North Carolina";
-                  const prompt = `Build v5.2 NEPQ HTML section for GenerationHealth.me.
-Keyword:${keyword}|Page:${pbPage?.name||"Medicare"}|Cluster:${pbCluster?.name||"Medicare"}
-Section:${section.label}|${section.desc}|NEPQ:${section.mode||"neutral"}
-Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
-Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350
-Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings,DM Sans body.
-OUTPUT: Raw HTML only, start with <div or <style, no explanation.`;
-
-                  setPbAgentLoading(true);
-                  const insertMsg = {role:"user", content:`Insert NEPQ section: ${section.label} — ${section.desc}`, ts:Date.now()};
-                  setPbAgentMsgs(prev=>[...prev, insertMsg]);
-
-                  try {
-                    const resp = await fetch("https://api.anthropic.com/v1/messages",{
-                      method:"POST",
-                      headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-                      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:prompt}]})
-                    });
-                    const data = await resp.json();
-                    const html = (data.content||[]).map(b=>b.text||"").join("");
-                    const replyMsg = {role:"assistant", content:html, isHtml:true, sectionLabel:section.label, ts:Date.now()};
-                    setPbAgentMsgs(prev=>[...prev, replyMsg]);
-                    // Auto-append to output
-                    const newOutput = (pbOutput||"") + "
-
-<!-- ══ NEPQ: "+section.label+" ══ -->
-" + html;
-                    await handlePbSave(newOutput);
-                  } catch(e){
-                    setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error: "+e.message,ts:Date.now()}]);
-                  }
-                  setPbAgentLoading(false);
-                  setPbNepqInsert("");
-                };
-
-                // ── Send agent message ──
-                const sendPbAgentMsg = async () => {
-                  if((!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()) return;
-                  const userMsg = {role:"user", content:pbAgentInput, files:pbAgentFiles.map(f=>({name:f.name,type:f.type})), ts:Date.now()};
-                  const msgs = [...pbAgentMsgs, userMsg];
-                  setPbAgentMsgs(msgs);
-                  setPbAgentInput("");
-                  setPbAgentFiles([]);
-                  setPbAgentLoading(true);
-
-                  const nepqCtx = pbNepqMode ? `
-NEPQ FRAMING MODE: ${pbNepqMode.toUpperCase()} — ${NEPQ_MODES.find(m=>m.id===pbNepqMode)?.desc||""}` : "";
-                  const pageCtx = pbOutput ? `
-CURRENT PAGE HTML (first 8000 chars):
-${pbOutput.substring(0,8000)}` : "";
-                  const auditCtx = Object.keys(pbAuditResults).filter(k=>k!=="error"&&k!=="_html").length>0
-                    ? `
-AUDIT RESULTS: ${PB_CHECKLIST.filter(i=>pbAuditResults[i.id]).map(i=>i.id).join(", ")} passing | FAILING: ${PB_CHECKLIST.filter(i=>!pbAuditResults[i.id]).map(i=>i.id).join(", ")}`
-                    : "";
-
-                  const systemPrompt = `GH Page Builder AI. Medicare brokerage NC — Robert Simm #10447418. Edit v5.2 NEPQ pages.
-Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
-Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350. Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings.
-HTML output=raw HTML only,no preamble. Advice=direct,specific.${nepqCtx}
-PAGE:${pbPage?.name||"none"}/${pbPage?.slug||""}|${pbCluster?.name||""}${auditCtx}${pageCtx}`;
-
-                  // Build messages — attach images to last user message
-                  const imgBlocks = pbAgentFiles.filter(f=>f.mimeType?.startsWith("image/")).map(f=>({type:"image",source:{type:"base64",media_type:f.mimeType,data:f.data}}));
-                  const apiMessages = msgs.map((m,mi)=>{
-                    if(m.role==="user"&&mi===msgs.length-1&&imgBlocks.length>0)
-                      return {role:"user",content:[...imgBlocks,{type:"text",text:m.content||"Analyze this screenshot."}]};
-                    return {role:m.role,content:m.content};
-                  });
-
-                  try {
-                    const resp = await fetch("https://api.anthropic.com/v1/messages",{
-                      method:"POST",
-                      headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-                      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4096,system:systemPrompt,messages:apiMessages})
-                    });
-                    const data = await resp.json();
-                    const reply = (data.content||[]).map(b=>b.text||"").join("");
-                    const isHtml = reply.trim().startsWith("<");
-                    const replyMsg = {role:"assistant", content:reply, isHtml, ts:Date.now()};
-                    setPbAgentMsgs(prev=>[...prev, replyMsg]);
-                    // If AI returned HTML — offer to apply it
-                    if(isHtml){
-                      const newOutput = (pbOutput||"") + "
-
-<!-- ══ AI EDIT ══ -->
-" + reply;
-                      await handlePbSave(newOutput);
-                    }
-                  } catch(e){
-                    setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error: "+e.message,ts:Date.now()}]);
-                  }
-                  setPbAgentLoading(false);
-                };
-
-                return <div style={{display:"flex",flexDirection:"column",gap:16}}>
-
-                  {/* ── Top controls ── */}
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-
-                    {/* NEPQ Mode selector */}
-                    <div style={{background:"rgba(167,139,250,0.05)",border:"1px solid rgba(167,139,250,0.2)",borderRadius:14,padding:"14px 16px"}}>
-                      <div style={{fontSize:10,fontWeight:700,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>🎭 NEPQ AI Framing Mode</div>
-                      <select value={pbNepqMode} onChange={e=>setPbNepqMode(e.target.value)} style={{width:"100%",padding:"8px 10px",borderRadius:8,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:activeModeObj.color,fontSize:13,fontWeight:600,outline:"none",cursor:"pointer",marginBottom:6}}>
-                        {NEPQ_MODES.map(m=><option key={m.id} value={m.id} style={{background:"#1A2332",color:"#FFF"}}>{m.label}</option>)}
-                      </select>
-                      {pbNepqMode&&<div style={{fontSize:11,color:"#C4CDD5",lineHeight:1.4}}>{activeModeObj.desc}</div>}
-                    </div>
-
-                    {/* NEPQ Section inserter */}
-                    <div style={{background:"rgba(255,199,44,0.05)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:14,padding:"14px 16px"}}>
-                      <div style={{fontSize:10,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>⚡ Insert NEPQ Section</div>
-                      <div style={{display:"flex",gap:8}}>
-                        <select value={pbNepqInsert} onChange={e=>setPbNepqInsert(e.target.value)} style={{flex:1,padding:"8px 10px",borderRadius:8,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.06)",color:"#C4CDD5",fontSize:12,outline:"none",cursor:"pointer"}}>
-                          <option value="" style={{background:"#1A2332"}}>— Choose section —</option>
-                          {NEPQ_SECTIONS.map(s=><option key={s.id} value={s.id} style={{background:"#1A2332",color:"#FFF"}}>{s.label}</option>)}
-                        </select>
-                        <button
-                          onClick={()=>pbNepqInsert&&handleNepqInsert(pbNepqInsert)}
-                          disabled={!pbNepqInsert||pbAgentLoading}
-                          style={{padding:"8px 14px",borderRadius:8,border:"none",background:pbNepqInsert&&!pbAgentLoading?"linear-gradient(135deg,#FFC72C,#FFD54F)":"#333",color:pbNepqInsert&&!pbAgentLoading?"#1A2332":"#666",fontWeight:700,fontSize:12,cursor:pbNepqInsert&&!pbAgentLoading?"pointer":"not-allowed",whiteSpace:"nowrap"}}>
-                          ⚡ Insert
-                        </button>
-                      </div>
-
-                    </div>
+                {/* Sandbox header */}
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,padding:"12px 16px",background:"rgba(167,139,250,0.06)",border:"1px solid rgba(167,139,250,0.2)",borderRadius:14}}>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:700,color:"#A78BFA"}}>🛠️ Sandbox — {pbPage.name}</div>
+                    <div style={{fontSize:10,color:"#6B7B8D"}}>Edit section by section with AI · Auto-saves to localStorage</div>
                   </div>
+                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                    {hasAudit&&<div style={{fontSize:11,color:pbGradeColor,fontWeight:700,background:`${pbGradeColor}12`,padding:"4px 10px",borderRadius:7,border:`1px solid ${pbGradeColor}30`}}>{pbGrade} · {pbPct}%</div>}
+                    <button onClick={()=>{ navigator.clipboard.writeText(pbOutput); }} style={{padding:"8px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.05)",color:"#C4CDD5",fontSize:12,fontWeight:600,cursor:"pointer"}}>📋 Copy HTML</button>
+                    <button onClick={()=>{const b=new Blob([pbOutput],{type:"text/html"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=(pbPage?.slug||"page")+".html";a.click();URL.revokeObjectURL(u);}} style={{padding:"8px 14px",borderRadius:8,border:"none",background:"#0D9488",color:"#FFF",fontSize:12,fontWeight:700,cursor:"pointer"}}>⬇ Download</button>
+                    <button onClick={()=>handlePbSave(pbOutput)} disabled={pbSaving} style={{padding:"8px 14px",borderRadius:8,border:"none",background:pbSaving?"#333":"#16A34A",color:pbSaving?"#666":"#FFF",fontSize:12,fontWeight:700,cursor:pbSaving?"not-allowed":"pointer"}}>
+                      {pbSaving?"Saving...":"💾 Save"}
+                    </button>
+                  </div>
+                </div>
 
-                  {/* ── Save progress bar ── */}
-                  {pbSaving&&<div style={{background:"rgba(74,222,128,0.06)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:10,padding:"10px 16px"}}>
-                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                      <span style={{fontSize:11,fontWeight:600,color:"#4ADE80"}}>💾 Saving changes...</span>
-                      <span style={{fontSize:11,color:"#4ADE80",fontWeight:700}}>{pbSaveProgress}%</span>
-                    </div>
-                    <div style={{height:4,borderRadius:99,background:"rgba(255,255,255,0.08)",overflow:"hidden"}}>
-                      <div style={{height:"100%",width:pbSaveProgress+"%",borderRadius:99,background:"linear-gradient(90deg,#16A34A,#4ADE80)",transition:"width 0.25s ease"}} />
-                    </div>
-                  </div>}
+                {/* Progress bar */}
+                {pbSaving&&<div style={{padding:"10px 16px",background:"rgba(74,222,128,0.06)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:10}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
+                    <span style={{fontSize:11,color:"#4ADE80",fontWeight:600}}>💾 Saving...</span>
+                    <span style={{fontSize:11,color:"#4ADE80",fontWeight:700}}>{pbSaveProgress}%</span>
+                  </div>
+                  <div style={{height:5,borderRadius:99,background:"rgba(255,255,255,0.08)",overflow:"hidden"}}>
+                    <div style={{height:"100%",width:pbSaveProgress+"%",borderRadius:99,background:"linear-gradient(90deg,#16A34A,#4ADE80)",transition:"width 0.25s ease"}} />
+                  </div>
+                </div>}
 
-                  {/* ── Chat window ── */}
-                  <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,overflow:"hidden",display:"flex",flexDirection:"column",minHeight:420}}>
+                {/* Two-panel sandbox: AI chat left, HTML editor right */}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,minHeight:600}}>
 
-                    {/* Header */}
-                    <div style={{padding:"10px 16px",background:"rgba(167,139,250,0.08)",borderBottom:"1px solid rgba(167,139,250,0.15)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:10}}>
-                        <div style={{width:8,height:8,borderRadius:"50%",background:pbAgentLoading?"#FFC72C":"#4ADE80",animation:pbAgentLoading?"pulse 1s infinite":""}} />
-                        <span style={{fontSize:13,fontWeight:700,color:"#FFF"}}>🤖 Page Builder AI</span>
-                        {pbPage&&<span style={{fontSize:10,color:"#6B7B8D",background:"rgba(255,255,255,0.06)",padding:"2px 8px",borderRadius:6}}>{pbPage.name}</span>}
-                        {pbNepqMode&&<span style={{fontSize:10,color:activeModeObj.color,background:`${activeModeObj.color}15`,padding:"2px 8px",borderRadius:6,border:`1px solid ${activeModeObj.color}30`}}>{activeModeObj.label}</span>}
+                  {/* ── AI AGENT PANEL ── */}
+                  <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+
+                    {/* NEPQ controls */}
+                    <div style={{padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
+                      <div style={{flex:1,minWidth:130}}>
+                        <div style={{fontSize:9,fontWeight:700,color:"#A78BFA",textTransform:"uppercase",marginBottom:3}}>🎭 NEPQ Mode</div>
+                        <select value={pbNepqMode} onChange={e=>setPbNepqMode(e.target.value)} style={{width:"100%",padding:"5px 8px",borderRadius:7,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:activeModeObj.color||"#C4CDD5",fontSize:11,fontWeight:600,outline:"none",cursor:"pointer"}}>
+                          {nepqModes.map(m=><option key={m.id} value={m.id} style={{background:"#1A2332",color:"#FFF"}}>{m.label}</option>)}
+                        </select>
                       </div>
-                      {pbAgentMsgs.length>0&&<button onClick={()=>{if(confirm("Clear chat history?"))setPbAgentMsgs([]);}} style={{fontSize:10,color:"#4B5C6E",background:"none",border:"none",cursor:"pointer"}}>Clear</button>}
+                      <div style={{flex:1,minWidth:130}}>
+                        <div style={{fontSize:9,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",marginBottom:3}}>⚡ Insert Section</div>
+                        <div style={{display:"flex",gap:5}}>
+                          <select value={pbNepqInsert} onChange={e=>setPbNepqInsert(e.target.value)} style={{flex:1,padding:"5px 6px",borderRadius:7,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.06)",color:"#C4CDD5",fontSize:10,outline:"none",cursor:"pointer"}}>
+                            <option value="" style={{background:"#1A2332"}}>— Section —</option>
+                            {nepqSections.map(s=><option key={s.id} value={s.id} style={{background:"#1A2332",color:"#FFF"}}>{s.label}</option>)}
+                          </select>
+                          <button onClick={()=>pbNepqInsert&&handleNepqInsert(pbNepqInsert)} disabled={!pbNepqInsert||pbAgentLoading} style={{padding:"5px 10px",borderRadius:7,border:"none",background:pbNepqInsert&&!pbAgentLoading?"#FFC72C":"#333",color:pbNepqInsert&&!pbAgentLoading?"#1A2332":"#666",fontWeight:700,fontSize:11,cursor:pbNepqInsert&&!pbAgentLoading?"pointer":"not-allowed"}}>⚡</button>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Messages */}
-                    <div style={{flex:1,overflowY:"auto",padding:"14px 16px",display:"flex",flexDirection:"column",gap:12,minHeight:280,maxHeight:400}}>
-                      {pbAgentMsgs.length===0&&<div style={{textAlign:"center",padding:"40px 20px",color:"#4B5C6E"}}>
-                        <div style={{fontSize:28,marginBottom:8}}>🤖</div>
-                        <div style={{fontSize:13,color:"#6B7B8D",marginBottom:4}}>Page Builder AI Agent</div>
-                        <div style={{fontSize:11,color:"#4B5C6E",lineHeight:1.6,maxWidth:360,margin:"0 auto"}}>Edit sections, fix checklist items, rewrite NEPQ headlines, or analyze screenshots.</div>
-                        <div style={{marginTop:12,display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center"}}>
-                          {["Rewrite H1 with NEPQ","Fix the FAQ","Add 2026 stat row","Analyze screenshot","What's failing?"].map(q=>
-                            <button key={q} onClick={()=>setPbAgentInput(q)} style={{fontSize:10,padding:"5px 10px",borderRadius:6,border:"1px solid rgba(167,139,250,0.25)",background:"rgba(167,139,250,0.08)",color:"#A78BFA",cursor:"pointer"}}>{q}</button>
+                    {/* Chat messages */}
+                    <div style={{flex:1,overflowY:"auto",padding:"12px 14px",display:"flex",flexDirection:"column",gap:10,minHeight:300,maxHeight:480}}>
+                      {pbAgentMsgs.length===0&&<div style={{textAlign:"center",padding:"30px 16px",color:"#4B5C6E"}}>
+                        <div style={{fontSize:22,marginBottom:6}}>🤖</div>
+                        <div style={{fontSize:12,color:"#6B7B8D",marginBottom:10}}>AI Page Agent ready</div>
+                        <div style={{display:"flex",flexWrap:"wrap",gap:5,justifyContent:"center"}}>
+                          {["Rewrite H1 with NEPQ","Fix the FAQ","Add 2026 stat row","What's failing?","Analyze for NEPQ gaps"].map(q=>
+                            <button key={q} onClick={()=>setPbAgentInput(q)} style={{fontSize:9,padding:"4px 8px",borderRadius:5,border:"1px solid rgba(167,139,250,0.25)",background:"rgba(167,139,250,0.08)",color:"#A78BFA",cursor:"pointer"}}>{q}</button>
                           )}
                         </div>
                       </div>}
-                      {pbAgentMsgs.map((m,i)=><div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-                        <div style={{width:28,height:28,borderRadius:"50%",background:m.role==="user"?"rgba(255,199,44,0.2)":"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,flexShrink:0}}>
-                          {m.role==="user"?"👤":"🤖"}
-                        </div>
-                        <div style={{maxWidth:"80%",background:m.role==="user"?"rgba(255,199,44,0.08)":"rgba(255,255,255,0.04)",border:`1px solid ${m.role==="user"?"rgba(255,199,44,0.2)":"rgba(255,255,255,0.08)"}`,borderRadius:12,padding:"10px 14px"}}>
-                          {m.sectionLabel&&<div style={{fontSize:9,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>⚡ {m.sectionLabel}</div>}
-                          {m.files&&m.files.length>0&&<div style={{marginBottom:6,display:"flex",gap:6,flexWrap:"wrap"}}>{m.files.map((f,fi)=><span key={fi} style={{fontSize:10,color:"#60A5FA",background:"rgba(96,165,250,0.1)",padding:"2px 8px",borderRadius:5}}>📎 {f.name}</span>)}</div>}
+                      {pbAgentMsgs.map((m,i)=><div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
+                        <div style={{width:22,height:22,borderRadius:"50%",background:m.role==="user"?"rgba(255,199,44,0.2)":"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,flexShrink:0}}>{m.role==="user"?"👤":"🤖"}</div>
+                        <div style={{maxWidth:"82%",background:m.role==="user"?"rgba(255,199,44,0.07)":"rgba(255,255,255,0.04)",border:`1px solid ${m.role==="user"?"rgba(255,199,44,0.18)":"rgba(255,255,255,0.07)"}`,borderRadius:10,padding:"8px 12px"}}>
+                          {m.sectionLabel&&<div style={{fontSize:8,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",marginBottom:3}}>⚡ {m.sectionLabel}</div>}
                           {m.isHtml
                             ? <div>
-                                <div style={{fontSize:10,color:"#4ADE80",marginBottom:4,fontWeight:600}}>✅ HTML generated & appended to output</div>
-                                <pre style={{fontSize:10,color:"#6B7B8D",overflowX:"auto",maxHeight:120,margin:0,lineHeight:1.4}}>{m.content.substring(0,300)}{m.content.length>300?"...":""}</pre>
-                                <button onClick={()=>{navigator.clipboard.writeText(m.content);}} style={{marginTop:6,fontSize:10,padding:"3px 10px",borderRadius:6,border:"1px solid rgba(74,222,128,0.25)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",cursor:"pointer"}}>📋 Copy HTML</button>
+                                <div style={{fontSize:10,color:"#4ADE80",marginBottom:3,fontWeight:600}}>✅ HTML appended to editor</div>
+                                <pre style={{fontSize:9,color:"#6B7B8D",overflowX:"auto",maxHeight:80,margin:0}}>{m.content.substring(0,200)}...</pre>
+                                <button onClick={()=>navigator.clipboard.writeText(m.content)} style={{marginTop:4,fontSize:9,padding:"2px 8px",borderRadius:5,border:"1px solid rgba(74,222,128,0.25)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",cursor:"pointer"}}>📋 Copy</button>
                               </div>
-                            : <div style={{fontSize:12,color:"#C4CDD5",lineHeight:1.6,whiteSpace:"pre-wrap"}}>{m.content.substring(0,2000)}</div>
+                            : <div style={{fontSize:11,color:"#C4CDD5",lineHeight:1.55,whiteSpace:"pre-wrap"}}>{m.content.substring(0,1500)}</div>
                           }
-                          <div style={{fontSize:9,color:"#4B5C6E",marginTop:4}}>{new Date(m.ts).toLocaleTimeString()}</div>
                         </div>
                       </div>)}
-                      {pbAgentLoading&&<div style={{display:"flex",gap:10,alignItems:"center"}}>
-                        <div style={{width:28,height:28,borderRadius:"50%",background:"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🤖</div>
-                        <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,padding:"10px 14px",color:"#A78BFA",fontSize:12}}>thinking…</div>
+                      {pbAgentLoading&&<div style={{display:"flex",gap:8,alignItems:"center"}}>
+                        <div style={{width:22,height:22,borderRadius:"50%",background:"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>🤖</div>
+                        <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:10,padding:"8px 14px",color:"#A78BFA",fontSize:11}}>thinking…</div>
                       </div>}
                     </div>
 
-                    {/* Uploaded file previews */}
-                    {pbAgentFiles.length>0&&<div style={{padding:"6px 14px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:6,flexWrap:"wrap"}}>
-                      {pbAgentFiles.map(f=><div key={f.id} style={{display:"inline-flex",alignItems:"center",gap:5,background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",borderRadius:7,padding:"3px 7px"}}>
-                        {f.preview?<img src={f.preview} alt="" style={{width:24,height:24,objectFit:"cover",borderRadius:3}} />:<span>📄</span>}
-                        <span style={{fontSize:10,color:"#60A5FA",maxWidth:70,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</span>
-                        <button onClick={()=>setPbAgentFiles(p=>p.filter(x=>x.id!==f.id))} style={{fontSize:10,color:"#F87171",background:"none",border:"none",cursor:"pointer"}}>✕</button>
+                    {/* File previews */}
+                    {pbAgentFiles.length>0&&<div style={{padding:"6px 12px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:5,flexWrap:"wrap"}}>
+                      {pbAgentFiles.map(f=><div key={f.id} style={{display:"inline-flex",alignItems:"center",gap:4,background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",borderRadius:6,padding:"2px 6px"}}>
+                        {f.preview?<img src={f.preview} alt="" style={{width:20,height:20,objectFit:"cover",borderRadius:3}} />:<span style={{fontSize:12}}>📄</span>}
+                        <span style={{fontSize:9,color:"#60A5FA",maxWidth:60,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</span>
+                        <button onClick={()=>setPbAgentFiles(p=>p.filter(x=>x.id!==f.id))} style={{fontSize:9,color:"#F87171",background:"none",border:"none",cursor:"pointer"}}>✕</button>
                       </div>)}
                     </div>}
 
-                    {/* Input area */}
-                    <div style={{padding:"12px 16px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:10,alignItems:"flex-end"}}>
-                      <label style={{cursor:"pointer",padding:"8px 10px",borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#6B7B8D",fontSize:16,lineHeight:1,flexShrink:0,transition:"all 0.2s"}} title="Upload screenshot or PDF">
-                        📎
-                        <input type="file" accept="image/*,application/pdf" multiple onChange={handlePbFileUpload} style={{display:"none"}} />
+                    {/* Input */}
+                    <div style={{padding:"10px 12px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:8,alignItems:"flex-end"}}>
+                      <label style={{cursor:"pointer",padding:"7px 9px",borderRadius:7,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#6B7B8D",fontSize:14,flexShrink:0}} title="Upload screenshot">
+                        📎<input type="file" accept="image/*,application/pdf" multiple onChange={handlePbFileUpload} style={{display:"none"}} />
                       </label>
-                      <textarea
-                        value={pbAgentInput}
-                        onChange={e=>setPbAgentInput(e.target.value)}
-                        onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendPbAgentMsg();}}}
-                        placeholder="Edit the hero headline with NEPQ Formula 1... / Fix the FAQ... / Analyze this screenshot..."
-                        rows={2}
-                        style={{flex:1,padding:"10px 12px",borderRadius:10,border:"1px solid rgba(167,139,250,0.2)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:12,outline:"none",resize:"none",lineHeight:1.5,fontFamily:"inherit"}}
-                      />
-                      <button onClick={sendPbAgentMsg} disabled={pbAgentLoading||(!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()} style={{padding:"10px 16px",borderRadius:10,border:"none",background:pbAgentLoading||(!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()?"#333":"linear-gradient(135deg,#7C3AED,#A78BFA)",color:pbAgentLoading?"#666":"#FFF",fontWeight:700,fontSize:13,cursor:pbAgentLoading?"not-allowed":"pointer",flexShrink:0}}>
-                        {pbAgentLoading?"...":"↑"}
-                      </button>
+                      <textarea value={pbAgentInput} onChange={e=>setPbAgentInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendPbAgentMsg();}}} placeholder="Edit hero with NEPQ / Fix FAQ / Add stat row / Analyze screenshot..." rows={2} style={{flex:1,padding:"8px 10px",borderRadius:9,border:"1px solid rgba(167,139,250,0.2)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:11,outline:"none",resize:"none",lineHeight:1.5,fontFamily:"inherit"}} />
+                      <button onClick={sendPbAgentMsg} disabled={pbAgentLoading||(!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()} style={{padding:"9px 14px",borderRadius:9,border:"none",background:pbAgentLoading||(!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()?"#333":"linear-gradient(135deg,#7C3AED,#A78BFA)",color:pbAgentLoading?"#666":"#FFF",fontWeight:700,fontSize:13,cursor:pbAgentLoading?"not-allowed":"pointer",flexShrink:0}}>↑</button>
                     </div>
                   </div>
 
-                  {/* ── Output editor with save ── */}
-                  {pbOutput&&<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,overflow:"hidden"}}>
+                  {/* ── HTML EDITOR PANEL ── */}
+                  <div style={{background:"rgba(0,0,0,0.25)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,display:"flex",flexDirection:"column",overflow:"hidden"}}>
                     <div style={{padding:"8px 14px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                      <div style={{fontSize:11,fontWeight:600,color:"#6B7B8D"}}>📄 LIVE HTML EDITOR — {Math.round(pbOutput.length/1024)}KB{localStorage.getItem(`gh-cc-pb-output-${pbPage?.slug||"draft"}`)?" · 💾 Saved":""}</div>
-                      <div style={{display:"flex",gap:8}}>
-                        <button onClick={()=>handlePbSave(pbOutput)} disabled={pbSaving} style={{fontSize:11,padding:"5px 12px",borderRadius:7,border:"none",background:pbSaving?"#333":"#16A34A",color:pbSaving?"#666":"#FFF",fontWeight:700,cursor:pbSaving?"not-allowed":"pointer"}}>
-                          {pbSaving?"Saving...":"💾 Save"}
-                        </button>
-                        <button onClick={()=>navigator.clipboard.writeText(pbOutput)} style={{fontSize:11,padding:"5px 12px",borderRadius:7,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.05)",color:"#C4CDD5",cursor:"pointer"}}>📋 Copy</button>
-                        <button onClick={()=>{const b=new Blob([pbOutput],{type:"text/html"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=(pbPage?.slug||"page")+".html";a.click();URL.revokeObjectURL(u);}} style={{fontSize:11,padding:"5px 12px",borderRadius:7,border:"none",background:"#0D9488",color:"#FFF",fontWeight:700,cursor:"pointer"}}>⬇ Download</button>
-                      </div>
+                      <span style={{fontSize:10,fontWeight:600,color:"#6B7B8D"}}>📄 HTML EDITOR — {Math.round((pbOutput||"").length/1024)}KB{localStorage.getItem("gh-cc-pb-"+(pbPage?.slug||"draft"))?" · 💾":""}</span>
+                      <span style={{fontSize:9,color:"#4B5C6E"}}>Paste into Elementor HTML widget when done</span>
                     </div>
-                    <textarea
-                      value={pbOutput}
-                      onChange={async e=>{setPbOutput(e.target.value);clearTimeout(window._pbSaveTimer);window._pbSaveTimer=setTimeout(()=>handlePbSave(e.target.value),1500);}}
-                      style={{width:"100%",minHeight:300,padding:"12px 14px",background:"transparent",border:"none",color:"#C4CDD5",fontSize:11,fontFamily:"monospace",lineHeight:1.5,resize:"vertical",outline:"none",boxSizing:"border-box"}}
-                    />
-                  </div>}
+                    <textarea value={pbOutput||""} onChange={e=>{setPbOutput(e.target.value);clearTimeout(window._pbSaveT);window._pbSaveT=setTimeout(()=>handlePbSave(e.target.value),2000);}} style={{flex:1,width:"100%",minHeight:560,padding:"12px 14px",background:"transparent",border:"none",color:"#C4CDD5",fontSize:10,fontFamily:"monospace",lineHeight:1.55,resize:"none",outline:"none",boxSizing:"border-box"}} />
+                  </div>
 
-                </div>;
-              })()}
+                </div>
+              </div>}
 
             </div>
           </div>
