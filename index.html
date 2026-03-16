@@ -2826,6 +2826,7 @@ function App() {
   const [pbSections, setPbSections] = useState([]); // [{heading, content, nepqType, question, rewrite, status}]
   const [pbActiveSec, setPbActiveSec] = useState(null);
   const [pbFinalHtml, setPbFinalHtml] = useState("");
+  const [pbViewMode, setPbViewMode] = useState("preview");
   const [pbAgentMsg, setPbAgentMsg] = useState("");
   const [pbSearch, setPbSearch] = useState("");
   const [pbAuditResults, setPbAuditResults] = useState({});
@@ -2926,6 +2927,8 @@ function App() {
       if(e.data && e.data.type === "ghSectionClick") {
         setPbSelectedSection({html: e.data.html, cls: e.data.cls, tag: e.data.tag, text: e.data.text});
         setPbSectionEditInput("");
+        // Also update pbActiveSec for sandbox preview
+        setPbActiveSec({cls: e.data.cls, html: e.data.html, heading: e.data.heading||""});
       }
     };
     window.addEventListener("message", handler);
@@ -5835,10 +5838,84 @@ Rewrite this section using NEPQ ${sec.nepqType || "connecting"} style. Lead with
                   React.createElement("div", {style:{padding:"4px 12px",borderRadius:20,background:allPassing?"rgba(74,222,128,0.1)":"rgba(255,199,44,0.1)",border:`1px solid ${allPassing?"rgba(74,222,128,0.3)":"rgba(255,199,44,0.3)"}`,fontSize:12,fontWeight:700,color:allPassing?"#4ADE80":"#FFC72C"}},
                     `${passingCount}/${totalChecks} checks`
                   ),
-                  React.createElement("a", {href:pbPage.url,target:"_blank",style:{padding:"6px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#6B7B8D",fontSize:11,textDecoration:"none",cursor:"pointer"}}, "Open page ↗")
+                  React.createElement("a", {href:pbPage.url,target:"_blank",style:{padding:"6px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#6B7B8D",fontSize:11,textDecoration:"none",cursor:"pointer"}}, "Open page ↗"),
+              React.createElement("div", {style:{display:"flex",gap:0,background:"rgba(255,255,255,0.05)",borderRadius:8,padding:2}},
+                React.createElement("button", {onClick:()=>setPbViewMode("preview"),style:{padding:"4px 12px",borderRadius:6,border:"none",fontSize:11,fontWeight:600,cursor:"pointer",background:pbViewMode==="preview"?"#FFC72C":"transparent",color:pbViewMode==="preview"?"#1A2332":"#6B7B8D"}}, "🖥 Preview"),
+                React.createElement("button", {onClick:()=>setPbViewMode("editor"),style:{padding:"4px 12px",borderRadius:6,border:"none",fontSize:11,fontWeight:600,cursor:"pointer",background:pbViewMode==="editor"?"#FFC72C":"transparent",color:pbViewMode==="editor"?"#1A2332":"#6B7B8D"}}, "📋 Checklist")
+              )
                 )
               ),
 
+
+              // ── SANDBOX PREVIEW ──
+              pbViewMode==="preview" && pbHtml && React.createElement("div", {style:{marginTop:16}},
+                React.createElement("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8}},
+                  React.createElement("div", {style:{fontSize:11,fontWeight:700,color:"#6B7B8D",letterSpacing:"0.1em",textTransform:"uppercase"}}, "Live Preview — click a section to select it"),
+                  pbActiveSec && React.createElement("div", {style:{display:"flex",alignItems:"center",gap:8}},
+                    React.createElement("div", {style:{fontSize:11,color:"#FFC72C",fontWeight:600}}, "✦ Section selected"),
+                    React.createElement("button", {onClick:()=>setPbActiveSec(null),style:{background:"none",border:"none",color:"#6B7B8D",cursor:"pointer",fontSize:11}}, "Clear")
+                  )
+                ),
+                React.createElement("iframe", {
+                  key: pbPage?.slug,
+                  sandbox: "allow-scripts",
+                  style:{width:"100%",height:600,border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,background:"#fff",display:"block"},
+                  ref: (el) => {
+                    if(!el || !pbHtml) return;
+                    const masterCSS = (()=>{
+                      const tmpl = window.GH_NEPQ_TEMPLATE||"";
+                      const styleMatch = tmpl.match(/<style[^>]*>([\s\S]*?)<\/style>/);
+                      return (styleMatch?styleMatch[1]:"") + (window.GH_SANDBOX_CSS||"");
+                    })();
+                    const clickScript = `
+                      document.addEventListener('click',function(e){
+                        var el=e.target;
+                        while(el&&el!==document.body){
+                          var cls=el.getAttribute?el.getAttribute('class')||'':'';
+                          if(cls.match(/gh-[a-z]/)){
+                            document.querySelectorAll('.gh-selected-section').forEach(function(x){x.classList.remove('gh-selected-section');x.style.outline='';});
+                            el.style.outline='3px solid #FFC72C';
+                            el.style.outlineOffset='2px';
+                            el.classList.add('gh-selected-section');
+                            window.parent.postMessage({type:'ghSectionClick',cls:cls,html:el.innerHTML.slice(0,2000),tag:el.tagName},'*');
+                            e.preventDefault();
+                            return;
+                          }
+                          el=el.parentElement;
+                        }
+                      },true);
+                    `;
+                    if(typeof window.GH_STRIP_PAGE==='function'){
+                      const doc = el.contentWindow.document;
+                      doc.open();
+                      doc.write(window.GH_STRIP_PAGE(pbHtml, masterCSS, clickScript, window.GH_SHIMMER_SCRIPT||""));
+                      doc.close();
+                    } else {
+                      const doc = el.contentWindow.document;
+                      doc.open();
+                      doc.write('<html><body style="background:#fff;padding:20px;font-family:sans-serif;color:#333;"><p>Preview loading...</p><pre style="font-size:11px;overflow:auto">'+pbHtml.slice(0,3000)+'</pre></body></html>');
+                      doc.close();
+                    }
+                  }
+                }),
+                pbActiveSec && React.createElement("div", {style:{marginTop:12,background:"rgba(255,199,44,0.06)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:10,padding:"12px 16px"}},
+                  React.createElement("div", {style:{fontSize:11,fontWeight:700,color:"#FFC72C",marginBottom:6}}, "Selected section · " + (pbActiveSec.cls||"").split(" ").find(cl=>cl.startsWith("gh-"))||"section"),
+                  React.createElement("div", {style:{display:"flex",gap:8,flexWrap:"wrap",marginTop:8}},
+                    React.createElement("button", {
+                      onClick:()=>{
+                        const secIdx = pbSections.findIndex(s=>s.heading===pbActiveSec.heading);
+                        if(secIdx>-1){
+                          setPbViewMode("editor");
+                        }
+                      },
+                      style:{padding:"6px 14px",borderRadius:8,border:"none",background:"#FFC72C",color:"#1A2332",fontSize:11,fontWeight:700,cursor:"pointer"}
+                    }, "✏️ Edit in NEPQ Editor")
+                  )
+                )
+              ),
+
+
+              pbViewMode==="editor" && React.createElement(React.Fragment, null,
               // ── PHASE 1: 18-Point Checklist ──
               React.createElement("div", {style:{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,padding:20,marginBottom:20}},
                 React.createElement("div", {style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16}},
@@ -5986,6 +6063,7 @@ Rewrite this section using NEPQ ${sec.nepqType || "connecting"} style. Lead with
                 ))
               ),
 
+              ),
               // ── Final HTML Output ──
               pbFinalHtml && React.createElement("div", {style:{background:"rgba(74,222,128,0.04)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:14,padding:20}},
                 React.createElement("div", {style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}},
