@@ -184,6 +184,109 @@ window.GH_CLUSTERS = [
   { id:"nc-aca-enrollment", name:"NC ACA Enrollment", type:"pillar-cluster", phase:2, status:"planned", pillar:"north-carolina-aca-enrollment", seoValue:"High", aeoValue:"High", geoValue:"High", posts:[{name:"NC ACA Enrollment (Pillar)",slug:"north-carolina-aca-enrollment",status:"planned"},{name:"NC ACA Subsidies & Income Limits",slug:"north-carolina-aca-subsidies-income-limits",status:"planned"},{name:"How Much Does Health Insurance Cost NC",slug:"how-much-does-health-insurance-cost-north-carolina",status:"planned"},{name:"Zero Dollar Health Insurance NC",slug:"zero-dollar-health-insurance-north-carolina",status:"planned"},{name:"Health Insurance Income Limits NC",slug:"health-insurance-income-limits-north-carolina",status:"planned"},{name:"Special Enrollment Period NC",slug:"special-enrollment-period-north-carolina",status:"planned"},{name:"Lost Job Health Insurance NC",slug:"lost-job-health-insurance-options-north-carolina",status:"planned"},{name:"Self-Employed Insurance Cost NC",slug:"self-employed-health-insurance-cost-north-carolina",status:"planned"},{name:"Health Insurance Penalties NC",slug:"health-insurance-penalties-north-carolina",status:"planned"},{name:"Healthcare.gov Help NC",slug:"healthcare-gov-help-north-carolina",status:"planned"},{name:"Talk to NC Health Insurance Agent",slug:"talk-to-a-north-carolina-health-insurance-agent",status:"planned"}], phase1Tasks:[], gameplanNote:"Build when ACA open enrollment season approaches." },
 ];
 </script>
+<script>
+// ── Page Builder NEPQ globals — outside Babel to save bundle space ──
+window.GH_PB_NEPQ_SECTIONS = [
+  {id:"hero_connecting",   label:"🤝 Hero — Connecting",        mode:"connection",   desc:"Pain-first H1, warm opener, 'you tell me your situation' CTA"},
+  {id:"hero_problem",      label:"⚠️ Hero — Problem Aware",     mode:"problem",      desc:"Surface the gap. What could go wrong without help."},
+  {id:"hero_consequence",  label:"🔥 Hero — Consequence",       mode:"consequence",  desc:"Dollar-specific cost of inaction. Urgency without pressure."},
+  {id:"quiz_nepq",         label:"🎯 Quiz — Full NEPQ 3-Step",  mode:"qualifying",   desc:"Q1=Connecting, Q2=Problem, Q3=Consequence with NEPQ results"},
+  {id:"cta_soft",          label:"✨ CTA — Solution Vision",     mode:"solution",     desc:"Paint the outcome. One call. No strangers. No spam."},
+  {id:"cta_qualifying",    label:"🎯 CTA — Qualifying Close",   mode:"qualifying",   desc:"Speaks to almost-ready buyer. Confident soft close."},
+  {id:"situation_block",   label:"🔍 Situation Block",          mode:"situation",    desc:"Meet them where they are. Acknowledge their current plan."},
+  {id:"stat_row_nepq",     label:"📊 Stat Row + NEPQ Hook",     mode:"problem",      desc:"2026 figures with problem-framing copy beneath each stat"},
+  {id:"faq_nepq",          label:"❓ FAQ — NEPQ Framed",        mode:"situation",    desc:"6 Q&A pairs. Questions are what a confused buyer actually asks."},
+  {id:"comparison_nepq",   label:"⚖️ Comparison — NEPQ Frame", mode:"problem",      desc:"Plan comparison table with risk/consequence framing"},
+  {id:"howto_nepq",        label:"📋 HowTo — NEPQ Steps",       mode:"solution",     desc:"4-step process framed as transformation, not transaction"},
+  {id:"sources_block",     label:"📚 .gov Sources Panel",       mode:"",             desc:"Min 5 .gov citations. Builds E-E-A-T and citability."},
+];
+window.GH_PB_NEPQ_MODES = [
+  {id:"",            label:"— No framing —",         color:"#6B7B8D"},
+  {id:"connection",  label:"🤝 Connecting",          color:"#60A5FA", desc:"Build rapport. Warm conversation starter."},
+  {id:"situation",   label:"🔍 Situation Aware",     color:"#34D399", desc:"Meet them where they are in their Medicare journey."},
+  {id:"problem",     label:"⚠️ Problem Aware",       color:"#FFC72C", desc:"Surface the hidden gap before offering a solution."},
+  {id:"solution",    label:"✨ Solution Vision",      color:"#A78BFA", desc:"Paint the desired outcome. Sell the transformation."},
+  {id:"consequence", label:"🔥 Consequence",         color:"#FB923C", desc:"Cost of inaction. Urgency without manipulation."},
+  {id:"qualifying",  label:"🎯 Qualifying",          color:"#4ADE80", desc:"Speaks to almost-ready buyer. Confident soft CTA."},
+];
+</script>
+
+<script>
+window.GH_PHASE1_CHECKLIST = [
+  {id:"author-page",label:"Create dedicated author page with credentials",category:"E-E-A-T"},
+  {id:"about-nap",label:"Update About/Contact with full NAP + license",category:"E-E-A-T"},
+  {id:"source-citations",label:"Add source citations to top 10 pages",category:"E-E-A-T"},
+  {id:"reviews-embed",label:"Embed Google Business reviews on key pages",category:"E-E-A-T"},
+  {id:"carrier-logos",label:"Add carrier logos to relevant pages",category:"E-E-A-T"},
+  {id:"instant-answers",label:"Add instant-answer blocks to all pillar pages",category:"AEO"},
+  {id:"faq-schema",label:"Add FAQ schema (JSON-LD) to all Q&A pages",category:"AEO"},
+  {id:"definition-format",label:"Add definition-style formatting for key terms",category:"AEO"},
+  {id:"comparison-tables",label:"Add structured comparison tables",category:"AEO"},
+  {id:"ai-overview-audit",label:"Audit top 20 keywords for AI Overviews",category:"GEO"},
+  {id:"direct-answers",label:"Ensure direct answers in first 100 words",category:"GEO"},
+  {id:"howto-schema",label:"Add HowTo schema where appropriate",category:"GEO"},
+  {id:"freshness-2026",label:"Update all pages with 2026 dates/premiums",category:"GEO"},
+  {id:"charts-quotes",label:"Add charts/visuals to quotes & cost pages",category:"Content Gap"},
+  {id:"images-branded",label:"Add branded graphics (not stock)",category:"Content Gap"},
+  {id:"fb-promo",label:"Complete Facebook promotion for quotes/cost window.GH_CLUSTERS",category:"Content Gap"},
+  {id:"aeo-wikidata",label:"Create Wikidata entry for GenerationHealth.me",category:"AEO"},
+  {id:"aeo-crunchbase",label:"Create Crunchbase profile",category:"AEO"},
+  {id:"aeo-org-schema",label:"Add Organization schema to homepage (name, founder, sameAs)",category:"AEO"},
+  {id:"calculator-tools",label:"Build + deploy Medicare cost & ACA subsidy calculators",category:"Content Gap"},
+  {id:"aeo-entity-consistency",label:"Audit entity consistency across site, GBP, directories, socials",category:"AEO"},
+  {id:"aeo-directory-listings",label:"Claim BBB, Chamber, NAIFA, health insurance directories",category:"AEO"},
+  {id:"aeo-gbp-posts",label:"Publish 4+ GBP posts with service area + credential signals",category:"AEO"},
+  {id:"aeo-citability-format",label:"Add quotable expert opinion sections to pillar pages",category:"AEO"},
+  {id:"aeo-mobile-ux",label:"Audit mobile UX and page speed (AEO presence quality)",category:"AEO"},
+];
+</script>
+
+<script>
+window.GH_CALENDAR_WEEKS = [
+  {week:1,dates:"Feb 17–23",phase:1,focus:"Site-Wide Foundation + E-E-A-T",tasks:[{task:"Create author page (/about/robert-simm)",type:"E-E-A-T",effort:"2-3h"},{task:"Update About with NAP, license, certs",type:"E-E-A-T",effort:"1h"},{task:"Update Contact + footer across site",type:"E-E-A-T",effort:"1h"},{task:"Add source citations to top 10 pages",type:"E-E-A-T",effort:"3-4h"},{task:"Add reviews/testimonials to key pages",type:"E-E-A-T",effort:"2h"},{task:"Add carrier logos to quotes/enrollment pages",type:"E-E-A-T",effort:"1h"},{task:"Organization schema on homepage",type:"Schema",effort:"1h"},{task:"FAQ schema on all pillar + key pages",type:"AEO",effort:"4-5h"},{task:"Instant answer blocks on all pillar pages",type:"AEO",effort:"3-4h"},{task:"Update all pages with 2026 dates/premiums",type:"GEO",effort:"3-4h"},{task:"Build + deploy Medicare cost & ACA subsidy calculators",type:"Content",effort:"3-4h"}],deliverables:["Author page live","About/Contact updated","Citations on top 10","Schema sitewide","Calculators live","2026 freshness done"]},
+  {week:2,dates:"Feb 24–Mar 2",phase:1,focus:"AEO Formatting + Content Polish",tasks:[{task:"Definition-style formatting for key terms across pillars",type:"AEO",effort:"2-3h"},{task:"Comparison tables on Medicare quotes cluster",type:"AEO",effort:"2-3h"},{task:"Comparison tables on Medicare cost cluster",type:"AEO",effort:"2-3h"},{task:"Charts/visuals to quotes pages",type:"Content",effort:"3-4h"},{task:"Branded graphics to cost pages",type:"Content",effort:"3-4h"},{task:"Internal linking audit — ensure all pillars cross-link",type:"SEO",effort:"2h"}],deliverables:["Comparison tables on quotes+costs","Charts/visuals added","Internal links audited"]},
+  {week:3,dates:"Mar 3–9",phase:1,focus:"GEO Audit + Gap Completion",tasks:[{task:"Audit top 20 keywords for AI Overviews",type:"GEO",effort:"2h"},{task:"Direct answers in first 100 words on priority pages",type:"GEO",effort:"2-3h"},{task:"HowTo schema where appropriate",type:"GEO",effort:"1-2h"},{task:"Test target questions in ChatGPT/Claude/Perplexity — baseline check",type:"GEO",effort:"1-2h"},{task:"Audit pages missing authority signals (byline, dates, sources)",type:"E-E-A-T",effort:"2h"},{task:"Facebook + GMB promo for quotes/cost window.GH_CLUSTERS",type:"Promo",effort:"2h"}],deliverables:["AI Overview audit done","GEO formatting complete","AEO baseline tested"]},
+  {week:4,dates:"Mar 10–16",phase:2,focus:"Best Insurance w/ Medicare (Pt 1)",tasks:[{task:"Research: pull 2026 NC plan data, premiums, networks",type:"Content",effort:"2-3h"},{task:"Write + publish Pillar: What\u2019s the Best Insurance to Go with Medicare? (Mar 10)",type:"Content",effort:"4-5h"},{task:"Write + publish Post 1: MA vs Medigap \u2014 Which Is Better in NC? (Mar 12)",type:"Content",effort:"2-3h"},{task:"Write + publish Post 2: Best Plans for Low Premiums in NC (Mar 14)",type:"Content",effort:"2-3h"},{task:"Add FAQ schema + instant answer blocks to all 3 pages",type:"AEO",effort:"1-2h"},{task:"Internal linking: pillar \u2192 existing window.GH_CLUSTERS + county hubs",type:"SEO",effort:"1h"}],deliverables:["Pillar live (Mar 10)","Post 1 indexed (Mar 12)","Post 2 indexed (Mar 14)"]},
+  {week:5,dates:"Mar 17–23",phase:2,focus:"Best Insurance w/ Medicare (Pt 2)",tasks:[{task:"Write + publish Post 3: Best Plans for Maximum Coverage (Mar 17)",type:"Content",effort:"2-3h"},{task:"Write + publish Post 4: Best Plans for Chronic Conditions (Mar 19)",type:"Content",effort:"3-4h"},{task:"Write + publish Post 5: First Time on Medicare? (Mar 21)",type:"Content",effort:"2-3h"},{task:"Write + publish Post 6: Best Plans for Travelers (Mar 23)",type:"Content",effort:"2-3h"},{task:"Add tables, charts, branded graphics to all 7 pages",type:"Content",effort:"2-3h"},{task:"FAQ schema + authority signals on Posts 3-6",type:"AEO",effort:"1-2h"},{task:"Update 11 existing pages with links TO new cluster",type:"SEO",effort:"2h"},{task:"Facebook + GMB promotion",type:"Promo",effort:"1h"}],deliverables:["All 7 pages live + indexed","Internal linking complete","Full cluster launched"]},
+  {week:6,dates:"Mar 24–30",phase:2,focus:"Medicare Mistakes to Avoid",tasks:[{task:"Write pillar + 5 support posts",type:"Content",effort:"10-13h"},{task:"FAQ schema + instant answers",type:"AEO",effort:"2h"},{task:"Internal linking",type:"SEO",effort:"1h"},{task:"Facebook + GMB promo",type:"Promo",effort:"1h"}],deliverables:["Full 'Mistakes' cluster live"]},
+  {week:7,dates:"Mar 31–Apr 6",phase:2,focus:"Switch Plans + County Completion",tasks:[{task:"Write 'Switch Plans' pillar + 5 posts",type:"Content",effort:"8-10h"},{task:"Build Forsyth County hub (Template v3)",type:"County",effort:"3-4h"},{task:"Build Buncombe County hub",type:"County",effort:"3-4h"},{task:"LocalBusiness schema on county pages",type:"Schema",effort:"1-2h"},{task:"County ↔ pillar internal linking",type:"SEO",effort:"1h"}],deliverables:["Switch Plans live","2 county hubs live"]},
+  {week:8,dates:"Apr 7–13",phase:3,focus:"Backlink Outreach (Pt 1)",tasks:[{task:"Compile NC senior org list",type:"Links",effort:"2h"},{task:"Draft outreach email template",type:"Links",effort:"1h"},{task:"Send 5+ outreach emails",type:"Links",effort:"2h"},{task:"Claim directory listings",type:"Links",effort:"2-3h"},{task:"Optimize Google Business Profile",type:"Entity",effort:"2h"},{task:"Sign up HARO/Connectively",type:"Links",effort:"1h"}],deliverables:["10+ emails sent","GBP optimized","Directories claimed"]},
+  {week:9,dates:"Apr 14–20",phase:3,focus:"Backlink Outreach (Pt 2)",tasks:[{task:"5+ more outreach emails",type:"Links",effort:"2h"},{task:"Respond to 2-3 HARO queries",type:"Links",effort:"2-3h"},{task:"Entity consistency audit",type:"Entity",effort:"1-2h"},{task:"Pitch local NC news outlet",type:"Links",effort:"2h"},{task:"Wikidata/Crunchbase entry",type:"Entity",effort:"1h"}],deliverables:["20+ touches","Entity verified","News pitch sent"]},
+  {week:10,dates:"Apr 21–27",phase:3,focus:"Health Conditions (Pt 1)",tasks:[{task:"Write pillar + Diabetes/Heart/Cancer posts",type:"Content",effort:"10-13h"},{task:"Condition-specific FAQ schema",type:"AEO",effort:"2h"},{task:"Freshness update 2-3 pages",type:"GEO",effort:"1-2h"}],deliverables:["Pillar + 3 posts live"]},
+  {week:11,dates:"Apr 28–May 4",phase:3,focus:"Health Conditions (Pt 2)",tasks:[{task:"COPD + High Rx posts",type:"Content",effort:"4-5h"},{task:"Charts for condition pages",type:"Content",effort:"2-3h"},{task:"Authority signals + linking",type:"SEO",effort:"2h"},{task:"Freshness update",type:"GEO",effort:"1-2h"},{task:"Follow up outreach",type:"Links",effort:"1h"}],deliverables:["Full cluster live"]},
+  {week:12,dates:"May 5–11",phase:3,focus:"Review + Plan Q3",tasks:[{task:"Keyword rankings audit (GSC)",type:"Audit",effort:"2h"},{task:"Test AI citations (ChatGPT/Claude/Perplexity)",type:"AEO",effort:"2h"},{task:"AI Overview audit",type:"GEO",effort:"1-2h"},{task:"Analytics review",type:"Audit",effort:"1-2h"},{task:"Document wins/gaps/lessons",type:"Audit",effort:"1h"},{task:"Draft Q3 strategy",type:"Planning",effort:"2-3h"}],deliverables:["Performance audit","AI citation report","Q3 plan"]},
+];
+</script>
+
+<script>
+window.GH_STD_TASKS = [
+  {id:"instant-answer",label:"Add instant-answer block (first 100 words)"},
+  {id:"faq-schema",label:"Add FAQ schema (JSON-LD)"},
+  {id:"comparison-table",label:"Add structured comparison table"},
+  {id:"definition-format",label:"Definition-style formatting for key terms"},
+  {id:"source-citations",label:"Add source citations (Medicare.gov, CMS.gov)"},
+  {id:"authority-signals",label:"Author byline, updated date, NAP, license"},
+  {id:"charts-visuals",label:"Add charts/visual data"},
+  {id:"branded-graphics",label:"Add branded graphics (not stock)"},
+  {id:"fb-promotion",label:"Facebook promotion"},
+  {id:"gmb-post",label:"Google Business Profile post"},
+];
+</script>
+
+<script>
+window.GH_OPT_ITEMS = [
+  {id:"opt-instant",label:"Instant answer block (first 100 words)",cat:"AEO"},
+  {id:"opt-faq",label:"FAQ schema (JSON-LD)",cat:"AEO"},
+  {id:"opt-citations",label:"Source citations (Medicare.gov, CMS.gov)",cat:"E-E-A-T"},
+  {id:"opt-author",label:"Author byline + updated date",cat:"E-E-A-T"},
+  {id:"opt-charts",label:"Charts/visuals added",cat:"Content"},
+  {id:"opt-graphics",label:"Branded graphics (not stock)",cat:"Content"},
+  {id:"opt-tables",label:"Comparison tables",cat:"AEO"},
+  {id:"opt-fb",label:"Facebook promoted",cat:"Promo"},
+  {id:"opt-gmb",label:"GMB post created",cat:"Promo"},
+  {id:"opt-fresh",label:"2026 freshness update done",cat:"GEO"},
+];
+</script>
 <script type="text/babel">
 const { useState, useMemo, useEffect, useCallback, useRef } = React;
 
@@ -484,76 +587,15 @@ const PHASES = [
 const STATUS = { done:{label:"Live",color:"#16A34A",bg:"#F0FDF4"}, inProgress:{label:"In Progress",color:"#D97706",bg:"#FFFBEB"}, planned:{label:"Planned",color:"#6B7B8D",bg:"#F3F5F7"} };
 
 
-const phase1Checklist = [
-  {id:"author-page",label:"Create dedicated author page with credentials",category:"E-E-A-T"},
-  {id:"about-nap",label:"Update About/Contact with full NAP + license",category:"E-E-A-T"},
-  {id:"source-citations",label:"Add source citations to top 10 pages",category:"E-E-A-T"},
-  {id:"reviews-embed",label:"Embed Google Business reviews on key pages",category:"E-E-A-T"},
-  {id:"carrier-logos",label:"Add carrier logos to relevant pages",category:"E-E-A-T"},
-  {id:"instant-answers",label:"Add instant-answer blocks to all pillar pages",category:"AEO"},
-  {id:"faq-schema",label:"Add FAQ schema (JSON-LD) to all Q&A pages",category:"AEO"},
-  {id:"definition-format",label:"Add definition-style formatting for key terms",category:"AEO"},
-  {id:"comparison-tables",label:"Add structured comparison tables",category:"AEO"},
-  {id:"ai-overview-audit",label:"Audit top 20 keywords for AI Overviews",category:"GEO"},
-  {id:"direct-answers",label:"Ensure direct answers in first 100 words",category:"GEO"},
-  {id:"howto-schema",label:"Add HowTo schema where appropriate",category:"GEO"},
-  {id:"freshness-2026",label:"Update all pages with 2026 dates/premiums",category:"GEO"},
-  {id:"charts-quotes",label:"Add charts/visuals to quotes & cost pages",category:"Content Gap"},
-  {id:"images-branded",label:"Add branded graphics (not stock)",category:"Content Gap"},
-  {id:"fb-promo",label:"Complete Facebook promotion for quotes/cost window.GH_CLUSTERS",category:"Content Gap"},
-  {id:"aeo-wikidata",label:"Create Wikidata entry for GenerationHealth.me",category:"AEO"},
-  {id:"aeo-crunchbase",label:"Create Crunchbase profile",category:"AEO"},
-  {id:"aeo-org-schema",label:"Add Organization schema to homepage (name, founder, sameAs)",category:"AEO"},
-  {id:"calculator-tools",label:"Build + deploy Medicare cost & ACA subsidy calculators",category:"Content Gap"},
-  {id:"aeo-entity-consistency",label:"Audit entity consistency across site, GBP, directories, socials",category:"AEO"},
-  {id:"aeo-directory-listings",label:"Claim BBB, Chamber, NAIFA, health insurance directories",category:"AEO"},
-  {id:"aeo-gbp-posts",label:"Publish 4+ GBP posts with service area + credential signals",category:"AEO"},
-  {id:"aeo-citability-format",label:"Add quotable expert opinion sections to pillar pages",category:"AEO"},
-  {id:"aeo-mobile-ux",label:"Audit mobile UX and page speed (AEO presence quality)",category:"AEO"},
-];
+const phase1Checklist = window.GH_PHASE1_CHECKLIST;
 
-const calendarWeeks = [
-  {week:1,dates:"Feb 17–23",phase:1,focus:"Site-Wide Foundation + E-E-A-T",tasks:[{task:"Create author page (/about/robert-simm)",type:"E-E-A-T",effort:"2-3h"},{task:"Update About with NAP, license, certs",type:"E-E-A-T",effort:"1h"},{task:"Update Contact + footer across site",type:"E-E-A-T",effort:"1h"},{task:"Add source citations to top 10 pages",type:"E-E-A-T",effort:"3-4h"},{task:"Add reviews/testimonials to key pages",type:"E-E-A-T",effort:"2h"},{task:"Add carrier logos to quotes/enrollment pages",type:"E-E-A-T",effort:"1h"},{task:"Organization schema on homepage",type:"Schema",effort:"1h"},{task:"FAQ schema on all pillar + key pages",type:"AEO",effort:"4-5h"},{task:"Instant answer blocks on all pillar pages",type:"AEO",effort:"3-4h"},{task:"Update all pages with 2026 dates/premiums",type:"GEO",effort:"3-4h"},{task:"Build + deploy Medicare cost & ACA subsidy calculators",type:"Content",effort:"3-4h"}],deliverables:["Author page live","About/Contact updated","Citations on top 10","Schema sitewide","Calculators live","2026 freshness done"]},
-  {week:2,dates:"Feb 24–Mar 2",phase:1,focus:"AEO Formatting + Content Polish",tasks:[{task:"Definition-style formatting for key terms across pillars",type:"AEO",effort:"2-3h"},{task:"Comparison tables on Medicare quotes cluster",type:"AEO",effort:"2-3h"},{task:"Comparison tables on Medicare cost cluster",type:"AEO",effort:"2-3h"},{task:"Charts/visuals to quotes pages",type:"Content",effort:"3-4h"},{task:"Branded graphics to cost pages",type:"Content",effort:"3-4h"},{task:"Internal linking audit — ensure all pillars cross-link",type:"SEO",effort:"2h"}],deliverables:["Comparison tables on quotes+costs","Charts/visuals added","Internal links audited"]},
-  {week:3,dates:"Mar 3–9",phase:1,focus:"GEO Audit + Gap Completion",tasks:[{task:"Audit top 20 keywords for AI Overviews",type:"GEO",effort:"2h"},{task:"Direct answers in first 100 words on priority pages",type:"GEO",effort:"2-3h"},{task:"HowTo schema where appropriate",type:"GEO",effort:"1-2h"},{task:"Test target questions in ChatGPT/Claude/Perplexity — baseline check",type:"GEO",effort:"1-2h"},{task:"Audit pages missing authority signals (byline, dates, sources)",type:"E-E-A-T",effort:"2h"},{task:"Facebook + GMB promo for quotes/cost window.GH_CLUSTERS",type:"Promo",effort:"2h"}],deliverables:["AI Overview audit done","GEO formatting complete","AEO baseline tested"]},
-  {week:4,dates:"Mar 10–16",phase:2,focus:"Best Insurance w/ Medicare (Pt 1)",tasks:[{task:"Research: pull 2026 NC plan data, premiums, networks",type:"Content",effort:"2-3h"},{task:"Write + publish Pillar: What\u2019s the Best Insurance to Go with Medicare? (Mar 10)",type:"Content",effort:"4-5h"},{task:"Write + publish Post 1: MA vs Medigap \u2014 Which Is Better in NC? (Mar 12)",type:"Content",effort:"2-3h"},{task:"Write + publish Post 2: Best Plans for Low Premiums in NC (Mar 14)",type:"Content",effort:"2-3h"},{task:"Add FAQ schema + instant answer blocks to all 3 pages",type:"AEO",effort:"1-2h"},{task:"Internal linking: pillar \u2192 existing window.GH_CLUSTERS + county hubs",type:"SEO",effort:"1h"}],deliverables:["Pillar live (Mar 10)","Post 1 indexed (Mar 12)","Post 2 indexed (Mar 14)"]},
-  {week:5,dates:"Mar 17–23",phase:2,focus:"Best Insurance w/ Medicare (Pt 2)",tasks:[{task:"Write + publish Post 3: Best Plans for Maximum Coverage (Mar 17)",type:"Content",effort:"2-3h"},{task:"Write + publish Post 4: Best Plans for Chronic Conditions (Mar 19)",type:"Content",effort:"3-4h"},{task:"Write + publish Post 5: First Time on Medicare? (Mar 21)",type:"Content",effort:"2-3h"},{task:"Write + publish Post 6: Best Plans for Travelers (Mar 23)",type:"Content",effort:"2-3h"},{task:"Add tables, charts, branded graphics to all 7 pages",type:"Content",effort:"2-3h"},{task:"FAQ schema + authority signals on Posts 3-6",type:"AEO",effort:"1-2h"},{task:"Update 11 existing pages with links TO new cluster",type:"SEO",effort:"2h"},{task:"Facebook + GMB promotion",type:"Promo",effort:"1h"}],deliverables:["All 7 pages live + indexed","Internal linking complete","Full cluster launched"]},
-  {week:6,dates:"Mar 24–30",phase:2,focus:"Medicare Mistakes to Avoid",tasks:[{task:"Write pillar + 5 support posts",type:"Content",effort:"10-13h"},{task:"FAQ schema + instant answers",type:"AEO",effort:"2h"},{task:"Internal linking",type:"SEO",effort:"1h"},{task:"Facebook + GMB promo",type:"Promo",effort:"1h"}],deliverables:["Full 'Mistakes' cluster live"]},
-  {week:7,dates:"Mar 31–Apr 6",phase:2,focus:"Switch Plans + County Completion",tasks:[{task:"Write 'Switch Plans' pillar + 5 posts",type:"Content",effort:"8-10h"},{task:"Build Forsyth County hub (Template v3)",type:"County",effort:"3-4h"},{task:"Build Buncombe County hub",type:"County",effort:"3-4h"},{task:"LocalBusiness schema on county pages",type:"Schema",effort:"1-2h"},{task:"County ↔ pillar internal linking",type:"SEO",effort:"1h"}],deliverables:["Switch Plans live","2 county hubs live"]},
-  {week:8,dates:"Apr 7–13",phase:3,focus:"Backlink Outreach (Pt 1)",tasks:[{task:"Compile NC senior org list",type:"Links",effort:"2h"},{task:"Draft outreach email template",type:"Links",effort:"1h"},{task:"Send 5+ outreach emails",type:"Links",effort:"2h"},{task:"Claim directory listings",type:"Links",effort:"2-3h"},{task:"Optimize Google Business Profile",type:"Entity",effort:"2h"},{task:"Sign up HARO/Connectively",type:"Links",effort:"1h"}],deliverables:["10+ emails sent","GBP optimized","Directories claimed"]},
-  {week:9,dates:"Apr 14–20",phase:3,focus:"Backlink Outreach (Pt 2)",tasks:[{task:"5+ more outreach emails",type:"Links",effort:"2h"},{task:"Respond to 2-3 HARO queries",type:"Links",effort:"2-3h"},{task:"Entity consistency audit",type:"Entity",effort:"1-2h"},{task:"Pitch local NC news outlet",type:"Links",effort:"2h"},{task:"Wikidata/Crunchbase entry",type:"Entity",effort:"1h"}],deliverables:["20+ touches","Entity verified","News pitch sent"]},
-  {week:10,dates:"Apr 21–27",phase:3,focus:"Health Conditions (Pt 1)",tasks:[{task:"Write pillar + Diabetes/Heart/Cancer posts",type:"Content",effort:"10-13h"},{task:"Condition-specific FAQ schema",type:"AEO",effort:"2h"},{task:"Freshness update 2-3 pages",type:"GEO",effort:"1-2h"}],deliverables:["Pillar + 3 posts live"]},
-  {week:11,dates:"Apr 28–May 4",phase:3,focus:"Health Conditions (Pt 2)",tasks:[{task:"COPD + High Rx posts",type:"Content",effort:"4-5h"},{task:"Charts for condition pages",type:"Content",effort:"2-3h"},{task:"Authority signals + linking",type:"SEO",effort:"2h"},{task:"Freshness update",type:"GEO",effort:"1-2h"},{task:"Follow up outreach",type:"Links",effort:"1h"}],deliverables:["Full cluster live"]},
-  {week:12,dates:"May 5–11",phase:3,focus:"Review + Plan Q3",tasks:[{task:"Keyword rankings audit (GSC)",type:"Audit",effort:"2h"},{task:"Test AI citations (ChatGPT/Claude/Perplexity)",type:"AEO",effort:"2h"},{task:"AI Overview audit",type:"GEO",effort:"1-2h"},{task:"Analytics review",type:"Audit",effort:"1-2h"},{task:"Document wins/gaps/lessons",type:"Audit",effort:"1h"},{task:"Draft Q3 strategy",type:"Planning",effort:"2-3h"}],deliverables:["Performance audit","AI citation report","Q3 plan"]},
-];
+const calendarWeeks = window.GH_CALENDAR_WEEKS;
 
 const typeColors = {"E-E-A-T":{bg:"#FFC72C18",color:"#FFC72C",border:"#FFC72C30"},"AEO":{bg:"#60A5FA18",color:"#60A5FA",border:"#60A5FA30"},"GEO":{bg:"#A78BFA18",color:"#A78BFA",border:"#A78BFA30"},"Content":{bg:"#2DD4BF18",color:"#2DD4BF",border:"#2DD4BF30"},"SEO":{bg:"#34D39918",color:"#34D399",border:"#34D39930"},"Promo":{bg:"#FB923C18",color:"#FB923C",border:"#FB923C30"},"Local":{bg:"#F472B618",color:"#F472B6",border:"#F472B630"},"Links":{bg:"#818CF818",color:"#818CF8",border:"#818CF830"},"Entity":{bg:"#C084FC18",color:"#C084FC",border:"#C084FC30"},"County":{bg:"#22D3EE18",color:"#22D3EE",border:"#22D3EE30"},"Schema":{bg:"#FBBF2418",color:"#FBBF24",border:"#FBBF2430"},"Audit":{bg:"#F8717118",color:"#F87171",border:"#F8717130"},"Planning":{bg:"#E2E8F018",color:"#E2E8F0",border:"#E2E8F030"}};
 
-const STD_TASKS = [
-  {id:"instant-answer",label:"Add instant-answer block (first 100 words)"},
-  {id:"faq-schema",label:"Add FAQ schema (JSON-LD)"},
-  {id:"comparison-table",label:"Add structured comparison table"},
-  {id:"definition-format",label:"Definition-style formatting for key terms"},
-  {id:"source-citations",label:"Add source citations (Medicare.gov, CMS.gov)"},
-  {id:"authority-signals",label:"Author byline, updated date, NAP, license"},
-  {id:"charts-visuals",label:"Add charts/visual data"},
-  {id:"branded-graphics",label:"Add branded graphics (not stock)"},
-  {id:"fb-promotion",label:"Facebook promotion"},
-  {id:"gmb-post",label:"Google Business Profile post"},
-];
+const STD_TASKS = window.GH_STD_TASKS;
 
-const OPT_ITEMS = [
-  {id:"opt-instant",label:"Instant answer block (first 100 words)",cat:"AEO"},
-  {id:"opt-faq",label:"FAQ schema (JSON-LD)",cat:"AEO"},
-  {id:"opt-citations",label:"Source citations (Medicare.gov, CMS.gov)",cat:"E-E-A-T"},
-  {id:"opt-author",label:"Author byline + updated date",cat:"E-E-A-T"},
-  {id:"opt-charts",label:"Charts/visuals added",cat:"Content"},
-  {id:"opt-graphics",label:"Branded graphics (not stock)",cat:"Content"},
-  {id:"opt-tables",label:"Comparison tables",cat:"AEO"},
-  {id:"opt-fb",label:"Facebook promoted",cat:"Promo"},
-  {id:"opt-gmb",label:"GMB post created",cat:"Promo"},
-  {id:"opt-fresh",label:"2026 freshness update done",cat:"GEO"},
-];
+const OPT_ITEMS = window.GH_OPT_ITEMS;
 
 // Priority ranking for optimization queue
 const PRIORITY_ORDER = ["Very High","High","Medium-High","Medium"];
@@ -1495,7 +1537,15 @@ function App() {
   const [studioSubTab, setStudioSubTab] = useState("create"); // create | calendar | history | agent
   const [studioNepqMode, setStudioNepqMode] = useState(""); // "" | connection | situation | problem | solution | consequence | qualifying
   // Page Builder state
-  const [pbSubTab, setPbSubTab] = useState("audit"); // audit | build | output
+  const [pbSubTab, setPbSubTab] = useState("audit"); // audit | build | output | agent
+  const [pbAgentMsgs, setPbAgentMsgs] = useState([]);
+  const [pbAgentInput, setPbAgentInput] = useState("");
+  const [pbAgentLoading, setPbAgentLoading] = useState(false);
+  const [pbAgentFiles, setPbAgentFiles] = useState([]); // {id,name,type,data,preview}
+  const [pbSaveProgress, setPbSaveProgress] = useState(0); // 0-100
+  const [pbSaving, setPbSaving] = useState(false);
+  const [pbNepqInsert, setPbNepqInsert] = useState(""); // which NEPQ section to insert
+  const [pbNepqMode, setPbNepqMode] = useState(""); // AI framing mode
   const [pbCluster, setPbCluster] = useState(null);
   const [pbPage, setPbPage] = useState(null);
   const [pbAuditResults, setPbAuditResults] = useState({});
@@ -5772,6 +5822,7 @@ Generate the complete page now. Output only the HTML — no explanation, no prea
                 <button onClick={()=>setPbSubTab("audit")} style={pbTabSty(pbSubTab==="audit")}>🔍 Cluster Audit</button>
                 <button onClick={()=>setPbSubTab("build")} style={pbTabSty(pbSubTab==="build")}>⚙️ Build</button>
                 <button onClick={()=>setPbSubTab("output")} style={pbTabSty(pbSubTab==="output")}>📄 Output{pbOutput?" ✓":""}</button>
+                <button onClick={()=>setPbSubTab("agent")} style={{...pbTabSty(pbSubTab==="agent"),background:pbSubTab==="agent"?"rgba(167,139,250,0.2)":"transparent",color:pbSubTab==="agent"?"#A78BFA":"#6B7B8D"}}>🤖 AI Agent{pbAgentMsgs.length>0?" ("+pbAgentMsgs.filter(m=>m.role==="assistant").length+")":""}</button>
               </div>
             </div>
           </div>
@@ -5893,6 +5944,302 @@ Generate the complete page now. Output only the HTML — no explanation, no prea
                   </div>
                 </div>}
               </div>}
+
+              {/* ══ AI AGENT SUB-TAB ══ */}
+              {pbSubTab==="agent"&&(()=>{
+
+                // ── NEPQ section definitions (from window globals) ──
+                const NEPQ_SECTIONS = window.GH_PB_NEPQ_SECTIONS;
+                const NEPQ_MODES = window.GH_PB_NEPQ_MODES;
+
+                const activeModeObj = NEPQ_MODES.find(m=>m.id===pbNepqMode)||NEPQ_MODES[0];
+
+                // ── Save with progress bar ──
+                const handlePbSave = async (htmlToSave) => {
+                  const text = htmlToSave||pbOutput;
+                  if(!text) return;
+                  setPbSaving(true);
+                  setPbSaveProgress(0);
+                  // Simulate staged save: localStorage + optional download
+                  for(const [pct,ms] of [[20,200],[55,300],[80,200],[100,150]]){
+                    await new Promise(r=>setTimeout(r,ms));
+                    setPbSaveProgress(pct);
+                  }
+                  try {
+                    const key = `gh-cc-pb-output-${pbPage?.slug||"draft"}`;
+                    localStorage.setItem(key, text);
+                    localStorage.setItem("gh-cc-pb-output-last", JSON.stringify({slug:pbPage?.slug,name:pbPage?.name,html:text,savedAt:new Date().toISOString()}));
+                    setPbOutput(text);
+                  } catch(e) { console.warn("Save failed",e); }
+                  await new Promise(r=>setTimeout(r,400));
+                  setPbSaving(false);
+                  setPbSaveProgress(0);
+                };
+
+                // ── File upload ──
+                const handlePbFileUpload = (e) => {
+                  const files = Array.from(e.target.files||[]);
+                  files.forEach(file=>{
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                      const data = ev.target.result;
+                      setPbAgentFiles(prev=>[...prev, {
+                        id: Date.now()+Math.random(),
+                        name: file.name,
+                        type: file.type,
+                        data: data.split(",")[1], // base64
+                        preview: file.type.startsWith("image/") ? data : null,
+                        mimeType: file.type,
+                      }]);
+                    };
+                    reader.readAsDataURL(file);
+                  });
+                };
+
+                // ── NEPQ section insert ──
+                const handleNepqInsert = async (sectionId) => {
+                  if(!aiApiKey.trim()){ setAiShowKey(true); return; }
+                  const section = NEPQ_SECTIONS.find(s=>s.id===sectionId);
+                  if(!section) return;
+                  const keyword = pbKeyword||pbPage?.name||"Medicare in North Carolina";
+                  const prompt = `Build v5.2 NEPQ HTML section for GenerationHealth.me.
+Keyword:${keyword}|Page:${pbPage?.name||"Medicare"}|Cluster:${pbCluster?.name||"Medicare"}
+Section:${section.label}|${section.desc}|NEPQ:${section.mode||"neutral"}
+Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
+Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350
+Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings,DM Sans body.
+OUTPUT: Raw HTML only, start with <div or <style, no explanation.`;
+
+                  setPbAgentLoading(true);
+                  const insertMsg = {role:"user", content:`Insert NEPQ section: ${section.label} — ${section.desc}`, ts:Date.now()};
+                  setPbAgentMsgs(prev=>[...prev, insertMsg]);
+
+                  try {
+                    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+                      method:"POST",
+                      headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+                      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:prompt}]})
+                    });
+                    const data = await resp.json();
+                    const html = (data.content||[]).map(b=>b.text||"").join("");
+                    const replyMsg = {role:"assistant", content:html, isHtml:true, sectionLabel:section.label, ts:Date.now()};
+                    setPbAgentMsgs(prev=>[...prev, replyMsg]);
+                    // Auto-append to output
+                    const newOutput = (pbOutput||"") + "
+
+<!-- ══ NEPQ: "+section.label+" ══ -->
+" + html;
+                    await handlePbSave(newOutput);
+                  } catch(e){
+                    setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error: "+e.message,ts:Date.now()}]);
+                  }
+                  setPbAgentLoading(false);
+                  setPbNepqInsert("");
+                };
+
+                // ── Send agent message ──
+                const sendPbAgentMsg = async () => {
+                  if((!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()) return;
+                  const userMsg = {role:"user", content:pbAgentInput, files:pbAgentFiles.map(f=>({name:f.name,type:f.type})), ts:Date.now()};
+                  const msgs = [...pbAgentMsgs, userMsg];
+                  setPbAgentMsgs(msgs);
+                  setPbAgentInput("");
+                  setPbAgentFiles([]);
+                  setPbAgentLoading(true);
+
+                  const nepqCtx = pbNepqMode ? `
+NEPQ FRAMING MODE: ${pbNepqMode.toUpperCase()} — ${NEPQ_MODES.find(m=>m.id===pbNepqMode)?.desc||""}` : "";
+                  const pageCtx = pbOutput ? `
+CURRENT PAGE HTML (first 8000 chars):
+${pbOutput.substring(0,8000)}` : "";
+                  const auditCtx = Object.keys(pbAuditResults).filter(k=>k!=="error"&&k!=="_html").length>0
+                    ? `
+AUDIT RESULTS: ${PB_CHECKLIST.filter(i=>pbAuditResults[i.id]).map(i=>i.id).join(", ")} passing | FAILING: ${PB_CHECKLIST.filter(i=>!pbAuditResults[i.id]).map(i=>i.id).join(", ")}`
+                    : "";
+
+                  const systemPrompt = `GH Page Builder AI. Medicare brokerage NC — Robert Simm #10447418. Edit v5.2 NEPQ pages.
+Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
+Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350. Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings.
+HTML output=raw HTML only,no preamble. Advice=direct,specific.${nepqCtx}
+PAGE:${pbPage?.name||"none"}/${pbPage?.slug||""}|${pbCluster?.name||""}${auditCtx}${pageCtx}`;
+
+                  // Build messages — attach images to last user message
+                  const imgBlocks = pbAgentFiles.filter(f=>f.mimeType?.startsWith("image/")).map(f=>({type:"image",source:{type:"base64",media_type:f.mimeType,data:f.data}}));
+                  const apiMessages = msgs.map((m,mi)=>{
+                    if(m.role==="user"&&mi===msgs.length-1&&imgBlocks.length>0)
+                      return {role:"user",content:[...imgBlocks,{type:"text",text:m.content||"Analyze this screenshot."}]};
+                    return {role:m.role,content:m.content};
+                  });
+
+                  try {
+                    const resp = await fetch("https://api.anthropic.com/v1/messages",{
+                      method:"POST",
+                      headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+                      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4096,system:systemPrompt,messages:apiMessages})
+                    });
+                    const data = await resp.json();
+                    const reply = (data.content||[]).map(b=>b.text||"").join("");
+                    const isHtml = reply.trim().startsWith("<");
+                    const replyMsg = {role:"assistant", content:reply, isHtml, ts:Date.now()};
+                    setPbAgentMsgs(prev=>[...prev, replyMsg]);
+                    // If AI returned HTML — offer to apply it
+                    if(isHtml){
+                      const newOutput = (pbOutput||"") + "
+
+<!-- ══ AI EDIT ══ -->
+" + reply;
+                      await handlePbSave(newOutput);
+                    }
+                  } catch(e){
+                    setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error: "+e.message,ts:Date.now()}]);
+                  }
+                  setPbAgentLoading(false);
+                };
+
+                return <div style={{display:"flex",flexDirection:"column",gap:16}}>
+
+                  {/* ── Top controls ── */}
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+
+                    {/* NEPQ Mode selector */}
+                    <div style={{background:"rgba(167,139,250,0.05)",border:"1px solid rgba(167,139,250,0.2)",borderRadius:14,padding:"14px 16px"}}>
+                      <div style={{fontSize:10,fontWeight:700,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>🎭 NEPQ AI Framing Mode</div>
+                      <select value={pbNepqMode} onChange={e=>setPbNepqMode(e.target.value)} style={{width:"100%",padding:"8px 10px",borderRadius:8,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:activeModeObj.color,fontSize:13,fontWeight:600,outline:"none",cursor:"pointer",marginBottom:6}}>
+                        {NEPQ_MODES.map(m=><option key={m.id} value={m.id} style={{background:"#1A2332",color:"#FFF"}}>{m.label}</option>)}
+                      </select>
+                      {pbNepqMode&&<div style={{fontSize:11,color:"#C4CDD5",lineHeight:1.4}}>{activeModeObj.desc}</div>}
+                    </div>
+
+                    {/* NEPQ Section inserter */}
+                    <div style={{background:"rgba(255,199,44,0.05)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:14,padding:"14px 16px"}}>
+                      <div style={{fontSize:10,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:8}}>⚡ Insert NEPQ Section</div>
+                      <div style={{display:"flex",gap:8}}>
+                        <select value={pbNepqInsert} onChange={e=>setPbNepqInsert(e.target.value)} style={{flex:1,padding:"8px 10px",borderRadius:8,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.06)",color:"#C4CDD5",fontSize:12,outline:"none",cursor:"pointer"}}>
+                          <option value="" style={{background:"#1A2332"}}>— Choose section —</option>
+                          {NEPQ_SECTIONS.map(s=><option key={s.id} value={s.id} style={{background:"#1A2332",color:"#FFF"}}>{s.label}</option>)}
+                        </select>
+                        <button
+                          onClick={()=>pbNepqInsert&&handleNepqInsert(pbNepqInsert)}
+                          disabled={!pbNepqInsert||pbAgentLoading}
+                          style={{padding:"8px 14px",borderRadius:8,border:"none",background:pbNepqInsert&&!pbAgentLoading?"linear-gradient(135deg,#FFC72C,#FFD54F)":"#333",color:pbNepqInsert&&!pbAgentLoading?"#1A2332":"#666",fontWeight:700,fontSize:12,cursor:pbNepqInsert&&!pbAgentLoading?"pointer":"not-allowed",whiteSpace:"nowrap"}}>
+                          ⚡ Insert
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  {/* ── Save progress bar ── */}
+                  {pbSaving&&<div style={{background:"rgba(74,222,128,0.06)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:10,padding:"10px 16px"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                      <span style={{fontSize:11,fontWeight:600,color:"#4ADE80"}}>💾 Saving changes...</span>
+                      <span style={{fontSize:11,color:"#4ADE80",fontWeight:700}}>{pbSaveProgress}%</span>
+                    </div>
+                    <div style={{height:4,borderRadius:99,background:"rgba(255,255,255,0.08)",overflow:"hidden"}}>
+                      <div style={{height:"100%",width:pbSaveProgress+"%",borderRadius:99,background:"linear-gradient(90deg,#16A34A,#4ADE80)",transition:"width 0.25s ease"}} />
+                    </div>
+                  </div>}
+
+                  {/* ── Chat window ── */}
+                  <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,overflow:"hidden",display:"flex",flexDirection:"column",minHeight:420}}>
+
+                    {/* Header */}
+                    <div style={{padding:"10px 16px",background:"rgba(167,139,250,0.08)",borderBottom:"1px solid rgba(167,139,250,0.15)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:10}}>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:pbAgentLoading?"#FFC72C":"#4ADE80",animation:pbAgentLoading?"pulse 1s infinite":""}} />
+                        <span style={{fontSize:13,fontWeight:700,color:"#FFF"}}>🤖 Page Builder AI</span>
+                        {pbPage&&<span style={{fontSize:10,color:"#6B7B8D",background:"rgba(255,255,255,0.06)",padding:"2px 8px",borderRadius:6}}>{pbPage.name}</span>}
+                        {pbNepqMode&&<span style={{fontSize:10,color:activeModeObj.color,background:`${activeModeObj.color}15`,padding:"2px 8px",borderRadius:6,border:`1px solid ${activeModeObj.color}30`}}>{activeModeObj.label}</span>}
+                      </div>
+                      {pbAgentMsgs.length>0&&<button onClick={()=>{if(confirm("Clear chat history?"))setPbAgentMsgs([]);}} style={{fontSize:10,color:"#4B5C6E",background:"none",border:"none",cursor:"pointer"}}>Clear</button>}
+                    </div>
+
+                    {/* Messages */}
+                    <div style={{flex:1,overflowY:"auto",padding:"14px 16px",display:"flex",flexDirection:"column",gap:12,minHeight:280,maxHeight:400}}>
+                      {pbAgentMsgs.length===0&&<div style={{textAlign:"center",padding:"40px 20px",color:"#4B5C6E"}}>
+                        <div style={{fontSize:28,marginBottom:8}}>🤖</div>
+                        <div style={{fontSize:13,color:"#6B7B8D",marginBottom:4}}>Page Builder AI Agent</div>
+                        <div style={{fontSize:11,color:"#4B5C6E",lineHeight:1.6,maxWidth:360,margin:"0 auto"}}>Edit sections, fix checklist items, rewrite NEPQ headlines, or analyze screenshots.</div>
+                        <div style={{marginTop:12,display:"flex",flexWrap:"wrap",gap:6,justifyContent:"center"}}>
+                          {["Rewrite H1 with NEPQ","Fix the FAQ","Add 2026 stat row","Analyze screenshot","What's failing?"].map(q=>
+                            <button key={q} onClick={()=>setPbAgentInput(q)} style={{fontSize:10,padding:"5px 10px",borderRadius:6,border:"1px solid rgba(167,139,250,0.25)",background:"rgba(167,139,250,0.08)",color:"#A78BFA",cursor:"pointer"}}>{q}</button>
+                          )}
+                        </div>
+                      </div>}
+                      {pbAgentMsgs.map((m,i)=><div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
+                        <div style={{width:28,height:28,borderRadius:"50%",background:m.role==="user"?"rgba(255,199,44,0.2)":"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,flexShrink:0}}>
+                          {m.role==="user"?"👤":"🤖"}
+                        </div>
+                        <div style={{maxWidth:"80%",background:m.role==="user"?"rgba(255,199,44,0.08)":"rgba(255,255,255,0.04)",border:`1px solid ${m.role==="user"?"rgba(255,199,44,0.2)":"rgba(255,255,255,0.08)"}`,borderRadius:12,padding:"10px 14px"}}>
+                          {m.sectionLabel&&<div style={{fontSize:9,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}}>⚡ {m.sectionLabel}</div>}
+                          {m.files&&m.files.length>0&&<div style={{marginBottom:6,display:"flex",gap:6,flexWrap:"wrap"}}>{m.files.map((f,fi)=><span key={fi} style={{fontSize:10,color:"#60A5FA",background:"rgba(96,165,250,0.1)",padding:"2px 8px",borderRadius:5}}>📎 {f.name}</span>)}</div>}
+                          {m.isHtml
+                            ? <div>
+                                <div style={{fontSize:10,color:"#4ADE80",marginBottom:4,fontWeight:600}}>✅ HTML generated & appended to output</div>
+                                <pre style={{fontSize:10,color:"#6B7B8D",overflowX:"auto",maxHeight:120,margin:0,lineHeight:1.4}}>{m.content.substring(0,300)}{m.content.length>300?"...":""}</pre>
+                                <button onClick={()=>{navigator.clipboard.writeText(m.content);}} style={{marginTop:6,fontSize:10,padding:"3px 10px",borderRadius:6,border:"1px solid rgba(74,222,128,0.25)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",cursor:"pointer"}}>📋 Copy HTML</button>
+                              </div>
+                            : <div style={{fontSize:12,color:"#C4CDD5",lineHeight:1.6,whiteSpace:"pre-wrap"}}>{m.content.substring(0,2000)}</div>
+                          }
+                          <div style={{fontSize:9,color:"#4B5C6E",marginTop:4}}>{new Date(m.ts).toLocaleTimeString()}</div>
+                        </div>
+                      </div>)}
+                      {pbAgentLoading&&<div style={{display:"flex",gap:10,alignItems:"center"}}>
+                        <div style={{width:28,height:28,borderRadius:"50%",background:"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12}}>🤖</div>
+                        <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,padding:"10px 14px",color:"#A78BFA",fontSize:12}}>thinking…</div>
+                      </div>}
+                    </div>
+
+                    {/* Uploaded file previews */}
+                    {pbAgentFiles.length>0&&<div style={{padding:"6px 14px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:6,flexWrap:"wrap"}}>
+                      {pbAgentFiles.map(f=><div key={f.id} style={{display:"inline-flex",alignItems:"center",gap:5,background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",borderRadius:7,padding:"3px 7px"}}>
+                        {f.preview?<img src={f.preview} alt="" style={{width:24,height:24,objectFit:"cover",borderRadius:3}} />:<span>📄</span>}
+                        <span style={{fontSize:10,color:"#60A5FA",maxWidth:70,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</span>
+                        <button onClick={()=>setPbAgentFiles(p=>p.filter(x=>x.id!==f.id))} style={{fontSize:10,color:"#F87171",background:"none",border:"none",cursor:"pointer"}}>✕</button>
+                      </div>)}
+                    </div>}
+
+                    {/* Input area */}
+                    <div style={{padding:"12px 16px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:10,alignItems:"flex-end"}}>
+                      <label style={{cursor:"pointer",padding:"8px 10px",borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#6B7B8D",fontSize:16,lineHeight:1,flexShrink:0,transition:"all 0.2s"}} title="Upload screenshot or PDF">
+                        📎
+                        <input type="file" accept="image/*,application/pdf" multiple onChange={handlePbFileUpload} style={{display:"none"}} />
+                      </label>
+                      <textarea
+                        value={pbAgentInput}
+                        onChange={e=>setPbAgentInput(e.target.value)}
+                        onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendPbAgentMsg();}}}
+                        placeholder="Edit the hero headline with NEPQ Formula 1... / Fix the FAQ... / Analyze this screenshot..."
+                        rows={2}
+                        style={{flex:1,padding:"10px 12px",borderRadius:10,border:"1px solid rgba(167,139,250,0.2)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:12,outline:"none",resize:"none",lineHeight:1.5,fontFamily:"inherit"}}
+                      />
+                      <button onClick={sendPbAgentMsg} disabled={pbAgentLoading||(!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()} style={{padding:"10px 16px",borderRadius:10,border:"none",background:pbAgentLoading||(!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()?"#333":"linear-gradient(135deg,#7C3AED,#A78BFA)",color:pbAgentLoading?"#666":"#FFF",fontWeight:700,fontSize:13,cursor:pbAgentLoading?"not-allowed":"pointer",flexShrink:0}}>
+                        {pbAgentLoading?"...":"↑"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ── Output editor with save ── */}
+                  {pbOutput&&<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,overflow:"hidden"}}>
+                    <div style={{padding:"8px 14px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                      <div style={{fontSize:11,fontWeight:600,color:"#6B7B8D"}}>📄 LIVE HTML EDITOR — {Math.round(pbOutput.length/1024)}KB{localStorage.getItem(`gh-cc-pb-output-${pbPage?.slug||"draft"}`)?" · 💾 Saved":""}</div>
+                      <div style={{display:"flex",gap:8}}>
+                        <button onClick={()=>handlePbSave(pbOutput)} disabled={pbSaving} style={{fontSize:11,padding:"5px 12px",borderRadius:7,border:"none",background:pbSaving?"#333":"#16A34A",color:pbSaving?"#666":"#FFF",fontWeight:700,cursor:pbSaving?"not-allowed":"pointer"}}>
+                          {pbSaving?"Saving...":"💾 Save"}
+                        </button>
+                        <button onClick={()=>navigator.clipboard.writeText(pbOutput)} style={{fontSize:11,padding:"5px 12px",borderRadius:7,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.05)",color:"#C4CDD5",cursor:"pointer"}}>📋 Copy</button>
+                        <button onClick={()=>{const b=new Blob([pbOutput],{type:"text/html"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=(pbPage?.slug||"page")+".html";a.click();URL.revokeObjectURL(u);}} style={{fontSize:11,padding:"5px 12px",borderRadius:7,border:"none",background:"#0D9488",color:"#FFF",fontWeight:700,cursor:"pointer"}}>⬇ Download</button>
+                      </div>
+                    </div>
+                    <textarea
+                      value={pbOutput}
+                      onChange={async e=>{setPbOutput(e.target.value);clearTimeout(window._pbSaveTimer);window._pbSaveTimer=setTimeout(()=>handlePbSave(e.target.value),1500);}}
+                      style={{width:"100%",minHeight:300,padding:"12px 14px",background:"transparent",border:"none",color:"#C4CDD5",fontSize:11,fontFamily:"monospace",lineHeight:1.5,resize:"vertical",outline:"none",boxSizing:"border-box"}}
+                    />
+                  </div>}
+
+                </div>;
+              })()}
 
             </div>
           </div>
