@@ -1549,6 +1549,7 @@ function App() {
   const [pbFixResults, setPbFixResults] = useState({}); // {checklistId: htmlString}
   const [pbFixing, setPbFixing] = useState({}); // {checklistId: bool}
   const [pbChatInput, setPbChatInput] = useState("");
+  const [pbIframeLoading, setPbIframeLoading] = useState(false);
   const [pbCluster, setPbCluster] = useState(null);
   const [pbPage, setPbPage] = useState(null);
   const [pbAuditResults, setPbAuditResults] = useState({});
@@ -5881,9 +5882,8 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 {/* ── LIVE PAGE SANDBOX — srcdoc bypasses X-Frame-Options ── */}
                 {liveUrl&&(()=>{
                   const sandboxHtml = pbAuditResults._html || savedHTML?.[pbCluster?.id+"-"+(pbPage?.idx)] || null;
-                  const [pbIframeLoading, setPbIframeLoading] = React.useState(false);
                   const loadSandbox = async () => {
-                    if(sandboxHtml) return; // already loaded from audit
+                    if(sandboxHtml) return;
                     setPbIframeLoading(true);
                     try {
                       const html = await fetchPageHTML(pbPage.slug);
