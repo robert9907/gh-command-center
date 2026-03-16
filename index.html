@@ -6001,43 +6001,33 @@ Rewrite this section using NEPQ ${sec.nepqType || "connecting"} style. Lead with
                   React.createElement("span", {style:{fontSize:12,color:"#FFC72C",fontWeight:700}}, "✶ Section selected: " + ((pbActiveSec.cls||"").split(" ").find(function(x){return x.startsWith("gh-");})||"")),
                   React.createElement("button", {onClick:function(){setPbActiveSec(null);},style:{marginLeft:"auto",background:"none",border:"none",color:"#6B7B8D",cursor:"pointer",fontSize:14,padding:"0 4px"}}, "✕")
                 ),
-                pbHtml && React.createElement("iframe", {
-                  key: (pbPage&&pbPage.slug)||"preview",
-                  sandbox: "allow-scripts allow-same-origin",
-                  style:{width:"100%",height:620,border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,background:"#fff",display:"block"},
-                  ref: function(el) {
-                    if(!el||!pbHtml) return;
-                    var tmpl=window.GH_NEPQ_TEMPLATE||"";
-                    var sm=tmpl.match(/<style[^>]*>([\s\S]*?)<\/style>/);
-                    var masterCSS=(sm?sm[1]:"")+(window.GH_SANDBOX_CSS||"");
-                    var clickScript=[
-                      "document.addEventListener('click',function(e){",
-                      "var el=e.target;",
-                      "while(el&&el!==document.body){",
-                      "var cls=el.getAttribute?el.getAttribute('class')||'':'';",
-                      "if(cls.match(/gh-[a-z]/)){",
-                      "document.querySelectorAll('.gh-sel').forEach(function(x){x.style.outline='';x.classList.remove('gh-sel');});",
-                      "el.style.outline='3px solid #FFC72C';el.classList.add('gh-sel');",
-                      "var h=el.querySelector('h2,h3,h4');",
-                      "window.parent.postMessage({type:'ghSectionClick',cls:cls,html:el.innerHTML.slice(0,2000),heading:h?h.textContent:cls},'*');",
-                      "e.preventDefault();return;",
-                      "}",
-                      "el=el.parentElement;",
-                      "}",
-                      "},true);"
-                    ].join(" ");
-                    try {
-                      var doc=el.contentWindow.document;
-                      doc.open();
-                      if(typeof window.GH_STRIP_PAGE==="function"){
-                        doc.write(window.GH_STRIP_PAGE(pbHtml,masterCSS,clickScript,window.GH_SHIMMER_SCRIPT||""));
-                      } else {
-                        doc.write("<html><body style='padding:20px'>"+pbHtml.slice(0,8000)+"</body></html>");
-                      }
-                      doc.close();
-                    } catch(err){console.warn("Preview:",err);}
-                  }
-                })
+(()=>{
+                  var tmpl=window.GH_NEPQ_TEMPLATE||"";
+                  var sm=tmpl.match(/<style[^>]*>([\s\S]*?)<\/style>/);
+                  var masterCSS=(sm?sm[1]:"")+(window.GH_SANDBOX_CSS||"");
+                  var clickScript=[
+                    "document.addEventListener('click',function(e){",
+                    "var t=e.target;",
+                    "while(t&&t!==document.body){",
+                    "var cls=t.getAttribute?t.getAttribute('class')||'':'';",
+                    "if(cls.match(/gh-[a-z]/)){",
+                    "document.querySelectorAll('.gh-sel').forEach(function(x){x.style.outline='';});",
+                    "t.style.outline='3px solid #FFC72C';",
+                    "var h=t.querySelector('h2,h3,h4');",
+                    "window.parent.postMessage({type:'ghSectionClick',cls:cls,html:t.innerHTML.slice(0,2000),heading:h?h.textContent:cls},'*');",
+                    "e.preventDefault();return;",
+                    "}t=t.parentElement;}},true);"
+                  ].join(" ");
+                  var srcdoc = typeof window.GH_STRIP_PAGE==="function"
+                    ? window.GH_STRIP_PAGE(pbHtml,masterCSS,clickScript,window.GH_SHIMMER_SCRIPT||"")
+                    : "<html><body style='padding:20px;font-family:sans-serif'>"+pbHtml.slice(0,8000)+"</body></html>";
+                  return React.createElement("iframe", {
+                    key: (pbPage&&pbPage.slug)||"preview",
+                    sandbox: "allow-scripts",
+                    srcdoc: srcdoc,
+                    style:{width:"100%",height:620,border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,background:"#fff",display:"block"}
+                  });
+                })()
               )
             )
           )
