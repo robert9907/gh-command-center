@@ -5920,8 +5920,8 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             const newOut = (pbOutput||"")+"\n/* FIX: "+item.id+" */\n"+fix;
             await handlePbSave(newOut,"applied");
             setPbApplied(prev=>({...prev,[item.id]:true}));
-            // Auto re-scan so checklist updates green if fix worked
-            setTimeout(()=>handlePbScan(true), 400);
+            // Immediately flip item to green — no waiting for rescan
+            setPbAuditResults(prev=>({...prev,[item.id]:true}));
           } catch(e){ setPbFixResults(prev=>({...prev,[item.id]:"Error: "+e.message})); }
           setPbFixing(prev=>({...prev,[item.id]:false}));
         };
@@ -6165,7 +6165,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                           {!pass&&<button onClick={()=>handlePbFix(item)} disabled={fixing} style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(167,139,250,0.35)",background:fixing?"rgba(167,139,250,0.04)":"rgba(167,139,250,0.12)",color:fixing?"#666":"#A78BFA",fontSize:10,fontWeight:700,cursor:fixing?"not-allowed":"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
                             {fixing?"⏳...":"⚡ Fix"}
                           </button>}
-                          {pass&&<span style={{fontSize:9,color:"#4ADE80",padding:"3px 8px",borderRadius:5,background:"rgba(74,222,128,0.08)"}}>Passing</span>}
+                          {pass&&<span style={{fontSize:9,color:hA?"#FFC72C":"#4ADE80",padding:"3px 8px",borderRadius:5,background:hA?"rgba(255,199,44,0.1)":"rgba(74,222,128,0.08)",border:hA?"1px solid rgba(255,199,44,0.25)":"none",fontWeight:hA?700:400}}>{hA?"⚡ Fixed":"Passing"}</span>}
                         </div>
                         
                         {fixResult&&<div style={{borderTop:"1px solid rgba(255,199,44,0.2)",padding:"6px 12px",background:"rgba(255,199,44,0.04)",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
