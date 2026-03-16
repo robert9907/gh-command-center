@@ -1546,13 +1546,15 @@ function App() {
   const [pbSaving, setPbSaving] = useState(false);
   const [pbNepqInsert, setPbNepqInsert] = useState(""); // which NEPQ section to insert
   const [pbNepqMode, setPbNepqMode] = useState(""); // AI framing mode
+  const [pbFixResults, setPbFixResults] = useState({}); // {checklistId: htmlString}
+  const [pbFixing, setPbFixing] = useState({}); // {checklistId: bool}
+  const [pbChatInput, setPbChatInput] = useState("");
   const [pbCluster, setPbCluster] = useState(null);
   const [pbPage, setPbPage] = useState(null);
   const [pbAuditResults, setPbAuditResults] = useState({});
   const [pbAuditLoading, setPbAuditLoading] = useState(false);
   const [pbGenLoading, setPbGenLoading] = useState(false);
   const [pbOutput, setPbOutput] = useState("");
-  const [pbSandboxMode, setPbSandboxMode] = useState(false);
   const [pbKeyword, setPbKeyword] = useState("");
   const [pbTitle, setPbTitle] = useState("");
   const [studioPromoted, setStudioPromoted] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("gh-cc-studio-promoted")||"[]")); } catch(e){ return new Set(); }});
@@ -5621,156 +5623,113 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       {/* ═══ PAGE BUILDER TAB ═══ */}
       {view==="pageBuilder"&&(()=>{
         const PB_CHECKLIST = [
-          {id:"placeholders",  label:"All [BRACKET] placeholders replaced",                                  cat:"Delivery"},
-          {id:"schema",        label:"Schema @graph — all 11 types present, slugs/dates filled",             cat:"Schema"},
-          {id:"faq_schema",    label:"FAQPage schema matches FAQ accordion exactly (6 items)",               cat:"Schema"},
-          {id:"hero_nepq",     label:"Hero H1 uses NEPQ Formula 1, 3, or 4",                                cat:"NEPQ"},
-          {id:"cta_lang",      label:"CTA buttons use approved NEPQ language only",                         cat:"NEPQ"},
-          {id:"quiz_nepq",     label:"Quiz Q1=Connecting / Q2=Problem / Q3=Consequence",                    cat:"NEPQ"},
-          {id:"quiz_results",  label:"Quiz result strings use {title, text} NEPQ format",                   cat:"NEPQ"},
-          {id:"cross_links",   label:"INTERNAL CROSS-LINKS — 3+ inline body links filled",                  cat:"SEO"},
-          {id:"related_guides",label:"RELATED GUIDES — all 8 slots filled with real URLs",                  cat:"SEO"},
-          {id:"no_placeholders_href", label:"No [RELATED-SLUG] or [RELATED GUIDE] placeholders in hrefs",   cat:"SEO"},
-          {id:"pillar_link",   label:"Pillar page linked from this post (if cluster post)",                  cat:"SEO"},
-          {id:"county_grid",   label:"County grid intact (8 links)",                                        cat:"SEO"},
-          {id:"elementor_dark",label:"Elementor dark sections: inline style !important on all text",        cat:"Tech"},
-          {id:"costs_src",     label:".gh-costs-src: inline style color rgba(255,255,255,.75) present",     cat:"Tech"},
-          {id:"iife",          label:"No DOMContentLoaded — IIFE pattern only",                             cat:"Tech"},
-          {id:"stat_row",      label:"Stat row (.gh-stat-row) present",                                     cat:"Content"},
-          {id:"gov_sources",   label:".gh-sources citations panel — min 5 .gov sources",                    cat:"E-E-A-T"},
-          {id:"infographic",   label:"Branded infographic present (pure black bg, dominant numbers)",       cat:"Content"},
+          {id:"placeholders",   label:"All [BRACKET] placeholders replaced",                               cat:"Delivery",  fix:"Replace all placeholder brackets with real content specific to this page and keyword."},
+          {id:"schema",         label:"Schema @graph — all 11 types present, slugs/dates filled",          cat:"Schema",    fix:"Add complete Schema @graph with Article, FAQPage, BreadcrumbList, LocalBusiness, Person, Organization, MedicalWebPage, HowTo, SiteLinksSearchBox, ItemList, WebSite. Fill all slugs and dates."},
+          {id:"faq_schema",     label:"FAQPage schema matches FAQ accordion exactly (6 items)",            cat:"Schema",    fix:"Generate FAQPage schema with 6 question/answer pairs that match the page topic exactly."},
+          {id:"hero_nepq",      label:"Hero H1 uses NEPQ Formula 1, 3, or 4",                             cat:"NEPQ",      fix:"Rewrite the hero H1 using NEPQ Formula 1 (problem-first question). Make it specific to the keyword and target buyer situation."},
+          {id:"cta_lang",       label:"CTA buttons use approved NEPQ language only",                      cat:"NEPQ",      fix:"Rewrite all CTA buttons using only: Let's figure out what's right for you / Check your doctors and drugs / Talk to Rob / One call. No strangers. No spam."},
+          {id:"quiz_nepq",      label:"Quiz Q1=Connecting / Q2=Problem / Q3=Consequence",                 cat:"NEPQ",      fix:"Generate a 3-question NEPQ quiz: Q1 surfaces current situation, Q2 reveals the hidden risk, Q3 shows cost of inaction. Include NEPQ-framed results."},
+          {id:"quiz_results",   label:"Quiz result strings use NEPQ {title, text} format",                cat:"NEPQ",      fix:"Rewrite quiz result strings in NEPQ format: validate the situation, name the risk, position Rob as the local specific solution."},
+          {id:"cross_links",    label:"3+ inline body cross-links to real GH pages",                      cat:"SEO",       fix:"Add 3 inline contextual links to related generationhealth.me pages within the body copy."},
+          {id:"related_guides", label:"Related Guides — 8 slots with real URLs",                          cat:"SEO",       fix:"Generate a Related Guides section with 8 real generationhealth.me page links relevant to this topic."},
+          {id:"no_placeholders_href", label:"No [RELATED-SLUG] placeholder hrefs",                       cat:"SEO",       fix:"Replace all placeholder href values with real generationhealth.me URLs."},
+          {id:"pillar_link",    label:"Pillar page linked from body",                                     cat:"SEO",       fix:"Add an inline link to the cluster pillar page within the body copy."},
+          {id:"county_grid",    label:"County grid with 8 NC county links",                               cat:"SEO",       fix:"Add a county grid section with links to Durham, Wake, Guilford, Forsyth, Mecklenburg, Buncombe, Cumberland, and Alamance county pages."},
+          {id:"elementor_dark", label:"Dark sections: all text has inline color !important",              cat:"Tech",      fix:"Add inline style color !important to all text elements inside dark-background sections."},
+          {id:"iife",           label:"No DOMContentLoaded — IIFE pattern only",                          cat:"Tech",      fix:"Convert all DOMContentLoaded listeners to IIFE pattern: (function(){ ... })();"},
+          {id:"stat_row",       label:"Stat row (.gh-stat-row) with 2026 Medicare figures",               cat:"Content",   fix:"Add a .gh-stat-row with 2026 figures: Part B $202.90/mo, Part A deductible $1,676, MOOP $9,350, Part D OOP cap $2,100."},
+          {id:"gov_sources",    label:".gh-sources panel — min 5 .gov source links",                     cat:"E-E-A-T",   fix:"Add a .gh-sources citations panel with 5+ .gov links: medicare.gov, cms.gov, ncdoi.gov, ssa.gov, healthcare.gov."},
+          {id:"infographic",    label:"Branded infographic — pure black bg, dominant numbers",            cat:"Content",   fix:"Add a branded infographic section with pure black background and dominant number treatment highlighting key Medicare figures."},
+          {id:"costs_src",      label:".gh-costs-src: inline color rgba(255,255,255,.75)",                cat:"Tech",      fix:"Add inline style=color:rgba(255,255,255,.75);font-size:12px to all .gh-costs-src citation elements."},
         ];
-        const pbTabSty = (active) => ({padding:"8px 18px",borderRadius:10,border:"none",background:active?"rgba(255,199,44,0.2)":"transparent",color:active?"#FFC72C":"#6B7B8D",fontSize:13,fontWeight:600,cursor:"pointer",transition:"all 0.2s"});
-        const pbKeyId = pbPage ? `pb-${pbCluster?.id}-${pbPage.idx}` : null;
 
-        // ── Audit handler ──
-        // ── Auto-scan on page select ──
-        const handlePbAudit = async (pageOverride) => {
-          const pg = pageOverride || pbPage;
-          if(!pg||!pg.slug) return;
-          setPbAuditLoading(true);
+        const catColors = {Schema:"#A78BFA",NEPQ:"#F472B6",SEO:"#60A5FA",Tech:"#FB923C",Content:"#2DD4BF","E-E-A-T":"#FFC72C",Delivery:"#4ADE80",Accuracy:"#F87171"};
+        const pbTabSty = (a) => ({padding:"7px 16px",borderRadius:9,border:"none",background:a?"rgba(255,199,44,0.18)":"transparent",color:a?"#FFC72C":"#6B7B8D",fontSize:12,fontWeight:600,cursor:"pointer",transition:"all 0.2s"});
+
+        // ── Scan handler ──
+        const handlePbScan = async () => {
+          if(!pbPage||!pbPage.slug) return;
+          setPbAuditLoading(true); setPbAuditResults({});
           try {
-            const html = savedHTML[`${pbCluster.id}-${pg.idx}`] || await fetchPageHTML(pg.slug) || "";
-            if(!html){ setPbAuditResults({error:"Could not fetch page HTML"}); setPbAuditLoading(false); return; }
+            const html = await fetchPageHTML(pbPage.slug) || "";
+            if(!html){ setPbAuditResults({error:"Could not fetch page — check proxy"}); setPbAuditLoading(false); return; }
             const lower = html.toLowerCase();
             const doc = new DOMParser().parseFromString(html,"text/html");
-            const audit = {};
-            audit.placeholders = !html.match(/\[[A-Z][A-Z\- ]+\]/);
-            const graphMatch = html.match(/"@graph"\s*:\s*\[[\s\S]*?\]/);
-            audit.schema = graphMatch ? (["Article","FAQPage","BreadcrumbList","LocalBusiness","Person","Organization","MedicalWebPage"].filter(t=>graphMatch[0].includes('"'+t+'"')).length>=6) : false;
-            audit.faq_schema = (html.match(/"@type"\s*:\s*"Question"/g)||[]).length>=6;
-            audit.hero_nepq = (doc.querySelector("h1")||{}).textContent?.includes("?") || lower.includes("gh-hero");
-            audit.cta_lang = lower.includes("figure out")||lower.includes("check your")||lower.includes("talk to rob")||lower.includes("one call");
-            audit.quiz_nepq = lower.includes("gh-quiz")&&(lower.includes("situation")||lower.includes("connecting")||lower.includes("currently"));
-            audit.quiz_results = html.includes("title")&&html.includes("gh-quiz")&&html.includes("text");
-            audit.cross_links = (doc.querySelectorAll('a[href*="generationhealth.me"]')||[]).length>=3;
-            audit.related_guides = (doc.querySelectorAll('.gh-rlink,.gh-related a')||[]).length>=6;
-            audit.no_placeholders_href = !html.includes("[RELATED-SLUG]")&&!html.includes("[RELATED GUIDE]");
-            audit.pillar_link = (doc.querySelectorAll('a[href*="generationhealth.me"]')||[]).length>=1;
-            audit.county_grid = lower.includes("durham")&&lower.includes("wake")&&lower.includes("guilford")&&lower.includes("forsyth");
-            audit.elementor_dark = html.includes("!important")&&(lower.includes("color:#fff")||lower.includes("color:rgba(255,255,255"));
-            audit.costs_src = lower.includes("gh-costs-src")&&html.includes("rgba(255,255,255,.75");
-            audit.iife = !lower.includes("domcontentloaded")&&(html.includes("(function(){")||html.includes("(()=>{")||html.includes("(function () {"));
-            audit.stat_row = lower.includes("gh-stat-row")||lower.includes("gh-stat");
-            audit.gov_sources = (html.match(/medicare\.gov|cms\.gov|ncdoi\.gov|ssa\.gov|healthcare\.gov/g)||[]).length>=5;
-            audit.infographic = lower.includes("gh-infographic")||lower.includes("gh-info")||(lower.includes("background:#000")&&lower.includes("font-size:clamp"));
-            audit._html = html;
-            setPbAuditResults(audit);
-            if(html) setPbOutput(html);
-          } catch(e) { setPbAuditResults({error:e.message}); }
+            const a = {};
+            a.placeholders = !html.match(/\[[A-Z][A-Z\- ]+\]/);
+            const gm = html.match(/"@graph"\s*:\s*\[[\s\S]*?\]/);
+            a.schema = gm ? ["Article","FAQPage","BreadcrumbList","LocalBusiness","Person","Organization","MedicalWebPage"].filter(t=>gm[0].includes('"'+t+'"')).length>=6 : false;
+            a.faq_schema = (html.match(/"@type"\s*:\s*"Question"/g)||[]).length>=6;
+            a.hero_nepq = !!(doc.querySelector("h1")||{}).textContent?.includes("?") || lower.includes("gh-hero");
+            a.cta_lang = lower.includes("figure out")||lower.includes("check your")||lower.includes("talk to rob")||lower.includes("one call");
+            a.quiz_nepq = lower.includes("gh-quiz")&&(lower.includes("situation")||lower.includes("connecting")||lower.includes("currently"));
+            a.quiz_results = html.includes("gh-quiz")&&html.includes("title")&&html.includes("text");
+            a.cross_links = (doc.querySelectorAll('a[href*="generationhealth.me"]')||[]).length>=3;
+            a.related_guides = (doc.querySelectorAll('.gh-rlink,.gh-related a')||[]).length>=6;
+            a.no_placeholders_href = !html.includes("[RELATED-SLUG]")&&!html.includes("[RELATED GUIDE]");
+            a.pillar_link = (doc.querySelectorAll('a[href*="generationhealth.me"]')||[]).length>=1;
+            a.county_grid = lower.includes("durham")&&lower.includes("wake")&&lower.includes("guilford")&&lower.includes("forsyth");
+            a.elementor_dark = html.includes("!important")&&(lower.includes("color:#fff")||lower.includes("color:rgba(255,255,255"));
+            a.iife = !lower.includes("domcontentloaded")&&(html.includes("(function(){")||html.includes("(()=>{"));
+            a.stat_row = lower.includes("gh-stat-row")||lower.includes("gh-stat");
+            a.gov_sources = (html.match(/medicare\.gov|cms\.gov|ncdoi\.gov|ssa\.gov|healthcare\.gov/g)||[]).length>=5;
+            a.infographic = lower.includes("gh-infographic")||lower.includes("background:#000")||lower.includes("background: #000");
+            a.costs_src = lower.includes("gh-costs-src");
+            a._html = html;
+            setPbAuditResults(a);
+          } catch(e){ setPbAuditResults({error:e.message}); }
           setPbAuditLoading(false);
         };
 
-        // ── Generate full page ──
-        const handlePbGenerate = async () => {
+        // ── AI Fix handler ──
+        const handlePbFix = async (item) => {
           if(!aiApiKey.trim()){ setAiShowKey(true); return; }
-          setPbGenLoading(true);
-          try {
-            const keyword = pbKeyword||pbPage?.name||"Medicare North Carolina";
-            const existingHtml = pbAuditResults._html||pbOutput||"";
-            const prompt = `Build v5.2 NEPQ page for GenerationHealth.me.
-Keyword:${keyword}|Page:${pbPage?.name||""}|Cluster:${pbCluster?.name||""}|Slug:/${pbPage?.slug||""}
-
-18-POINT CHECKLIST — ALL REQUIRED:
-1.No [BRACKET] placeholders 2.Schema @graph 11 types 3.FAQPage=6 Q&A 4.Hero H1 NEPQ Formula 5.NEPQ CTA language 6.Quiz Q1=Connecting Q2=Problem Q3=Consequence 7.Quiz results NEPQ format 8.3+ cross-links 9.Related guides 8 slots 10.No placeholder hrefs 11.Pillar linked 12.County grid 8 NC counties 13.Dark sections inline !important 14..gh-costs-src inline color 15.IIFE only no DOMContentLoaded 16.Stat row 2026 figures Part B=$202.90 17.5+ .gov sources 18.Branded infographic
-
-Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
-Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings.
-Output:Elementor HTML only,no DOCTYPE,start with first <script type="application/ld+json"> tag.
-${existingHtml?"EXISTING (rebuild/improve):\n<existing_html>\n"+existingHtml.substring(0,12000)+"\n</existing_html>":""}`;
-            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4096,messages:[{role:"user",content:prompt}]})});
-            const data = await resp.json();
-            const html = (data.content||[]).map(b=>b.text||"").join("");
-            setPbOutput(html);
-            setPbSandboxMode(true);
-          } catch(e){ alert("Generate error: "+e.message); }
-          setPbGenLoading(false);
-        };
-
-        // ── Sandbox save with progress ──
-        const handlePbSave = async (html) => {
-          const text = html||pbOutput; if(!text) return;
-          setPbSaving(true); setPbSaveProgress(0);
-          for(const [pct,ms] of [[25,150],[60,250],[85,200],[100,150]]){
-            await new Promise(r=>setTimeout(r,ms)); setPbSaveProgress(pct);
-          }
-          try{ localStorage.setItem("gh-cc-pb-"+( pbPage?.slug||"draft"),text); setPbOutput(text); }catch(e){}
-          await new Promise(r=>setTimeout(r,400));
-          setPbSaving(false); setPbSaveProgress(0);
-        };
-
-        // ── NEPQ section insert ──
-        const handleNepqInsert = async (sectionId) => {
-          if(!aiApiKey.trim()){ setAiShowKey(true); return; }
-          const section = (window.GH_PB_NEPQ_SECTIONS||[]).find(s=>s.id===sectionId);
-          if(!section) return;
+          setPbFixing(prev=>({...prev,[item.id]:true}));
+          const existing = pbAuditResults._html||"";
           const keyword = pbKeyword||pbPage?.name||"Medicare NC";
-          const prompt = `Build v5.2 NEPQ HTML section for GenerationHealth.me.
-Keyword:${keyword}|Section:${section.label}|${section.desc}|NEPQ:${section.mode||"neutral"}
-Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Part B:$202.90/mo|Part A:$1,676
-Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes. Output:raw HTML only,start with <div or <style.`;
-          setPbAgentLoading(true);
-          setPbAgentMsgs(prev=>[...prev,{role:"user",content:"Insert: "+section.label,ts:Date.now()}]);
-          try{
-            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:3000,messages:[{role:"user",content:prompt}]})});
-            const data = await resp.json();
-            const html = (data.content||[]).map(b=>b.text||"").join("");
-            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:html,isHtml:true,sectionLabel:section.label,ts:Date.now()}]);
-            const newOut = (pbOutput||"")+"/* NEPQ:"+section.label+" */\n"+html;
-            await handlePbSave(newOut);
-          }catch(e){ setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error:"+e.message,ts:Date.now()}]); }
-          setPbAgentLoading(false); setPbNepqInsert("");
-        };
-
-        // ── Send agent message ──
-        const sendPbAgentMsg = async () => {
-          if((!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()) return;
-          const userMsg = {role:"user",content:pbAgentInput,files:pbAgentFiles.map(f=>({name:f.name,type:f.type})),ts:Date.now()};
-          const msgs = [...pbAgentMsgs,userMsg];
-          setPbAgentMsgs(msgs); setPbAgentInput(""); const attachedFiles=[...pbAgentFiles]; setPbAgentFiles([]);
-          setPbAgentLoading(true);
-          const modeObj = (window.GH_PB_NEPQ_MODES||[]).find(m=>m.id===pbNepqMode);
-          const sys = `GH Page Builder AI. Edit v5.2 NEPQ pages for generationhealth.me (Robert Simm #10447418).${pbNepqMode?" NEPQ MODE:"+pbNepqMode+" — "+modeObj?.desc:""}
+          const prompt = `You are fixing a specific issue on a GenerationHealth.me v5.2 NEPQ page.
+PAGE: ${pbPage?.name||""} | /${pbPage?.slug||""} | Keyword: ${keyword}
+ISSUE TO FIX: ${item.label}
+WHAT TO DO: ${item.fix}
 Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting
 Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350. Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes.
-HTML output=raw HTML only. Advice=direct+specific.
-PAGE:${pbPage?.name||"none"}/${pbPage?.slug||""}|Cluster:${pbCluster?.name||""}
-FAILING CHECKLIST:${PB_CHECKLIST.filter(i=>!pbAuditResults[i.id]&&pbAuditResults._html).map(i=>i.id).join(",")||"run scan first"}
-${pbOutput?"CURRENT HTML (first 6000):\n"+pbOutput.substring(0,6000):""}`;
-          const imgBlocks = attachedFiles.filter(f=>f.mimeType?.startsWith("image/")).map(f=>({type:"image",source:{type:"base64",media_type:f.mimeType,data:f.data}}));
+${existing?"CURRENT PAGE HTML (first 5000 chars):
+"+existing.substring(0,5000):""}
+OUTPUT: Only the HTML block that fixes this issue. Start with <div, <style, or <script. No explanation.`;
+          try {
+            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
+            const data = await resp.json();
+            const fix = (data.content||[]).map(b=>b.text||"").join("");
+            setPbFixResults(prev=>({...prev,[item.id]:fix}));
+          } catch(e){ setPbFixResults(prev=>({...prev,[item.id]:"Error: "+e.message})); }
+          setPbFixing(prev=>({...prev,[item.id]:false}));
+        };
+
+        // ── Chat send ──
+        const sendPbChat = async () => {
+          if((!pbChatInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()) return;
+          const userMsg = {role:"user",content:pbChatInput,ts:Date.now()};
+          const msgs = [...pbAgentMsgs,userMsg];
+          setPbAgentMsgs(msgs); setPbChatInput(""); const files=[...pbAgentFiles]; setPbAgentFiles([]);
+          setPbAgentLoading(true);
+          const nepqModes = window.GH_PB_NEPQ_MODES||[];
+          const modeObj = nepqModes.find(m=>m.id===pbNepqMode);
+          const sys = `GH Page Builder AI — generationhealth.me. Robert Simm #10447418.${pbNepqMode?" NEPQ:"+pbNepqMode+" "+modeObj?.desc:""}
+Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting|Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350
+Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings. HTML=raw only. Advice=direct+specific.
+PAGE:${pbPage?.name||"none"}|/${pbPage?.slug||""}|Cluster:${pbCluster?.name||""}
+FAILING:${PB_CHECKLIST.filter(i=>pbAuditResults._html&&!pbAuditResults[i.id]).map(i=>i.id).join(",")||"none"}`;
+          const imgBlocks = files.filter(f=>f.mimeType?.startsWith("image/")).map(f=>({type:"image",source:{type:"base64",media_type:f.mimeType,data:f.data}}));
           const apiMsgs = msgs.map((m,mi)=>{
-            if(m.role==="user"&&mi===msgs.length-1&&imgBlocks.length>0)
-              return {role:"user",content:[...imgBlocks,{type:"text",text:m.content||"Analyze this screenshot."}]};
+            if(m.role==="user"&&mi===msgs.length-1&&imgBlocks.length>0) return {role:"user",content:[...imgBlocks,{type:"text",text:m.content||"Analyze this."}]};
             return {role:m.role,content:m.content};
           });
-          try{
+          try {
             const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4096,system:sys,messages:apiMsgs})});
             const data = await resp.json();
             const reply = (data.content||[]).map(b=>b.text||"").join("");
-            const isHtml = reply.trim().startsWith("<");
-            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:reply,isHtml,ts:Date.now()}]);
-            if(isHtml){ await handlePbSave((pbOutput||"")+"/* AI EDIT */\n"+reply); }
-          }catch(e){ setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error:"+e.message,ts:Date.now()}]); }
+            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:reply,isHtml:reply.trim().startsWith("<"),ts:Date.now()}]);
+          } catch(e){ setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error:"+e.message,ts:Date.now()}]); }
           setPbAgentLoading(false);
         };
 
@@ -5783,248 +5742,273 @@ ${pbOutput?"CURRENT HTML (first 6000):\n"+pbOutput.substring(0,6000):""}`;
           });
         };
 
+        // ── NEPQ Insert ──
+        const handleNepqInsert = async () => {
+          if(!pbNepqInsert||!aiApiKey.trim()) return;
+          const section = (window.GH_PB_NEPQ_SECTIONS||[]).find(s=>s.id===pbNepqInsert);
+          if(!section) return;
+          const prompt = `Build v5.2 NEPQ HTML section. Page:${pbPage?.name||"Medicare NC"}|${section.label}|${section.desc}|NEPQ:${section.mode}
+Phone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Part B:$202.90/mo
+Style:dark navy #0F1A2E,gold #FFC72C,.gh- classes. Output:raw HTML only,start with <div or <style.`;
+          setPbAgentLoading(true);
+          setPbAgentMsgs(prev=>[...prev,{role:"user",content:"Insert section: "+section.label,ts:Date.now()}]);
+          try {
+            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
+            const data = await resp.json();
+            const html = (data.content||[]).map(b=>b.text||"").join("");
+            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:html,isHtml:true,sectionLabel:section.label,ts:Date.now()}]);
+          } catch(e){ setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error:"+e.message,ts:Date.now()}]); }
+          setPbAgentLoading(false); setPbNepqInsert("");
+        };
+
         const pbScore = PB_CHECKLIST.filter(i=>pbAuditResults[i.id]).length;
         const pbTotal = PB_CHECKLIST.length;
         const pbPct = pbTotal>0?Math.round(pbScore/pbTotal*100):0;
         const pbGrade = pbPct>=95?"A+":pbPct>=85?"A":pbPct>=75?"B":pbPct>=65?"C":pbPct>=50?"D":"F";
         const pbGradeColor = pbPct>=75?"#4ADE80":pbPct>=50?"#FFC72C":"#F87171";
-        const nepqModes = window.GH_PB_NEPQ_MODES||[];
-        const nepqSections = window.GH_PB_NEPQ_SECTIONS||[];
-        const activeModeObj = nepqModes.find(m=>m.id===pbNepqMode)||nepqModes[0]||{color:"#6B7B8D"};
         const hasAudit = Object.keys(pbAuditResults).filter(k=>k!=="error"&&k!=="_html").length>0;
+        const nepqModesList = window.GH_PB_NEPQ_MODES||[];
+        const nepqSectionsList = window.GH_PB_NEPQ_SECTIONS||[];
+        const activeModeObj = nepqModesList.find(m=>m.id===pbNepqMode)||{color:"#6B7B8D",label:"— No framing —"};
+        const liveUrl = pbPage?.slug ? "https://generationhealth.me/"+pbPage.slug+"/" : null;
 
-        const catColors = {Schema:"#A78BFA",NEPQ:"#F472B6",SEO:"#60A5FA",Tech:"#FB923C",Content:"#2DD4BF","E-E-A-T":"#FFC72C",Delivery:"#4ADE80",Accuracy:"#F87171"};
+        return <div>
 
-        return <div style={{display:"flex",flexDirection:"column",gap:0}}>
-
-          {/* ══ HEADER ══ */}
-          <div style={{background:"linear-gradient(135deg,rgba(255,199,44,0.08),rgba(75,156,211,0.08))",border:"1px solid rgba(255,199,44,0.2)",borderRadius:16,padding:"16px 24px",marginBottom:16,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+          {/* ── PAGE TITLE ── */}
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexWrap:"wrap",gap:10}}>
             <div>
               <h2 style={{fontSize:20,fontWeight:700,color:"#FFF",margin:0,fontFamily:"Georgia,serif"}}>🏗️ Page Builder</h2>
-              <p style={{fontSize:12,color:"#6B7B8D",margin:"2px 0 0"}}>18-point checklist · v5.2 NEPQ template · Section-by-section sandbox</p>
+              <p style={{fontSize:11,color:"#6B7B8D",margin:"2px 0 0"}}>18-point checklist · NEPQ sandbox · section-by-section editing</p>
             </div>
-            {pbPage&&<div style={{display:"flex",alignItems:"center",gap:10}}>
-              {hasAudit&&<div style={{textAlign:"center",padding:"6px 14px",background:`${pbGradeColor}15`,border:`1px solid ${pbGradeColor}40`,borderRadius:10}}>
-                <div style={{fontSize:24,fontWeight:900,color:pbGradeColor,lineHeight:1}}>{pbGrade}</div>
-                <div style={{fontSize:10,color:"#6B7B8D"}}>{pbScore}/{pbTotal}</div>
-              </div>}
-              {!pbSandboxMode&&<button onClick={()=>{if(pbOutput) setPbSandboxMode(true); else handlePbGenerate();}} disabled={pbGenLoading||pbAuditLoading} style={{padding:"10px 20px",borderRadius:12,border:"none",background:pbGenLoading?"#333":"linear-gradient(135deg,#7C3AED,#A78BFA)",color:pbGenLoading?"#666":"#FFF",fontWeight:700,fontSize:13,cursor:pbGenLoading?"not-allowed":"pointer"}}>
-                {pbGenLoading?"⏳ Generating...":pbOutput?"🛠️ Enter Sandbox →":"⚡ Generate & Enter Sandbox →"}
-              </button>}
-              {pbSandboxMode&&<button onClick={()=>setPbSandboxMode(false)} style={{padding:"8px 16px",borderRadius:10,border:"1px solid rgba(255,255,255,0.15)",background:"rgba(255,255,255,0.06)",color:"#C4CDD5",fontSize:12,cursor:"pointer"}}>← Back to Grade</button>}
-            </div>}
           </div>
 
-          {/* ══ MAIN LAYOUT ══ */}
-          <div style={{display:"grid",gridTemplateColumns:"260px 1fr",gap:16,minHeight:700}}>
+          {/* ── TWO-COLUMN LAYOUT ── */}
+          <div style={{display:"grid",gridTemplateColumns:"240px 1fr",gap:16,alignItems:"start"}}>
 
-            {/* ── LEFT: Cluster → Page selector ── */}
-            <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:14,overflowY:"auto",maxHeight:750}}>
-              <div style={{fontSize:10,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:10,padding:"0 4px"}}>Clusters & Posts</div>
-              {window.GH_CLUSTERS.filter(c=>c.posts.some(p=>p.status==="done")).map(c=><div key={c.id} style={{marginBottom:4}}>
-                <div style={{fontSize:9,fontWeight:800,color:"#FFC72C",textTransform:"uppercase",padding:"7px 8px 3px",letterSpacing:"0.08em"}}>{c.name}</div>
+            {/* ── LEFT: URL LIST ── */}
+            <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:12,overflowY:"auto",maxHeight:"calc(100vh - 180px)",position:"sticky",top:16}}>
+              <div style={{fontSize:9,fontWeight:800,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10,padding:"0 4px"}}>Clusters & Pages</div>
+              {window.GH_CLUSTERS.filter(c=>c.posts.some(p=>p.status==="done")).map(c=><div key={c.id} style={{marginBottom:2}}>
+                <div style={{fontSize:9,fontWeight:800,color:"#FFC72C",textTransform:"uppercase",padding:"6px 8px 2px",letterSpacing:"0.08em"}}>{c.name}</div>
                 {c.posts.filter(p=>p.status==="done").map((p,i)=>{
                   const isSel = pbCluster?.id===c.id&&pbPage?.idx===i;
                   return <button key={i} onClick={()=>{
                     setPbCluster(c); setPbPage({...p,idx:i});
-                    setPbAuditResults({}); setPbOutput(""); setPbSandboxMode(false);
+                    setPbAuditResults({}); setPbFixResults({}); setPbFixing({});
                     setPbKeyword(p.slug?.replace(/-/g," ")||""); setPbTitle(p.name);
-                    setPbAgentMsgs([]);
-                    // Auto-scan
-                    setTimeout(()=>handlePbAudit({...p,idx:i}),50);
-                  }} style={{display:"block",width:"100%",textAlign:"left",padding:"6px 10px",borderRadius:8,border:isSel?"1px solid rgba(255,199,44,0.4)":"1px solid transparent",background:isSel?"rgba(255,199,44,0.09)":"transparent",color:isSel?"#FFC72C":"#A0AEC0",fontSize:11,cursor:"pointer",marginBottom:2,transition:"all 0.15s"}}>
-                    {p.name}
+                    setPbAgentMsgs([]); setPbNepqInsert(""); setPbNepqMode("");
+                  }} style={{display:"block",width:"100%",textAlign:"left",padding:"6px 10px",borderRadius:8,border:isSel?"1px solid rgba(255,199,44,0.4)":"1px solid transparent",background:isSel?"rgba(255,199,44,0.09)":"transparent",color:isSel?"#FFC72C":"#8899A6",fontSize:10,cursor:"pointer",marginBottom:1,transition:"all 0.15s",lineHeight:1.4}}>
+                    <div style={{fontWeight:isSel?700:400,marginBottom:1}}>{p.name}</div>
+                    {p.slug&&<div style={{fontSize:8,color:isSel?"rgba(255,199,44,0.6)":"#4B5C6E",fontFamily:"monospace"}}>/{p.slug}</div>}
                   </button>;
                 })}
               </div>)}
             </div>
 
-            {/* ── RIGHT: Grade view OR Sandbox ── */}
-            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+            {/* ── RIGHT: MAIN PANEL ── */}
+            <div style={{display:"flex",flexDirection:"column",gap:16}}>
 
-              {/* ── NO PAGE SELECTED ── */}
+              {/* ── EMPTY STATE ── */}
               {!pbPage&&<div style={{textAlign:"center",padding:"80px 20px",color:"#4B5C6E"}}>
                 <div style={{fontSize:40,marginBottom:10}}>👈</div>
-                <div style={{fontSize:15,color:"#6B7B8D",marginBottom:6}}>Select a cluster post to begin</div>
-                <div style={{fontSize:12,color:"#4B5C6E"}}>Page will auto-scan against the 18-point checklist and display a grade</div>
+                <div style={{fontSize:14,color:"#6B7B8D",marginBottom:4}}>Select a page from the left</div>
+                <div style={{fontSize:11,color:"#4B5C6E"}}>Auto-scans the 18-point checklist and opens the live sandbox</div>
               </div>}
 
-              {/* ── SCANNING ── */}
-              {pbPage&&pbAuditLoading&&<div style={{textAlign:"center",padding:"60px 20px"}}>
-                <div style={{fontSize:32,marginBottom:12}}>🔍</div>
-                <div style={{fontSize:15,color:"#FFF",fontWeight:700,marginBottom:4}}>Scanning page...</div>
-                <div style={{fontSize:12,color:"#6B7B8D"}}>{pbPage.name}</div>
-                <div style={{marginTop:20,height:3,borderRadius:99,background:"rgba(255,255,255,0.06)",overflow:"hidden",maxWidth:300,margin:"20px auto 0"}}>
-                  <div style={{height:"100%",width:"60%",borderRadius:99,background:"linear-gradient(90deg,#FFC72C,#FFD54F)",animation:"pulse 1.5s ease-in-out infinite"}} />
-                </div>
-              </div>}
+              {pbPage&&<>
 
-              {/* ── GRADE VIEW ── */}
-              {pbPage&&!pbAuditLoading&&!pbSandboxMode&&<div>
-
-                {/* Grade hero */}
-                {hasAudit&&<div style={{background:`linear-gradient(135deg,${pbGradeColor}10,${pbGradeColor}05)`,border:`1px solid ${pbGradeColor}30`,borderRadius:16,padding:"24px 28px",marginBottom:14,display:"flex",alignItems:"center",gap:24,flexWrap:"wrap"}}>
-                  <div style={{textAlign:"center"}}>
-                    <div style={{fontSize:64,fontWeight:900,color:pbGradeColor,lineHeight:1,fontFamily:"Georgia,serif"}}>{pbGrade}</div>
-                    <div style={{fontSize:13,color:"#6B7B8D",marginTop:4}}>{pbPct}% passing</div>
+                {/* ── PAGE HEADER ── */}
+                <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+                  <div>
+                    <div style={{fontSize:15,fontWeight:700,color:"#FFF",marginBottom:2}}>{pbPage.name}</div>
+                    <a href={liveUrl} target="_blank" rel="noreferrer" style={{fontSize:11,color:"#60A5FA",textDecoration:"none",fontFamily:"monospace"}}>{liveUrl}</a>
                   </div>
-                  <div style={{flex:1,minWidth:200}}>
-                    <div style={{fontSize:16,fontWeight:700,color:"#FFF",marginBottom:4}}>{pbPage.name}</div>
-                    <div style={{fontSize:11,color:"#6B7B8D",marginBottom:12}}>/{pbPage.slug} · {pbCluster?.name}</div>
-                    <div style={{height:8,borderRadius:99,background:"rgba(255,255,255,0.08)",overflow:"hidden",maxWidth:320}}>
-                      <div style={{height:"100%",width:pbPct+"%",borderRadius:99,background:`linear-gradient(90deg,${pbGradeColor},${pbGradeColor}AA)`,transition:"width 0.6s ease"}} />
-                    </div>
-                    <div style={{fontSize:11,color:"#6B7B8D",marginTop:6}}>{pbScore} of {pbTotal} points passing</div>
-                  </div>
-                  <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                    <button onClick={()=>setPbSandboxMode(true)} style={{padding:"12px 24px",borderRadius:12,border:"none",background:"linear-gradient(135deg,#7C3AED,#A78BFA)",color:"#FFF",fontWeight:700,fontSize:14,cursor:"pointer"}}>🛠️ Enter Sandbox →</button>
-                    <button onClick={()=>handlePbGenerate()} disabled={pbGenLoading} style={{padding:"10px 24px",borderRadius:12,border:"1px solid rgba(20,184,166,0.4)",background:"rgba(20,184,166,0.08)",color:"#14B8A6",fontWeight:700,fontSize:13,cursor:pbGenLoading?"not-allowed":"pointer"}}>
-                      {pbGenLoading?"⏳ Generating...":"⚡ Generate Fresh Page"}
+                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                    {hasAudit&&<div style={{textAlign:"center",padding:"4px 12px",background:`${pbGradeColor}15`,border:`1px solid ${pbGradeColor}35`,borderRadius:9}}>
+                      <div style={{fontSize:20,fontWeight:900,color:pbGradeColor,lineHeight:1}}>{pbGrade}</div>
+                      <div style={{fontSize:9,color:"#6B7B8D"}}>{pbScore}/{pbTotal}</div>
+                    </div>}
+                    <button onClick={handlePbScan} disabled={pbAuditLoading} style={{padding:"9px 20px",borderRadius:10,border:"none",background:pbAuditLoading?"#333":"linear-gradient(135deg,#FFC72C,#FFD54F)",color:pbAuditLoading?"#666":"#1A2332",fontSize:12,fontWeight:700,cursor:pbAuditLoading?"not-allowed":"pointer",minWidth:90}}>
+                      {pbAuditLoading?"Scanning...":"🔍 Scan"}
                     </button>
+                  </div>
+                </div>
+
+                {/* ── SCAN PROGRESS BAR ── */}
+                {pbAuditLoading&&<div style={{background:"rgba(255,199,44,0.06)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:10,padding:"10px 16px"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:6,fontSize:11,color:"#FFC72C",fontWeight:600}}>
+                    <span>🔍 Running 18-point checklist scan...</span>
+                    <span>{pbPage.slug}</span>
+                  </div>
+                  <div style={{height:5,borderRadius:99,background:"rgba(255,255,255,0.08)",overflow:"hidden"}}>
+                    <div style={{height:"100%",width:"100%",borderRadius:99,background:"linear-gradient(90deg,#FFC72C,#FFD54F)",animation:"pulse 1.5s ease-in-out infinite"}} />
                   </div>
                 </div>}
 
-                {/* 18-point checklist breakdown */}
-                {hasAudit&&<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:14,padding:"16px 18px"}}>
-                  <div style={{fontSize:11,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:14}}>18-Point Checklist Breakdown</div>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"2px 24px"}}>
+                {/* ── 18-POINT CHECKLIST ── */}
+                {hasAudit&&<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,overflow:"hidden"}}>
+                  <div style={{padding:"10px 16px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                    <div style={{fontSize:11,fontWeight:700,color:"#C4CDD5"}}>18-Point Checklist</div>
+                    <div style={{display:"flex",gap:10,fontSize:11}}>
+                      <span style={{color:"#4ADE80"}}>✓ {pbScore} passing</span>
+                      <span style={{color:"#F87171"}}>✕ {pbTotal-pbScore} failing</span>
+                    </div>
+                  </div>
+                  <div style={{padding:"10px 14px",display:"flex",flexDirection:"column",gap:4}}>
                     {PB_CHECKLIST.map(item=>{
                       const pass = pbAuditResults[item.id];
+                      const fixing = pbFixing?.[item.id];
+                      const fixResult = pbFixResults?.[item.id];
                       const c = catColors[item.cat]||"#6B7B8D";
-                      return <div key={item.id} style={{display:"flex",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,0.03)"}}>
-                        <div style={{width:16,height:16,borderRadius:5,flexShrink:0,background:pass?"#16A34A":"rgba(239,68,68,0.15)",border:pass?"none":"1px solid rgba(239,68,68,0.3)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                          <span style={{fontSize:9,color:pass?"#FFF":"#EF4444",fontWeight:700}}>{pass?"✓":"✕"}</span>
+                      return <div key={item.id} style={{borderRadius:10,border:`1px solid ${pass?"rgba(74,222,128,0.12)":"rgba(239,68,68,0.2)"}`,background:pass?"rgba(74,222,128,0.04)":"rgba(239,68,68,0.04)",overflow:"hidden"}}>
+                        <div style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px"}}>
+                          {/* Status icon */}
+                          <div style={{width:20,height:20,borderRadius:6,flexShrink:0,background:pass?"#16A34A":"rgba(239,68,68,0.15)",border:pass?"none":"1px solid rgba(239,68,68,0.35)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                            <span style={{fontSize:10,color:pass?"#FFF":"#EF4444",fontWeight:700}}>{pass?"✓":"✕"}</span>
+                          </div>
+                          {/* Label */}
+                          <span style={{flex:1,fontSize:11,color:pass?"#8DB4A0":"#E8ECF0",lineHeight:1.4}}>{item.label}</span>
+                          {/* Cat badge */}
+                          <span style={{fontSize:8,color:c,background:`${c}15`,border:`1px solid ${c}30`,padding:"1px 6px",borderRadius:4,flexShrink:0,fontWeight:700}}>{item.cat}</span>
+                          {/* Fix button — only on failing items */}
+                          {!pass&&<button onClick={()=>handlePbFix(item)} disabled={fixing} style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(167,139,250,0.35)",background:fixing?"rgba(167,139,250,0.04)":"rgba(167,139,250,0.12)",color:fixing?"#666":"#A78BFA",fontSize:10,fontWeight:700,cursor:fixing?"not-allowed":"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+                            {fixing?"⏳ Fixing...":"⚡ Fix"}
+                          </button>}
+                          {pass&&<span style={{fontSize:9,color:"#4ADE80",padding:"3px 8px",borderRadius:5,background:"rgba(74,222,128,0.08)"}}>Passing</span>}
                         </div>
-                        <span style={{fontSize:10,color:pass?"#C4CDD5":"#E8ECF0",flex:1,lineHeight:1.4}}>{item.label}</span>
-                        <span style={{fontSize:8,color:c,background:`${c}15`,padding:"1px 5px",borderRadius:4,flexShrink:0}}>{item.cat}</span>
+                        {/* Fix result panel */}
+                        {fixResult&&<div style={{borderTop:"1px solid rgba(167,139,250,0.15)",padding:"10px 12px",background:"rgba(167,139,250,0.06)"}}>
+                          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+                            <span style={{fontSize:10,fontWeight:700,color:"#A78BFA"}}>⚡ AI Fix — Copy and paste into Elementor</span>
+                            <div style={{display:"flex",gap:6}}>
+                              <button onClick={()=>navigator.clipboard.writeText(fixResult)} style={{fontSize:9,padding:"3px 9px",borderRadius:5,border:"1px solid rgba(74,222,128,0.25)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",cursor:"pointer"}}>📋 Copy</button>
+                              <button onClick={()=>setPbFixResults(prev=>({...prev,[item.id]:null}))} style={{fontSize:9,padding:"3px 7px",borderRadius:5,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#6B7B8D",cursor:"pointer"}}>✕</button>
+                            </div>
+                          </div>
+                          <pre style={{fontSize:9,color:"#C4CDD5",overflowX:"auto",maxHeight:140,margin:0,lineHeight:1.5,whiteSpace:"pre-wrap",wordBreak:"break-all"}}>{fixResult.substring(0,600)}{fixResult.length>600?"...":""}</pre>
+                        </div>}
                       </div>;
                     })}
                   </div>
                 </div>}
 
-                {!hasAudit&&pbPage&&!pbAuditLoading&&<div style={{textAlign:"center",padding:"40px 20px",color:"#4B5C6E"}}>
-                  <div style={{fontSize:12,color:"#6B7B8D"}}>Scanning {pbPage.name}...</div>
-                </div>}
-              </div>}
+                {/* ── LIVE PAGE SANDBOX — srcdoc bypasses X-Frame-Options ── */}
+                {liveUrl&&(()=>{
+                  const sandboxHtml = pbAuditResults._html || savedHTML?.[pbCluster?.id+"-"+(pbPage?.idx)] || null;
+                  const [pbIframeLoading, setPbIframeLoading] = React.useState(false);
+                  const loadSandbox = async () => {
+                    if(sandboxHtml) return; // already loaded from audit
+                    setPbIframeLoading(true);
+                    try {
+                      const html = await fetchPageHTML(pbPage.slug);
+                      if(html) setPbAuditResults(prev=>({...prev,_html:html}));
+                    } catch(e){}
+                    setPbIframeLoading(false);
+                  };
+                  return <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,overflow:"hidden"}}>
+                    <div style={{padding:"8px 16px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div style={{width:8,height:8,borderRadius:"50%",background:sandboxHtml?"#4ADE80":"#FFC72C"}} />
+                        <span style={{fontSize:11,fontWeight:600,color:"#C4CDD5"}}>Page Sandbox</span>
+                        <span style={{fontSize:10,color:"#4B5C6E",fontFamily:"monospace"}}>{liveUrl}</span>
+                        {!sandboxHtml&&<span style={{fontSize:9,color:"#FFC72C",background:"rgba(255,199,44,0.1)",padding:"2px 7px",borderRadius:5}}>Run Scan to load preview</span>}
+                        {sandboxHtml&&<span style={{fontSize:9,color:"#4ADE80",background:"rgba(74,222,128,0.1)",padding:"2px 7px",borderRadius:5}}>✓ Loaded via proxy — full page visible</span>}
+                      </div>
+                      <div style={{display:"flex",gap:8}}>
+                        <a href={liveUrl} target="_blank" rel="noreferrer" style={{fontSize:10,padding:"4px 10px",borderRadius:6,border:"1px solid rgba(96,165,250,0.3)",background:"rgba(96,165,250,0.08)",color:"#60A5FA",textDecoration:"none",fontWeight:600}}>↗ Open in tab</a>
+                        {!sandboxHtml&&<button onClick={loadSandbox} disabled={pbIframeLoading} style={{fontSize:10,padding:"4px 10px",borderRadius:6,border:"1px solid rgba(255,199,44,0.3)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",cursor:pbIframeLoading?"not-allowed":"pointer",fontWeight:600}}>
+                          {pbIframeLoading?"⏳ Loading...":"⬇ Load Preview"}
+                        </button>}
+                      </div>
+                    </div>
+                    {sandboxHtml
+                      ? <iframe srcDoc={sandboxHtml} style={{width:"100%",height:620,border:"none",display:"block"}} title="Page sandbox" sandbox="allow-scripts allow-same-origin allow-forms" />
+                      : <div style={{height:200,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:10,color:"#4B5C6E"}}>
+                          <div style={{fontSize:28}}>🔍</div>
+                          <div style={{fontSize:12,color:"#6B7B8D"}}>Run Scan first — page HTML loads automatically</div>
+                          <div style={{fontSize:10,color:"#4B5C6E"}}>WordPress blocks direct iframes (X-Frame-Options). We fetch via proxy instead.</div>
+                        </div>
+                    }
+                  </div>;
+                })()}
 
-              {/* ══ SANDBOX ══ */}
-              {pbPage&&pbSandboxMode&&<div style={{display:"flex",flexDirection:"column",gap:14}}>
+                {/* ── CHAT + NEPQ ── */}
+                <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(167,139,250,0.2)",borderRadius:14,overflow:"hidden"}}>
 
-                {/* Sandbox header */}
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,padding:"12px 16px",background:"rgba(167,139,250,0.06)",border:"1px solid rgba(167,139,250,0.2)",borderRadius:14}}>
-                  <div>
-                    <div style={{fontSize:13,fontWeight:700,color:"#A78BFA"}}>🛠️ Sandbox — {pbPage.name}</div>
-                    <div style={{fontSize:10,color:"#6B7B8D"}}>Edit section by section with AI · Auto-saves to localStorage</div>
-                  </div>
-                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                    {hasAudit&&<div style={{fontSize:11,color:pbGradeColor,fontWeight:700,background:`${pbGradeColor}12`,padding:"4px 10px",borderRadius:7,border:`1px solid ${pbGradeColor}30`}}>{pbGrade} · {pbPct}%</div>}
-                    <button onClick={()=>{ navigator.clipboard.writeText(pbOutput); }} style={{padding:"8px 14px",borderRadius:8,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.05)",color:"#C4CDD5",fontSize:12,fontWeight:600,cursor:"pointer"}}>📋 Copy HTML</button>
-                    <button onClick={()=>{const b=new Blob([pbOutput],{type:"text/html"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=(pbPage?.slug||"page")+".html";a.click();URL.revokeObjectURL(u);}} style={{padding:"8px 14px",borderRadius:8,border:"none",background:"#0D9488",color:"#FFF",fontSize:12,fontWeight:700,cursor:"pointer"}}>⬇ Download</button>
-                    <button onClick={()=>handlePbSave(pbOutput)} disabled={pbSaving} style={{padding:"8px 14px",borderRadius:8,border:"none",background:pbSaving?"#333":"#16A34A",color:pbSaving?"#666":"#FFF",fontSize:12,fontWeight:700,cursor:pbSaving?"not-allowed":"pointer"}}>
-                      {pbSaving?"Saving...":"💾 Save"}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Progress bar */}
-                {pbSaving&&<div style={{padding:"10px 16px",background:"rgba(74,222,128,0.06)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:10}}>
-                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
-                    <span style={{fontSize:11,color:"#4ADE80",fontWeight:600}}>💾 Saving...</span>
-                    <span style={{fontSize:11,color:"#4ADE80",fontWeight:700}}>{pbSaveProgress}%</span>
-                  </div>
-                  <div style={{height:5,borderRadius:99,background:"rgba(255,255,255,0.08)",overflow:"hidden"}}>
-                    <div style={{height:"100%",width:pbSaveProgress+"%",borderRadius:99,background:"linear-gradient(90deg,#16A34A,#4ADE80)",transition:"width 0.25s ease"}} />
-                  </div>
-                </div>}
-
-                {/* Two-panel sandbox: AI chat left, HTML editor right */}
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,minHeight:600}}>
-
-                  {/* ── AI AGENT PANEL ── */}
-                  <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-
-                    {/* NEPQ controls */}
-                    <div style={{padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:10,flexWrap:"wrap",alignItems:"center"}}>
-                      <div style={{flex:1,minWidth:130}}>
-                        <div style={{fontSize:9,fontWeight:700,color:"#A78BFA",textTransform:"uppercase",marginBottom:3}}>🎭 NEPQ Mode</div>
-                        <select value={pbNepqMode} onChange={e=>setPbNepqMode(e.target.value)} style={{width:"100%",padding:"5px 8px",borderRadius:7,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:activeModeObj.color||"#C4CDD5",fontSize:11,fontWeight:600,outline:"none",cursor:"pointer"}}>
-                          {nepqModes.map(m=><option key={m.id} value={m.id} style={{background:"#1A2332",color:"#FFF"}}>{m.label}</option>)}
+                  {/* Chat header with NEPQ controls */}
+                  <div style={{padding:"10px 14px",background:"rgba(167,139,250,0.06)",borderBottom:"1px solid rgba(167,139,250,0.12)",display:"flex",gap:12,flexWrap:"wrap",alignItems:"flex-end"}}>
+                    {/* NEPQ Mode */}
+                    <div style={{minWidth:150}}>
+                      <div style={{fontSize:9,fontWeight:800,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>🎭 NEPQ Mode</div>
+                      <select value={pbNepqMode} onChange={e=>setPbNepqMode(e.target.value)} style={{width:"100%",padding:"6px 8px",borderRadius:8,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:activeModeObj.color||"#C4CDD5",fontSize:11,fontWeight:600,outline:"none",cursor:"pointer"}}>
+                        {nepqModesList.map(m=><option key={m.id} value={m.id} style={{background:"#1A2332",color:"#FFF"}}>{m.label}</option>)}
+                      </select>
+                    </div>
+                    {/* Insert Section */}
+                    <div style={{minWidth:200,flex:1}}>
+                      <div style={{fontSize:9,fontWeight:800,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>⚡ Insert NEPQ Section</div>
+                      <div style={{display:"flex",gap:6}}>
+                        <select value={pbNepqInsert} onChange={e=>setPbNepqInsert(e.target.value)} style={{flex:1,padding:"6px 8px",borderRadius:8,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.06)",color:"#C4CDD5",fontSize:11,outline:"none",cursor:"pointer"}}>
+                          <option value="" style={{background:"#1A2332"}}>— Choose section to insert —</option>
+                          {nepqSectionsList.map(s=><option key={s.id} value={s.id} style={{background:"#1A2332",color:"#FFF"}}>{s.label}</option>)}
                         </select>
-                      </div>
-                      <div style={{flex:1,minWidth:130}}>
-                        <div style={{fontSize:9,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",marginBottom:3}}>⚡ Insert Section</div>
-                        <div style={{display:"flex",gap:5}}>
-                          <select value={pbNepqInsert} onChange={e=>setPbNepqInsert(e.target.value)} style={{flex:1,padding:"5px 6px",borderRadius:7,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.06)",color:"#C4CDD5",fontSize:10,outline:"none",cursor:"pointer"}}>
-                            <option value="" style={{background:"#1A2332"}}>— Section —</option>
-                            {nepqSections.map(s=><option key={s.id} value={s.id} style={{background:"#1A2332",color:"#FFF"}}>{s.label}</option>)}
-                          </select>
-                          <button onClick={()=>pbNepqInsert&&handleNepqInsert(pbNepqInsert)} disabled={!pbNepqInsert||pbAgentLoading} style={{padding:"5px 10px",borderRadius:7,border:"none",background:pbNepqInsert&&!pbAgentLoading?"#FFC72C":"#333",color:pbNepqInsert&&!pbAgentLoading?"#1A2332":"#666",fontWeight:700,fontSize:11,cursor:pbNepqInsert&&!pbAgentLoading?"pointer":"not-allowed"}}>⚡</button>
-                        </div>
+                        <button onClick={handleNepqInsert} disabled={!pbNepqInsert||pbAgentLoading} style={{padding:"6px 14px",borderRadius:8,border:"none",background:pbNepqInsert&&!pbAgentLoading?"linear-gradient(135deg,#FFC72C,#FFD54F)":"#333",color:pbNepqInsert&&!pbAgentLoading?"#1A2332":"#666",fontWeight:700,fontSize:12,cursor:pbNepqInsert&&!pbAgentLoading?"pointer":"not-allowed",whiteSpace:"nowrap"}}>⚡ Insert</button>
                       </div>
                     </div>
+                    {pbAgentMsgs.length>0&&<button onClick={()=>{if(confirm("Clear chat?"))setPbAgentMsgs([]);}} style={{fontSize:9,color:"#4B5C6E",background:"none",border:"none",cursor:"pointer",alignSelf:"flex-end",paddingBottom:6}}>Clear</button>}
+                  </div>
 
-                    {/* Chat messages */}
-                    <div style={{flex:1,overflowY:"auto",padding:"12px 14px",display:"flex",flexDirection:"column",gap:10,minHeight:300,maxHeight:480}}>
-                      {pbAgentMsgs.length===0&&<div style={{textAlign:"center",padding:"30px 16px",color:"#4B5C6E"}}>
-                        <div style={{fontSize:22,marginBottom:6}}>🤖</div>
-                        <div style={{fontSize:12,color:"#6B7B8D",marginBottom:10}}>AI Page Agent ready</div>
-                        <div style={{display:"flex",flexWrap:"wrap",gap:5,justifyContent:"center"}}>
-                          {["Rewrite H1 with NEPQ","Fix the FAQ","Add 2026 stat row","What's failing?","Analyze for NEPQ gaps"].map(q=>
-                            <button key={q} onClick={()=>setPbAgentInput(q)} style={{fontSize:9,padding:"4px 8px",borderRadius:5,border:"1px solid rgba(167,139,250,0.25)",background:"rgba(167,139,250,0.08)",color:"#A78BFA",cursor:"pointer"}}>{q}</button>
-                          )}
-                        </div>
-                      </div>}
-                      {pbAgentMsgs.map((m,i)=><div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-                        <div style={{width:22,height:22,borderRadius:"50%",background:m.role==="user"?"rgba(255,199,44,0.2)":"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,flexShrink:0}}>{m.role==="user"?"👤":"🤖"}</div>
-                        <div style={{maxWidth:"82%",background:m.role==="user"?"rgba(255,199,44,0.07)":"rgba(255,255,255,0.04)",border:`1px solid ${m.role==="user"?"rgba(255,199,44,0.18)":"rgba(255,255,255,0.07)"}`,borderRadius:10,padding:"8px 12px"}}>
-                          {m.sectionLabel&&<div style={{fontSize:8,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",marginBottom:3}}>⚡ {m.sectionLabel}</div>}
-                          {m.isHtml
-                            ? <div>
-                                <div style={{fontSize:10,color:"#4ADE80",marginBottom:3,fontWeight:600}}>✅ HTML appended to editor</div>
-                                <pre style={{fontSize:9,color:"#6B7B8D",overflowX:"auto",maxHeight:80,margin:0}}>{m.content.substring(0,200)}...</pre>
-                                <button onClick={()=>navigator.clipboard.writeText(m.content)} style={{marginTop:4,fontSize:9,padding:"2px 8px",borderRadius:5,border:"1px solid rgba(74,222,128,0.25)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",cursor:"pointer"}}>📋 Copy</button>
-                              </div>
-                            : <div style={{fontSize:11,color:"#C4CDD5",lineHeight:1.55,whiteSpace:"pre-wrap"}}>{m.content.substring(0,1500)}</div>
-                          }
-                        </div>
-                      </div>)}
-                      {pbAgentLoading&&<div style={{display:"flex",gap:8,alignItems:"center"}}>
-                        <div style={{width:22,height:22,borderRadius:"50%",background:"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11}}>🤖</div>
-                        <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:10,padding:"8px 14px",color:"#A78BFA",fontSize:11}}>thinking…</div>
-                      </div>}
-                    </div>
-
-                    {/* File previews */}
-                    {pbAgentFiles.length>0&&<div style={{padding:"6px 12px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:5,flexWrap:"wrap"}}>
-                      {pbAgentFiles.map(f=><div key={f.id} style={{display:"inline-flex",alignItems:"center",gap:4,background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",borderRadius:6,padding:"2px 6px"}}>
-                        {f.preview?<img src={f.preview} alt="" style={{width:20,height:20,objectFit:"cover",borderRadius:3}} />:<span style={{fontSize:12}}>📄</span>}
-                        <span style={{fontSize:9,color:"#60A5FA",maxWidth:60,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</span>
-                        <button onClick={()=>setPbAgentFiles(p=>p.filter(x=>x.id!==f.id))} style={{fontSize:9,color:"#F87171",background:"none",border:"none",cursor:"pointer"}}>✕</button>
-                      </div>)}
+                  {/* Messages */}
+                  <div style={{minHeight:200,maxHeight:360,overflowY:"auto",padding:"12px 14px",display:"flex",flexDirection:"column",gap:10}}>
+                    {pbAgentMsgs.length===0&&<div style={{textAlign:"center",padding:"30px 16px",color:"#4B5C6E"}}>
+                      <div style={{fontSize:20,marginBottom:6}}>🤖</div>
+                      <div style={{fontSize:11,color:"#6B7B8D",marginBottom:8}}>AI Page Agent — ask me to edit any section</div>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:5,justifyContent:"center"}}>
+                        {["Rewrite H1 with NEPQ","Fix the FAQ section","Add a stat row","What needs fixing?","Make the CTA stronger"].map(q=>
+                          <button key={q} onClick={()=>setPbChatInput(q)} style={{fontSize:9,padding:"4px 8px",borderRadius:5,border:"1px solid rgba(167,139,250,0.25)",background:"rgba(167,139,250,0.08)",color:"#A78BFA",cursor:"pointer"}}>{q}</button>
+                        )}
+                      </div>
                     </div>}
-
-                    {/* Input */}
-                    <div style={{padding:"10px 12px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:8,alignItems:"flex-end"}}>
-                      <label style={{cursor:"pointer",padding:"7px 9px",borderRadius:7,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#6B7B8D",fontSize:14,flexShrink:0}} title="Upload screenshot">
-                        📎<input type="file" accept="image/*,application/pdf" multiple onChange={handlePbFileUpload} style={{display:"none"}} />
-                      </label>
-                      <textarea value={pbAgentInput} onChange={e=>setPbAgentInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendPbAgentMsg();}}} placeholder="Edit hero with NEPQ / Fix FAQ / Add stat row / Analyze screenshot..." rows={2} style={{flex:1,padding:"8px 10px",borderRadius:9,border:"1px solid rgba(167,139,250,0.2)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:11,outline:"none",resize:"none",lineHeight:1.5,fontFamily:"inherit"}} />
-                      <button onClick={sendPbAgentMsg} disabled={pbAgentLoading||(!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()} style={{padding:"9px 14px",borderRadius:9,border:"none",background:pbAgentLoading||(!pbAgentInput.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()?"#333":"linear-gradient(135deg,#7C3AED,#A78BFA)",color:pbAgentLoading?"#666":"#FFF",fontWeight:700,fontSize:13,cursor:pbAgentLoading?"not-allowed":"pointer",flexShrink:0}}>↑</button>
-                    </div>
+                    {pbAgentMsgs.map((m,i)=><div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
+                      <div style={{width:22,height:22,borderRadius:"50%",background:m.role==="user"?"rgba(255,199,44,0.2)":"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,flexShrink:0}}>{m.role==="user"?"👤":"🤖"}</div>
+                      <div style={{maxWidth:"85%",background:m.role==="user"?"rgba(255,199,44,0.07)":"rgba(255,255,255,0.04)",border:`1px solid ${m.role==="user"?"rgba(255,199,44,0.18)":"rgba(255,255,255,0.07)"}`,borderRadius:10,padding:"8px 12px"}}>
+                        {m.sectionLabel&&<div style={{fontSize:8,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",marginBottom:3}}>⚡ {m.sectionLabel}</div>}
+                        {m.isHtml
+                          ? <div>
+                              <div style={{fontSize:10,color:"#4ADE80",marginBottom:3,fontWeight:600}}>✅ HTML generated — copy and paste into Elementor</div>
+                              <pre style={{fontSize:9,color:"#8899A6",overflowX:"auto",maxHeight:100,margin:0,lineHeight:1.4,whiteSpace:"pre-wrap"}}>{m.content.substring(0,300)}{m.content.length>300?"...":""}</pre>
+                              <button onClick={()=>navigator.clipboard.writeText(m.content)} style={{marginTop:5,fontSize:9,padding:"2px 9px",borderRadius:5,border:"1px solid rgba(74,222,128,0.25)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",cursor:"pointer"}}>📋 Copy HTML</button>
+                            </div>
+                          : <div style={{fontSize:11,color:"#C4CDD5",lineHeight:1.55,whiteSpace:"pre-wrap"}}>{m.content.substring(0,1500)}</div>
+                        }
+                      </div>
+                    </div>)}
+                    {pbAgentLoading&&<div style={{display:"flex",gap:8}}>
+                      <div style={{width:22,height:22,borderRadius:"50%",background:"rgba(167,139,250,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10}}>🤖</div>
+                      <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:10,padding:"8px 14px",color:"#A78BFA",fontSize:11}}>thinking…</div>
+                    </div>}
                   </div>
 
-                  {/* ── HTML EDITOR PANEL ── */}
-                  <div style={{background:"rgba(0,0,0,0.25)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-                    <div style={{padding:"8px 14px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                      <span style={{fontSize:10,fontWeight:600,color:"#6B7B8D"}}>📄 HTML EDITOR — {Math.round((pbOutput||"").length/1024)}KB{localStorage.getItem("gh-cc-pb-"+(pbPage?.slug||"draft"))?" · 💾":""}</span>
-                      <span style={{fontSize:9,color:"#4B5C6E"}}>Paste into Elementor HTML widget when done</span>
-                    </div>
-                    <textarea value={pbOutput||""} onChange={e=>{setPbOutput(e.target.value);clearTimeout(window._pbSaveT);window._pbSaveT=setTimeout(()=>handlePbSave(e.target.value),2000);}} style={{flex:1,width:"100%",minHeight:560,padding:"12px 14px",background:"transparent",border:"none",color:"#C4CDD5",fontSize:10,fontFamily:"monospace",lineHeight:1.55,resize:"none",outline:"none",boxSizing:"border-box"}} />
-                  </div>
+                  {/* File previews */}
+                  {pbAgentFiles.length>0&&<div style={{padding:"6px 12px",borderTop:"1px solid rgba(255,255,255,0.05)",display:"flex",gap:5,flexWrap:"wrap"}}>
+                    {pbAgentFiles.map(f=><div key={f.id} style={{display:"inline-flex",alignItems:"center",gap:4,background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",borderRadius:6,padding:"2px 6px"}}>
+                      {f.preview?<img src={f.preview} alt="" style={{width:18,height:18,objectFit:"cover",borderRadius:3}} />:<span>📄</span>}
+                      <span style={{fontSize:9,color:"#60A5FA",maxWidth:55,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</span>
+                      <button onClick={()=>setPbAgentFiles(p=>p.filter(x=>x.id!==f.id))} style={{fontSize:9,color:"#F87171",background:"none",border:"none",cursor:"pointer"}}>✕</button>
+                    </div>)}
+                  </div>}
 
+                  {/* Chat input */}
+                  <div style={{padding:"10px 12px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:8,alignItems:"flex-end",background:"rgba(255,255,255,0.01)"}}>
+                    <label style={{cursor:"pointer",padding:"7px 9px",borderRadius:7,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#6B7B8D",fontSize:14,flexShrink:0}} title="Upload screenshot or PDF">
+                      📎<input type="file" accept="image/*,application/pdf" multiple onChange={handlePbFileUpload} style={{display:"none"}} />
+                    </label>
+                    <textarea value={pbChatInput||""} onChange={e=>setPbChatInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendPbChat();}}} placeholder={"Ask the AI to edit a section, fix a checklist item, or analyze the page..."+(pbNepqMode?" ["+activeModeObj.label+" mode]":"")} rows={2} style={{flex:1,padding:"8px 11px",borderRadius:9,border:"1px solid rgba(167,139,250,0.2)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:11,outline:"none",resize:"none",lineHeight:1.5,fontFamily:"inherit"}} />
+                    <button onClick={sendPbChat} disabled={pbAgentLoading||(!pbChatInput?.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()} style={{padding:"10px 14px",borderRadius:9,border:"none",background:pbAgentLoading||(!pbChatInput?.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()?"#333":"linear-gradient(135deg,#7C3AED,#A78BFA)",color:pbAgentLoading?"#666":"#FFF",fontWeight:700,fontSize:13,cursor:pbAgentLoading?"not-allowed":"pointer",flexShrink:0}}>↑</button>
+                  </div>
                 </div>
-              </div>}
 
+              </>}
             </div>
           </div>
         </div>;
