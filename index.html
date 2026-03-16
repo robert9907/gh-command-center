@@ -314,9 +314,11 @@ window.GH_PB_CHECKLIST = [
           {id:"infographic",    label:"Branded infographic — pure black bg, dominant numbers",            cat:"Content",   fix:"Add a branded infographic section with pure black background and dominant number treatment highlighting key Medicare figures."},
           {id:"costs_src",      label:".gh-costs-src: inline color rgba(255,255,255,.75)",                cat:"Tech",      fix:"Add inline style=color:rgba(255,255,255,.75);font-size:12px to all .gh-costs-src citation elements."},
         ]
-<\/script>
+</script>
 <script>
-window.GH_SANDBOX_CSS = "<style>@keyframes ghSweep{0%{left:-150%}100%{left:200%}}@keyframes ghShimmer{0%{background-position:200% center}100%{background-position:-200% center}}.gh-cta-card{position:relative!important;overflow:hidden!important;}.gh-cta-card::after{content:\'\';position:absolute;top:0;left:-150%;width:70%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.09),transparent);transform:skewX(-15deg);animation:ghSweep 4s ease-in-out infinite!important;pointer-events:none;}.gh-cta-card:nth-child(2)::after{animation-delay:2s!important;}.gh-ghost,.gh-hero-btn,.gh-qopt,.gh-qresult-cta,.gh-qrestart,.gh-header-cta,.gh-header-phone{border-radius:100px!important;}.gh-ghost{display:block!important;text-align:center!important;overflow:hidden!important;position:relative!important;}.gh-hero-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;}.gh-ghost--call{background:rgba(22,163,74,.12)!important;border-color:rgba(22,163,74,.45)!important;}.gh-ghost--text{background:rgba(139,92,246,.12)!important;border-color:rgba(139,92,246,.45)!important;}.gh-ghost--sched{background:rgba(245,158,11,.12)!important;border-color:rgba(245,158,11,.45)!important;}.gh-ghost--compare,.gh-ghost--primary{background:rgba(75,156,211,.12)!important;border-color:rgba(75,156,211,.45)!important;}.gh-ghost::before{content:\'\';position:absolute;top:0;left:-150%;width:80%;height:100%;transform:skewX(-15deg);animation:ghSweep 5s ease-in-out infinite!important;}.gh-ghost--compare::before,.gh-ghost--primary::before{background:linear-gradient(120deg,transparent 15%,rgba(75,156,211,.85) 50%,transparent 85%)!important;animation-delay:0s!important;}.gh-ghost--call::before{background:linear-gradient(120deg,transparent 15%,rgba(22,163,74,.9) 50%,transparent 85%)!important;animation-delay:1.5s!important;}.gh-ghost--text::before{background:linear-gradient(120deg,transparent 15%,rgba(139,92,246,.88) 50%,transparent 85%)!important;animation-delay:3s!important;}.gh-ghost--sched::before{background:linear-gradient(120deg,transparent 15%,rgba(245,158,11,.9) 50%,transparent 85%)!important;animation-delay:4.5s!important;}</style>";
+window.GH_SANDBOX_CSS = "<style>@keyframes ghCardShimmer{0%{left:-150%}100%{left:200%}}.gh-ghost,.gh-hero-btn,.gh-qopt,.gh-qresult-cta{border-radius:100px!important;}.gh-ghost{display:block!important;text-align:center!important;overflow:hidden!important;position:relative!important;}.gh-hero-btn{display:inline-flex!important;align-items:center!important;justify-content:center!important;}.gh-cta-card{position:relative!important;overflow:hidden!important;}.gh-cta-card .gh-card-sweep{position:absolute;top:0;left:-150%;width:70%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-15deg);pointer-events:none;z-index:10;}.gh-cta-card.gh-shimmer-active .gh-card-sweep{animation:ghCardShimmer 2.5s ease-in-out infinite;}.gh-ghost--call{background:rgba(22,163,74,.08)!important;border-color:rgba(22,163,74,.3)!important;}.gh-ghost--text{background:rgba(139,92,246,.08)!important;border-color:rgba(139,92,246,.3)!important;}.gh-ghost--sched{background:rgba(245,158,11,.08)!important;border-color:rgba(245,158,11,.3)!important;}.gh-ghost--compare,.gh-ghost--primary{background:rgba(75,156,211,.08)!important;border-color:rgba(75,156,211,.3)!important;}.gh-ghost--call.gh-btn-lit{background:rgba(22,163,74,.25)!important;border-color:rgba(22,163,74,.7)!important;box-shadow:0 0 16px rgba(22,163,74,.35)!important;}.gh-ghost--text.gh-btn-lit{background:rgba(139,92,246,.25)!important;border-color:rgba(139,92,246,.7)!important;box-shadow:0 0 16px rgba(139,92,246,.35)!important;}.gh-ghost--sched.gh-btn-lit{background:rgba(245,158,11,.25)!important;border-color:rgba(245,158,11,.7)!important;box-shadow:0 0 16px rgba(245,158,11,.35)!important;}.gh-ghost--compare.gh-btn-lit,.gh-ghost--primary.gh-btn-lit{background:rgba(75,156,211,.25)!important;border-color:rgba(75,156,211,.7)!important;box-shadow:0 0 16px rgba(75,156,211,.35)!important;}</style>";
+</script>
+<script>
 window.GH_NEPQ_QUICK_DROPS = [
   {label:"🤝 Connect opener",text:"What's your current situation with Medicare — are you turning 65, or looking at a plan change?"},
   {label:"⚠️ Problem surface",text:"Most people in NC don't realize their plan may not cover their doctors next year. Have you checked?"},
@@ -324,6 +326,13 @@ window.GH_NEPQ_QUICK_DROPS = [
   {label:"✨ Solution vision",text:"One 15-minute call and I verify your doctors, check your drugs, and compare every plan. Free. No pressure."},
   {label:"🎯 Soft close",text:"If I could show you a plan that covers your doctors and saves you money — would that be worth a quick call?"}
 ];
+</script>
+<script>
+window.GH_SHIMMER_SCRIPT = "<scr"+"ipt>(function(){function shimmerCard(card){var sweep=document.createElement('div');sweep.className='gh-card-sweep';card.appendChild(sweep);card.classList.add('gh-shimmer-active');setTimeout(function(){var btns=card.querySelectorAll('[class*=gh-ghost]');var order=['compare','primary','call','text','sched'];btns.forEach(function(btn){var d=0;order.forEach(function(k,j){if(btn.className.indexOf(k)>-1)d=j*220+500;});setTimeout(function(){btn.classList.add('gh-btn-lit');},d||500);});},700);}if(window.IntersectionObserver){var obs=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting)shimmerCard(e.target);});},{threshold:0.25});document.querySelectorAll('.gh-cta-card').forEach(function(c){obs.observe(c);});}else{document.querySelectorAll('.gh-cta-card').forEach(shimmerCard);}})();</"+"script>";
+
+</script>
+<script>
+window.GH_CAT_COLORS = {Schema:"#A78BFA",NEPQ:"#F472B6",SEO:"#60A5FA",Tech:"#FB923C",Content:"#2DD4BF","E-E-A-T":"#FFC72C",Delivery:"#4ADE80",Accuracy:"#F87171"};
 </script>
 <script type="text/babel">
 const { useState, useMemo, useEffect, useCallback, useRef } = React;
@@ -2665,7 +2674,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
   }, [aiApiKey]);
 
   return <div style={{minHeight:"100vh"}}>
-    {/* Header */}
+    
     <div style={{background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.08)",padding:"20px 24px",boxShadow:"none"}}>
       <div style={{maxWidth:1100,margin:"0 auto"}}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16}}>
@@ -2686,19 +2695,19 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             <div style={{display:"flex",gap:4,background:"rgba(255,199,44,0.08)",borderRadius:12,padding:4,border:"1px solid rgba(255,199,44,0.2)"}}>
               <button onClick={()=>{setView("aiAgent");setBellOpen(false);}} style={{padding:"8px 16px",borderRadius:10,border:"none",cursor:"pointer",fontSize:13,fontWeight:600,background:view==="aiAgent"?"rgba(255,199,44,0.25)":"transparent",color:view==="aiAgent"?"#FFC72C":"#A08C5A",transition:"all 0.2s"}}>🧠 AI Agent</button>
             </div>
-            {/* Theme toggle */}
+            
             <button onClick={function(){setTheme(function(p){return p==="dark"?"light":"dark"})}} title={isDark?"Switch to Light Mode":"Switch to Dark Mode"} style={{width:40,height:40,borderRadius:12,border:"1px solid rgba(255,255,255,0.08)",background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,transition:"all 0.3s"}}>{isDark?"☀️":"🌙"}</button>
-            {/* Save/Backup button */}
+            
             {hasChanges&&<button onClick={doBackup} style={{height:40,padding:"0 16px",borderRadius:12,border:"1px solid rgba(74,222,128,0.3)",background:"rgba(22,163,74,0.15)",cursor:"pointer",display:"flex",alignItems:"center",gap:6,animation:"savePulse 2s ease-in-out infinite"}}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
               <span style={{fontSize:12,fontWeight:700,color:"#4ADE80"}}>Backup</span>
             </button>}
             {!hasChanges&&lastSaveTime&&<span style={{fontSize:10,color:"#4B5C6E",padding:"0 8px"}}>Backed up {lastSaveTime.toLocaleTimeString()}</span>}
-            {/* Restore button */}
+            
             <button onClick={doRestore} title="Restore from backup" style={{width:40,height:40,borderRadius:12,border:"none",background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={"#6B7B8D"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
             </button>
-            {/* Bell icon */}
+            
             <div style={{position:"relative"}}>
               <button onClick={()=>setBellOpen(!bellOpen)} style={{width:40,height:40,borderRadius:12,border:"none",background:activeReminders.length>0?"rgba(251,146,60,0.15)":(isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.06)"),cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={activeReminders.length>0?"#FB923C":"#6B7B8D"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -2728,7 +2737,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
     </div>
 
     <div style={{maxWidth:1100,margin:"0 auto",padding:"24px 24px 80px"}}>
-      {/* Stats */}
+      
       <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(150px, 1fr))",gap:12,marginBottom:28}}>
         {[{label:"Tasks Done",value:calDone+opsDone,sub:`of ${totalCalTasks+opsTotalTasks}`},{label:"Live Pages",value:livePages,sub:`of ${totalPages}`},{label:"Clusters Built",value:window.GH_CLUSTERS.length-plannedClusters,sub:`of ${window.GH_CLUSTERS.length}`},{label:"County Hubs",value:"7 Live",sub:"all complete"},{label:"Top Source",value:"ChatGPT",sub:"460 users"}].map((s,i)=>
           <div key={i} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 20px",boxShadow:"none"}}>
@@ -2739,7 +2748,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         )}
       </div>
 
-      {/* ARCHITECTURE */}
+      
       {view==="tree" && <>
         <div style={{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"}}>
           <button onClick={()=>setPhaseFilter(0)} style={{padding:"8px 18px",borderRadius:10,border:"none",cursor:"pointer",fontSize:12,fontWeight:700,background:phaseFilter===0?(isDark?"rgba(255,255,255,0.15)":"rgba(0,0,0,0.1)"):(isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.04)"),color:phaseFilter===0?"#FFF":"#6B7B8D"}}>All</button>
@@ -2768,7 +2777,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 {cluster.gameplanNote&&<div style={{margin:"16px 0",padding:"12px 16px",background:"#FFFBEB",borderLeft:"3px solid #D97706",borderRadius:"0 8px 8px 0",fontSize:13,color:"#92400E"}}><strong>Note:</strong> {cluster.gameplanNote}</div>}
                 {cluster.templateUsed&&<div style={{margin:"16px 0",padding:"12px 16px",background:"#EFF6FF",borderLeft:"3px solid #2563EB",borderRadius:"0 8px 8px 0",fontSize:13,color:"#1E40AF"}}><strong>Master Template v3.0</strong></div>}
 
-                {/* ── Posts with Created / Indexed tracking ── */}
+                
                 <div style={{marginTop:16}}>
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
                     <span style={{fontSize:11,fontWeight:800,letterSpacing:"0.1em",color:ph.color,textTransform:"uppercase"}}>Pages ({cluster.posts.filter(p=>p.status==="done").length}/{cluster.posts.length})</span>
@@ -2813,7 +2822,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   })}
                 </div>
 
-                {/* ── Standard Phase 1 Optimization Tasks ── */}
+                
                 <div style={{marginTop:24}}>
                   <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.1em",color:"#0D9488",textTransform:"uppercase",marginBottom:10}}>
                     Optimization Checklist ({STD_TASKS.filter(t=>isDone(`std-${cluster.id}-${t.id}`)).length}/{STD_TASKS.length})
@@ -2839,7 +2848,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>
                 </div>
 
-                {/* ── Custom cluster-specific tasks (if any) ── */}
+                
                 {cluster.phase1Tasks.length>0&&<div style={{marginTop:20}}>
                   <div style={{fontSize:11,fontWeight:700,color:"#D97706",letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:10}}>
                     Cluster-Specific Tasks ({cluster.phase1Tasks.filter((_,i)=>isDone(`cl-${cluster.id}-${i}`)).length}/{cluster.phase1Tasks.length})
@@ -2855,7 +2864,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         </div>
       </>}
 
-      {/* OPTIMIZE */}
+      
       {view==="optimize"&&(()=>{
         // Build flat list of all live pages for priority queue
         const liveClust = window.GH_CLUSTERS.filter(c=>c.posts.some(p=>p.status==="done"));
@@ -2873,7 +2882,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         const pct = allOptTotal>0?Math.round(allOptDone/allOptTotal*100):0;
 
         return <div>
-          {/* Overall progress */}
+          
           <div style={{background:"linear-gradient(135deg, rgba(13,148,136,0.08), rgba(37,99,235,0.08))",border:"1px solid rgba(13,148,136,0.2)",borderRadius:16,padding:28,marginBottom:28}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:8}}>
               <div>
@@ -2917,7 +2926,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>
 
-          {/* URL Search Tool */}
+          
           <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:14,padding:"16px 20px",marginBottom:24}}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.1em",color:"#FFC72C",textTransform:"uppercase",marginBottom:10}}>🔍 Find a Page by URL</div>
             <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
@@ -2929,10 +2938,10 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             {optSearchResult&&!optSearchResult.found&&<div style={{marginTop:10,padding:"10px 14px",background:"rgba(251,146,60,0.08)",border:"1px solid rgba(251,146,60,0.25)",borderRadius:10,fontSize:13}}><span style={{color:"#FB923C",fontWeight:700}}>✗ Not found:</span> <span style={{color:"#6B7B8D"}}>"/{optSearchResult.slug}" is not in any cluster yet.</span></div>}
           </div>
 
-          {/* Priority queue intro */}
+          
           <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.12em",color:"#FFC72C",textTransform:"uppercase",marginBottom:16}}>Clusters ranked by SEO + AEO + GEO impact — highest priority first</div>
 
-          {/* Cluster cards */}
+          
           {sortedClust.map(cluster=>{
             const ph = PHASES.find(p=>p.id===cluster.phase);
             const isExp = expandedOptCluster===cluster.id;
@@ -2950,7 +2959,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               border:isExp?`2px solid ${ph.color}`:"1px solid rgba(255,255,255,0.06)",
               borderRadius:16,marginBottom:12,overflow:"hidden",
             }}>
-              {/* Cluster header */}
+              
               <div onClick={()=>setExpandedOptCluster(isExp?null:cluster.id)} style={{padding:"18px 24px",cursor:"pointer",display:"flex",alignItems:"center",gap:16}}>
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4,flexWrap:"wrap"}}>
@@ -2968,9 +2977,9 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 </div>
               </div>
 
-              {/* Expanded: per-page optimization */}
+              
               {isExp&&<div style={{padding:"0 24px 24px",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
-                {/* Fetch All button for this cluster */}
+                
                 <div style={{display:"flex",alignItems:"center",gap:12,padding:"12px 0",marginBottom:8,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
                   <button onClick={async()=>{
                     const posts=allPosts.filter(p=>p.status==="done"&&p.slug);
@@ -3000,7 +3009,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   const wasScan = !!lastScanResults[scanKey];
                   const hasSavedHTML = !!(savedHTML[scanKey] && savedHTML[scanKey].length > 100);
                   return <div key={post.idx} id={post.slug?"opt-page-"+post.slug:undefined} style={{marginTop:16,opacity:isLive?1:0.6,transition:"box-shadow 0.4s",boxShadow:optSearchHighlight&&post.slug===optSearchHighlight?"0 0 0 2px #FFC72C, 0 0 24px rgba(255,199,44,0.3)":"none",borderRadius:optSearchHighlight&&post.slug===optSearchHighlight?10:0}}>
-                    {/* Page header */}
+                    
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
                       <div style={{display:"flex",alignItems:"center",gap:8,flex:1,minWidth:0}}>
                         {isPillar&&<span style={{fontSize:9,fontWeight:800,background:`${ph.color}30`,color:ph.color,padding:"2px 6px",borderRadius:4,textTransform:"uppercase",flexShrink:0}}>Pillar</span>}
@@ -3008,7 +3017,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                         <span style={{fontSize:14,fontWeight:600,color:isLive?"#FFF":"#6B7B8D"}}>{post.name}</span>
                       </div>
                       <div style={{display:"flex",alignItems:"center",gap:6,flexShrink:0}}>
-                        {/* Auto-fetch from live site */}
+                        
                         {post.slug && isLive && <button onClick={async()=>{
                           const fk=`${cluster.id}-${post.idx}`;
                           setFetchingPages(p=>({...p,[fk]:true}));
@@ -3028,7 +3037,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     </div>
                     {post.slug&&<div style={{fontSize:11,color:"#4B5C6E",marginBottom:8,marginTop:-6}}>/{post.slug}</div>}
 
-                    {/* Optimization items */}
+                    
                     <div style={{background:"rgba(255,255,255,0.03)",borderRadius:12,padding:"8px 14px",border:"1px solid rgba(255,255,255,0.04)"}}>
                       {OPT_ITEMS.map((oi,oIdx)=>{
                         const tid=`op-${cluster.id}-${post.idx}-${oi.id}`;
@@ -3055,7 +3064,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>;
           })}
 
-          {/* Site-wide tasks that aren't per-page */}
+          
           <div style={{marginTop:32}}>
             <div style={{fontSize:11,fontWeight:800,letterSpacing:"0.12em",color:"#60A5FA",textTransform:"uppercase",marginBottom:16}}>AEO Intelligence \u2014 HubSpot Grader Insights (Feb 2026)</div>
 
@@ -3171,7 +3180,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       })()}
 
 
-      {/* ═══ OPERATIONS TAB ═══ */}
+      
       {view==="operations"&&(()=>{
         const isDark = theme==="dark";
         const card = {background:isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.03)",border:`1px solid ${isDark?"rgba(255,255,255,0.08)":"rgba(0,0,0,0.08)"}`,borderRadius:16,padding:20,marginBottom:16};
@@ -3529,8 +3538,8 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         );
       })()}
 
-      {/* PERFORMANCE */}
-      {/* ═══ GROWTH CHANNELS TAB ═══ */}
+      
+      
       {view==="growth"&&(()=>{
         const today = new Date().toISOString().split("T")[0];
         const dayKey = `daily-${today}`;
@@ -3584,7 +3593,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         const sections = [{id:"overview",label:"📊 Dashboard"},{id:"ga4",label:"🔗 GA4 Live"},{id:"adsImport",label:"📥 Ads Import"},{id:"ads",label:"Google Ads"},{id:"gbp",label:"Google Business"},{id:"daily",label:"Daily Ops"},{id:"weekly",label:"Weekly Ops"},{id:"monthlyReview",label:"📈 Monthly"},{id:"cpaStrategy",label:"🧮 CPA Strategy"},{id:"convTargets",label:"🎯 Targets"}];
 
         return <div>
-          {/* Header */}
+          
           <div style={{background:"linear-gradient(135deg, rgba(255,199,44,0.08), rgba(251,146,60,0.08))",border:"1px solid rgba(255,199,44,0.2)",borderRadius:16,padding:"20px 28px",marginBottom:20}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
               <div>
@@ -3592,13 +3601,13 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 <p style={{fontSize:12,color:"#6B7B8D",margin:"4px 0 0"}}>Google Ads + Google Business Profile Performance</p>
               </div>
             </div>
-            {/* Sub-tabs */}
+            
             <div style={{display:"flex",gap:6,marginTop:14,flexWrap:"wrap"}}>
               {sections.map(s=><button key={s.id} onClick={()=>setGrowthSection(s.id)} style={{padding:"6px 14px",borderRadius:8,border:"none",background:growthSection===s.id?"rgba(255,199,44,0.2)":"rgba(255,255,255,0.04)",color:growthSection===s.id?"#FFC72C":"#6B7B8D",fontSize:12,fontWeight:600,cursor:"pointer",transition:"all 0.15s"}}>{s.label}</button>)}
             </div>
           </div>
 
-          {/* ── OVERVIEW ── */}
+          
           {growthSection==="overview"&&(()=>{
             const last14Gbp = gbpData.slice(-14);
             const last14Ads = adsData.slice(-14);
@@ -3642,7 +3651,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             };
 
             return <div>
-              {/* ═══ GBP PERFORMANCE DASHBOARD ═══ */}
+              
               <div style={{background:"linear-gradient(135deg, rgba(74,222,128,0.06), rgba(96,165,250,0.06))",border:"1px solid rgba(74,222,128,0.15)",borderRadius:20,padding:28,marginBottom:20}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
                   <div>
@@ -3655,7 +3664,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>
                 </div>
 
-                {/* Big number cards — 4 GBP conversion metrics */}
+                
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:12,marginBottom:24}}>
                   {[
                     {label:"Phone Calls",value:gbpTotals.calls,icon:"📞",color:"#4ADE80",bg:"rgba(74,222,128,0.08)",border:"rgba(74,222,128,0.2)",latest:latestGbp?.calls||0},
@@ -3670,7 +3679,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>)}
                 </div>
 
-                {/* GBP Bar Chart */}
+                
                 <div style={{background:"rgba(0,0,0,0.15)",borderRadius:14,padding:20}}>
                   <DashBar data={last14Gbp} height={170} bars={[
                     {key:"calls",label:"Calls",color:"#4ADE80"},
@@ -3681,7 +3690,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 </div>
               </div>
 
-              {/* ═══ GOOGLE ADS DASHBOARD ═══ */}
+              
               <div style={{background:"linear-gradient(135deg, rgba(251,146,60,0.06), rgba(248,113,113,0.06))",border:"1px solid rgba(251,146,60,0.15)",borderRadius:20,padding:28}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
                   <div>
@@ -3694,7 +3703,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>
                 </div>
 
-                {/* Big number cards — Ads metrics */}
+                
                 <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:12,marginBottom:24}}>
                   {[
                     {label:"Total Spend",value:"$"+adsTotals.spend.toFixed(0),icon:"💰",color:"#FB923C",bg:"rgba(251,146,60,0.08)",border:"rgba(251,146,60,0.2)",sub:adsData.length>0?"Budget: $"+(adsData[adsData.length-1].budget||"—"):""},
@@ -3709,7 +3718,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>)}
                 </div>
 
-                {/* Ads Bar Charts */}
+                
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
                   <div style={{background:"rgba(0,0,0,0.15)",borderRadius:14,padding:20}}>
                     <DashBar data={last14Ads} height={140} title="Spend vs Budget" bars={[
@@ -3741,7 +3750,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           })()}
 
 
-          {/* ── GA4 LIVE SECTION ── */}
+          
           {growthSection==="ga4"&&(()=>{
             // Parse GA4 data for display
             const ov = ga4Data.overview?.rows?.[0]?.metricValues || [];
@@ -3802,7 +3811,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             };
 
             return <div>
-              {/* Connection Setup */}
+              
               <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
                 <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 4px",fontFamily:"Georgia,serif"}}>🔗 Google Analytics 4 — Live Connection</h3>
                 <p style={{fontSize:11,color:"#6B7B8D",margin:"0 0 16px"}}>Connect to pull real-time users, sessions, traffic sources, and top pages directly from GA4.</p>
@@ -3824,7 +3833,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </button>
                   {ga4Error && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:"rgba(248,113,113,0.1)",border:"1px solid rgba(248,113,113,0.2)",color:"#F87171",fontSize:11}}>{ga4Error}</div>}
 
-                  {/* Setup Instructions */}
+                  
                   <div style={{marginTop:16,padding:16,background:"rgba(255,255,255,0.02)",borderRadius:12,border:"1px solid rgba(255,255,255,0.04)"}}>
                     <div style={{fontSize:12,fontWeight:700,color:"#FFC72C",marginBottom:8}}>Setup Instructions:</div>
                     <div style={{fontSize:11,color:"#6B7B8D",lineHeight:1.8}}>
@@ -3853,9 +3862,9 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 {ga4Error && <div style={{marginTop:8,padding:"8px 12px",borderRadius:8,background:"rgba(248,113,113,0.1)",border:"1px solid rgba(248,113,113,0.2)",color:"#F87171",fontSize:11}}>{ga4Error}</div>}
               </div>
 
-              {/* GA4 Data Display */}
+              
               {ga4Data.overview && <>
-                {/* Overview Metrics */}
+                
                 <div style={{display:"grid",gridTemplateColumns:"repeat(6, 1fr)",gap:10,marginBottom:16}}>
                   {[
                     {label:"Active Users",value:users,color:"#4ADE80",icon:"👥"},
@@ -3871,7 +3880,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>)}
                 </div>
 
-                {/* Daily Trend Chart */}
+                
                 {daily.length>0 && <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20,marginBottom:16}}>
                   <DashBar data={daily} height={180} title="Daily Users · Sessions · Page Views" bars={[
                     {key:"users",label:"Users",color:"#4ADE80"},
@@ -3881,7 +3890,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 </div>}
 
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-                  {/* Traffic Sources */}
+                  
                   <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20}}>
                     <h4 style={{fontSize:14,fontWeight:700,color:"#FFF",margin:"0 0 12px"}}>Traffic Sources</h4>
                     {sources.length > 0 ? <div style={{overflowY:"auto",maxHeight:300}}>
@@ -3901,7 +3910,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     </div> : <p style={{fontSize:12,color:"#4B5C6E"}}>No source data</p>}
                   </div>
 
-                  {/* Top Pages */}
+                  
                   <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:20}}>
                     <h4 style={{fontSize:14,fontWeight:700,color:"#FFF",margin:"0 0 12px"}}>Top Pages</h4>
                     {pages.length > 0 ? <div style={{overflowY:"auto",maxHeight:300}}>
@@ -3920,13 +3929,13 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>;
           })()}
 
-          {/* ── ADS CSV IMPORT SECTION ── */}
+          
           {growthSection==="adsImport"&&<div>
             <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
               <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 4px",fontFamily:"Georgia,serif"}}>📥 Google Ads — CSV Import</h3>
               <p style={{fontSize:11,color:"#6B7B8D",margin:"0 0 16px"}}>Export reports from Google Ads and drag them here. Supports Campaign and Search Terms reports.</p>
 
-              {/* Drag & Drop Zone */}
+              
               <div
                 onDragOver={e=>{e.preventDefault();setAdsCsvDragging(true);}}
                 onDragLeave={()=>setAdsCsvDragging(false)}
@@ -3966,7 +3975,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 <div style={{fontSize:11,color:"#4B5C6E",marginTop:4}}>Accepts Campaign Performance and Search Terms Report CSVs from Google Ads</div>
               </div>
 
-              {/* How to export instructions */}
+              
               <div style={{padding:16,background:"rgba(255,255,255,0.02)",borderRadius:12,border:"1px solid rgba(255,255,255,0.04)"}}>
                 <div style={{fontSize:12,fontWeight:700,color:"#FFC72C",marginBottom:8}}>How to Export from Google Ads:</div>
                 <div style={{fontSize:11,color:"#6B7B8D",lineHeight:1.8}}>
@@ -3977,7 +3986,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>
             </div>
 
-            {/* Campaign Data */}
+            
             {adsCsvData.campaigns.length > 0 && <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                 <h4 style={{fontSize:14,fontWeight:700,color:"#FFF",margin:0}}>📊 Campaign Performance ({adsCsvData.campaigns.length} rows)</h4>
@@ -3995,7 +4004,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>
             </div>}
 
-            {/* Search Terms Data */}
+            
             {adsCsvData.searchTerms.length > 0 && <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
                 <h4 style={{fontSize:14,fontWeight:700,color:"#FFF",margin:0}}>🔍 Search Terms ({adsCsvData.searchTerms.length} terms)</h4>
@@ -4022,7 +4031,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>}
           </div>}
 
-          {/* ── GOOGLE ADS SECTION ── */}
+          
           {growthSection==="ads"&&<div>
             <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
               <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 16px",fontFamily:"Georgia,serif"}}>+ Log Daily Ads Data</h3>
@@ -4047,7 +4056,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   Attach Screenshot / PDF
                 </button>
               </div>
-              {/* Show files attached to today's ads entry */}
+              
               {growthFiles.filter(f=>f.section==="ads"&&f.date===(document.getElementById("ads-date")?.value||today)).length>0&&
                 <div style={{display:"flex",flexWrap:"wrap",gap:8,marginTop:10}}>
                   {growthFiles.filter(f=>f.section==="ads").slice(-6).map(f=><div key={f.id} onClick={async()=>{const d=f.data||await loadFileData(f.id);if(d)setPreviewFile({...f,data:d});}} style={{padding:"6px 10px",borderRadius:8,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",cursor:"pointer",display:"flex",alignItems:"center",gap:6}}>
@@ -4057,7 +4066,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 </div>}
             </div>
 
-            {/* Ads History */}
+            
             {adsData.length>0&&<div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
               <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 12px",fontFamily:"Georgia,serif"}}>Ads History ({adsData.length} entries)</h3>
               <div style={{overflowX:"auto"}}>
@@ -4084,7 +4093,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>
             </div>}
 
-            {/* Negative Keywords Manager */}
+            
             <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
               <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 12px",fontFamily:"Georgia,serif"}}>🚫 Negative Keywords Log</h3>
               <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:12}}>
@@ -4098,7 +4107,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>
             </div>
 
-            {/* Search Terms Review */}
+            
             <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24}}>
               <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 8px",fontFamily:"Georgia,serif"}}>🔍 Search Terms Review Checklist</h3>
               <p style={{fontSize:12,color:"#6B7B8D",margin:"0 0 16px"}}>Review search terms report daily. Flag anything that looks off.</p>
@@ -4111,7 +4120,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>}
 
-          {/* ── GOOGLE BUSINESS PROFILE SECTION ── */}
+          
           {growthSection==="gbp"&&<div>
             <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
               <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 16px",fontFamily:"Georgia,serif"}}>+ Log GBP Data</h3>
@@ -4145,7 +4154,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 </div>}
             </div>
 
-            {/* GBP History */}
+            
             {gbpData.length>0&&<div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
               <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 12px",fontFamily:"Georgia,serif"}}>GBP History ({gbpData.length} entries)</h3>
               <div style={{overflowX:"auto"}}>
@@ -4166,7 +4175,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>
             </div>}
 
-            {/* GBP Post Scheduler */}
+            
             <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24}}>
               <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:"0 0 16px",fontFamily:"Georgia,serif"}}>📅 GBP Post Scheduler</h3>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr auto auto",gap:10,alignItems:"end",marginBottom:16}}>
@@ -4191,7 +4200,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>)}
             </div>
 
-            {/* GBP / Analytics Reports Gallery */}
+            
             <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
                 <h3 style={{fontSize:15,fontWeight:700,color:"#FFF",margin:0,fontFamily:"Georgia,serif"}}>📊 GBP & Analytics Reports</h3>
@@ -4205,14 +4214,14 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               {growthFiles.filter(f=>f.section==="gbp-reports"||f.section==="gbp").length > 0 ? 
                 <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill, minmax(200px, 1fr))",gap:12}}>
                   {growthFiles.filter(f=>f.section==="gbp-reports"||f.section==="gbp").slice().reverse().map(f=><div key={f.id} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,overflow:"hidden",cursor:"pointer",transition:"all 0.15s"}}>
-                    {/* Thumbnail */}
+                    
                     <div onClick={async()=>{const d=f.data||await loadFileData(f.id);if(d)setPreviewFile({...f,data:d});}} style={{width:"100%",height:120,background:"#0D1117",display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
                       {f.type?.includes("image") && f.data 
                         ? <img src={f.data} style={{width:"100%",height:"100%",objectFit:"cover"}} alt={f.name} />
                         : <div style={{textAlign:"center"}}><div style={{fontSize:32}}>{f.type?.includes("pdf")?"📄":"🖼️"}</div><div style={{fontSize:10,color:"#4B5C6E",marginTop:4}}>Click to preview</div></div>
                       }
                     </div>
-                    {/* Info */}
+                    
                     <div style={{padding:"10px 12px"}}>
                       <div style={{fontSize:12,fontWeight:600,color:"#E8ECF0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{f.name}</div>
                       <div style={{fontSize:10,color:"#4B5C6E",marginTop:2}}>{f.date} · {(f.size/1024).toFixed(0)}KB</div>
@@ -4233,7 +4242,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>}
 
-          {/* ── DAILY OPERATIONS ── */}
+          
           {growthSection==="daily"&&<div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
               <div>
@@ -4253,7 +4262,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>)}
           </div>}
 
-          {/* ── WEEKLY OPERATIONS ── */}
+          
           {growthSection==="weekly"&&<div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
               <div>
@@ -4272,7 +4281,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               )}
             </div>)}
 
-            {/* Conversion Rate Targets */}
+            
             <div style={{marginTop:20,background:"rgba(255,199,44,0.05)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:12,padding:20}}>
               <h4 style={{fontSize:13,fontWeight:700,color:"#FFC72C",margin:"0 0 12px"}}>📈 Conversion Rate Targets</h4>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
@@ -4287,7 +4296,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>}
 
-          {/* ═══ MONTHLY STRATEGIC REVIEW ═══ */}
+          
           {growthSection==="monthlyReview"&&(()=>{
             const curMonth = new Date().toISOString().slice(0,7);
             const entry = monthlyData.find(m=>m.month===curMonth) || {month:curMonth,totalSpend:"",totalConversions:"",conversionRate:"",cpaTrend:"",cpcTrend:"",organicImpressions:"",backlinksAdded:"",pagesPublished:"",notes:""};
@@ -4343,7 +4352,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 )}
               </div>
 
-              {/* Conditional Triggers */}
+              
               <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:24,marginBottom:16}}>
                 <h4 style={{fontSize:14,fontWeight:700,color:"#FFF",marginBottom:14}}>🔔 Conditional Action Triggers</h4>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
@@ -4372,7 +4381,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>;
           })()}
 
-          {/* ═══ CPA REDUCTION STRATEGY ═══ */}
+          
           {growthSection==="cpaStrategy"&&<div>
             <div style={{marginBottom:20}}>
               <h3 style={{fontSize:18,fontWeight:700,color:"#FFF",margin:0,fontFamily:"Georgia,serif"}}>CPA Reduction Strategy</h3>
@@ -4409,7 +4418,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>}
 
-          {/* ═══ CONVERSION RATE TARGETS ═══ */}
+          
           {growthSection==="convTargets"&&<div>
             <div style={{marginBottom:20}}>
               <h3 style={{fontSize:18,fontWeight:700,color:"#FFF",margin:0,fontFamily:"Georgia,serif"}}>Conversion Rate Targets</h3>
@@ -4461,7 +4470,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       })()}
 
 
-      {/* ═══ CONTENT STUDIO TAB ═══ */}
+      
       {view==="social"&&(()=>{
 
         // ── Data: All live pages from Architecture ──
@@ -5047,7 +5056,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       })()}
 
 
-      {/* ═══ KEYWORD WAR ROOM TAB ═══ */}
+      
       {view==="keywords"&&(()=>{
         var GROUPS = [{id:"medicare",label:"Medicare",color:"#4B9CD3"},{id:"aca",label:"ACA",color:"#16A34A"},{id:"local",label:"Local",color:"#F97316"}];
         var groupMap = {}; GROUPS.forEach(function(g){groupMap[g.id]=g});
@@ -5294,7 +5303,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       })()}
 
       {view==="performance"&&<div>
-        {/* ═══ DAILY KPI SNAPSHOT ═══ */}
+        
         {(()=>{
           const todayLabel2 = new Date().toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"});
           const udKPI = (f,v) => setDailyKPI(p=>({...p,[f]:v}));
@@ -5380,7 +5389,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           </div>;
         })()}
 
-        {/* ═══ GOOGLE SEARCH CONSOLE ═══ */}
+        
         <div style={{marginBottom:28}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexWrap:"wrap",gap:12}}>
             <div>
@@ -5408,7 +5417,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>}
 
-          {/* ── Summary Cards ── */}
+          
           {gscData.daily?.rows&&(()=>{
             const rows = gscData.daily.rows||[];
             const totClicks = rows.reduce((a,r)=>a+(r.clicks||0),0);
@@ -5426,7 +5435,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>;
           })()}
 
-          {/* ── Daily Click/Impression Chart ── */}
+          
           {gscData.daily?.rows&&gscData.daily.rows.length>0&&(()=>{
             const rows = [...gscData.daily.rows].sort((a,b)=>(a.keys?.[0]||"").localeCompare(b.keys?.[0]||""));
             const maxC = Math.max(...rows.map(r=>r.clicks||0),1);
@@ -5453,7 +5462,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>;
           })()}
 
-          {/* ── Tracked Keyword Rankings ── */}
+          
           {Object.keys(gscData.tracked||{}).length>0&&<div style={{background:"linear-gradient(135deg, rgba(255,199,44,0.05), rgba(99,102,241,0.05))",border:"1px solid rgba(255,199,44,0.2)",borderRadius:14,padding:"18px 16px",marginBottom:16}}>
             <div style={{fontSize:13,fontWeight:700,color:"#FFC72C",marginBottom:14}}>🏔️ Tracked Keyword Rankings</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))",gap:10}}>
@@ -5481,7 +5490,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     <span>{totalImpr.toLocaleString()} impr</span>
                     <span style={{color:improving?"#4ADE80":"#EF4444",fontWeight:700}}>{improving?"↑":"↓"} {Math.abs(posDelta)} pos</span>
                   </div>
-                  {/* Mini sparkline */}
+                  
                   {sorted.length>=3&&(()=>{
                     const positions = sorted.map(r=>r.position||50);
                     const minP = Math.min(...positions);
@@ -5498,7 +5507,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                 </div>;
               })}
             </div>
-            {/* Add/remove tracked keywords */}
+            
             <div style={{marginTop:14,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
               <input id="gsc-new-kw" placeholder="Add tracked keyword..." style={{padding:"6px 10px",borderRadius:6,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.03)",color:"#FFF",fontSize:11,outline:"none",width:200}} onKeyDown={e=>{if(e.key==="Enter"&&e.target.value.trim()){setGscTrackedKW(prev=>[...prev,e.target.value.trim()]);e.target.value="";}}} />
               <span style={{fontSize:9,color:"#4B5C6E"}}>Press Enter to add · Click ✕ on tag to remove</span>
@@ -5511,7 +5520,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>}
 
-          {/* ── Top Queries Table ── */}
+          
           {gscData.queries?.rows&&<div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 16px",marginBottom:16}}>
             <div style={{fontSize:13,fontWeight:700,color:"#FFF",marginBottom:12}}>🔍 Top Queries ({gscData.queries.rows.length})</div>
             <div style={{overflowX:"auto"}}>
@@ -5533,7 +5542,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>}
 
-          {/* ── Top Pages Table ── */}
+          
           {gscData.pages?.rows&&<div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 16px",marginBottom:16}}>
             <div style={{fontSize:13,fontWeight:700,color:"#FFF",marginBottom:12}}>📄 Top Pages ({gscData.pages.rows.length})</div>
             <div style={{overflowX:"auto"}}>
@@ -5568,7 +5577,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       </div>}
 
 
-      {/* ANALYTICS */}
+      
       {view==="analytics"&&<div>
         <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,padding:28,marginBottom:24}}>
           <h3 style={{fontSize:18,fontWeight:700,color:"#FFF",margin:"0 0 20px",fontFamily:"Georgia,serif"}}>Performance Snapshot (Aug 2025 – Feb 2026)</h3>
@@ -5590,7 +5599,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         </div>
       </div>}
 
-      {/* PROJECTIONS */}
+      
       {view==="projections"&&<div>
         <div style={{background:"linear-gradient(135deg, rgba(255,199,44,0.08), rgba(75,156,211,0.08))",border:"1px solid rgba(255,199,44,0.2)",borderRadius:16,padding:28,marginBottom:28}}>
           <h3 style={{fontSize:20,fontWeight:700,color:"#FFC72C",margin:"0 0 8px",fontFamily:"Georgia,serif"}}>Projections</h3>
@@ -5620,7 +5629,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         </div>
       </div>}
 
-      {/* CALENDAR */}
+      
       {view==="calendar"&&<div>
         <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 24px",marginBottom:20,boxShadow:"none"}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{fontSize:13,fontWeight:700,color:"#FFF"}}>Overall Progress</span><span style={{fontSize:13,fontWeight:800,color:"#4ADE80"}}>{calDone+opsDone}/{totalCalTasks+opsTotalTasks} ({Math.round((calDone+opsDone)/(totalCalTasks+opsTotalTasks)*100)}%)</span></div>
@@ -5675,26 +5684,23 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         </div>
       </div>}
 
-      {/* REMINDERS */}
-      {/* ═══ PAGE BUILDER TAB ═══ */}
+      
+      
       {view==="pageBuilder"&&(()=>{
         const PB_CHECKLIST = window.GH_PB_CHECKLIST||[];
 
 
-        const catColors = {Schema:"#A78BFA",NEPQ:"#F472B6",SEO:"#60A5FA",Tech:"#FB923C",Content:"#2DD4BF","E-E-A-T":"#FFC72C",Delivery:"#4ADE80",Accuracy:"#F87171"};
+        const catColors = window.GH_CAT_COLORS||{};
         const pbTabSty = (a) => ({padding:"7px 16px",borderRadius:9,border:"none",background:a?"rgba(255,199,44,0.18)":"transparent",color:a?"#FFC72C":"#6B7B8D",fontSize:12,fontWeight:600,cursor:"pointer",transition:"all 0.2s"});
 
         // ── Scan handler ──
         const handlePbScan = async (useEditorHtml) => {
           if(!pbPage||!pbPage.slug) return;
-          // Preserve existing sandbox html if re-scanning after a fix
           const prevHtml = pbAuditResults._html||null;
           setPbAuditLoading(true); setPbAuditResults(prevHtml?{_html:prevHtml}:{});
           try {
-            // Fetch live page (or reuse cached _html). Then merge editor output so fixes are visible.
             const liveHtml = prevHtml || (await fetchPageHTML(pbPage.slug)||"");
-            if(!liveHtml){ setPbAuditResults({error:"Could not fetch page — check proxy"}); setPbAuditLoading(false); return; }
-            // Merge: live page + any editor output (fix snippets). Gives full-page context + fixes applied.
+            if(!liveHtml){ setPbAuditResults({error:"Could not fetch page"}); setPbAuditLoading(false); return; }
             const html = pbOutput ? liveHtml + "\n" + pbOutput : liveHtml;
             const lower = html.toLowerCase();
             const doc = new DOMParser().parseFromString(html,"text/html");
@@ -5730,8 +5736,8 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           setPbFixing(prev=>({...prev,[item.id]:true}));
           const existing = pbAuditResults._html||pbOutput||"";
           const keyword = pbKeyword||pbPage?.name||"Medicare NC";
-          const tmpl = (window.GH_NEPQ_TEMPLATE||"").substring(0,3000);
-          const prompt = "Fix GH v5.2 NEPQ page issue. PAGE:"+(pbPage?.name||"")+"|/"+(pbPage?.slug||"")+"|Keyword:"+keyword+"\nFIX:"+item.label+"\nACTION:"+item.fix+"\nPhone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350\nStyle:dark navy #0F1A2E,gold #FFC72C,.gh- classes."+(existing?"\nCURRENT HTML:"+existing.substring(0,4000):"")+"\nTEMPLATE REF:"+tmpl+"\nOUTPUT: Raw HTML only, start with <div <style or <script, no explanation.";
+          const tmpl = (window.GH_NEPQ_TEMPLATE||"").substring(0,1500);
+          const prompt = "Fix GH v5.2.PAGE:"+(pbPage?.name||"")+"|KW:"+keyword+"\nFIX:"+item.label+"\nACTION:"+item.fix+"\n(828)761-3326|$202.90|$1,676|#0F1A2E|#FFC72C|.gh-"+(existing?"\nHTML:"+existing.substring(0,2000):"")+"\nTMPL:"+tmpl+"\nOUTPUT:Raw HTML,start with <div or <style.";
           try {
             const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
             const data = await resp.json();
@@ -5749,48 +5755,39 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         // ── AI Section edit handler ──
         const handleApply = (htmlContent) => {
           if(!htmlContent) return;
-          const base = pbAuditResults._html || "";
-          if(pbSelectedSection && base && base.includes(pbSelectedSection.html.substring(0,80))) {
-            const updated = base.replace(pbSelectedSection.html, htmlContent);
-            setPbAuditResults(prev=>({...prev,_html:updated}));
-            setPbOutput(prev=>(prev||"")+"\n/* APPLIED: "+new Date().toLocaleTimeString()+" */\n"+htmlContent);
-          } else {
-            // Append to pbOutput (merged into scan on next pass)
+          const base = pbAuditResults._html||"";
+          const sel = pbSelectedSection;
+          if(sel&&base&&base.includes(sel.html.substring(0,80))){
+            setPbAuditResults(prev=>({...prev,_html:base.replace(sel.html,htmlContent)}));
             setPbOutput(prev=>(prev||"")+"\n/* APPLIED */\n"+htmlContent);
-            if(base) {
-              const updated = base.replace("</body>","<div data-gh-applied>"+htmlContent+"</div></body>");
-              setPbAuditResults(prev=>({...prev,_html:updated}));
-            }
+          } else {
+            setPbOutput(prev=>(prev||"")+"\n/* APPLIED */\n"+htmlContent);
+            if(base) setPbAuditResults(prev=>({...prev,_html:base.replace("</body>","<div data-gh-applied>"+htmlContent+"</div></body>")}));
           }
           setPbSelectedSection(null);
           setPbSaveNotice("applied");
           setTimeout(()=>setPbSaveNotice(""),4000);
-          setTimeout(()=>handlePbScan(true), 500);
+          setTimeout(()=>handlePbScan(true),500);
         };
 
         const handleSectionEdit = async () => {
           if(!pbSelectedSection||!pbSectionEditInput.trim()||!aiApiKey.trim()) return;
           setPbSectionEditing(true);
           const modeObj = (window.GH_PB_NEPQ_MODES||[]).find(m=>m.id===pbNepqMode);
-          const prompt = "Edit GH v5.2 section.\nEDIT: "+pbSectionEditInput+"\nCLASS: "+pbSelectedSection.cls+"\nHTML:\n"+pbSelectedSection.html.substring(0,2000)+(pbNepqMode?"\nNEPQ:"+pbNepqMode:"")+"\n(828)761-3326|$202.90|#0F1A2E|#FFC72C|.gh-.\nOUTPUT: Updated section HTML only. Keep .gh- classes. No explanation.";
           try {
-            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
+            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:"Edit. CLASS:"+pbSelectedSection.cls+". EDIT:"+pbSectionEditInput+(pbNepqMode?"\nNEPQ:"+pbNepqMode:"")+". HTML:\n"+pbSelectedSection.html.substring(0,1200)+"\n(828)761-3326|#0F1A2E|#FFC72C|.gh-.\nOUTPUT:Updated HTML,keep .gh- classes."}]})});
             const data = await resp.json();
-            const edited = (data.content||[]).map(b=>b.text||"").join("");
-            // Replace the section in pbOutput
+            const edited = (data.content||[]).map(b=>b.text||"").join("").replace(/^```(?:html)?\n?/i,"").replace(/\n?```\s*$/,"").trim();
             if(pbOutput&&pbSelectedSection.html){
-              const updated = pbOutput.includes(pbSelectedSection.html.substring(0,100))
-                ? pbOutput.replace(pbSelectedSection.html, edited)
-                : pbOutput+"\n/* SECTION EDIT: "+pbSelectedSection.cls+" */\n"+edited;
+              const updated = pbOutput.includes(pbSelectedSection.html.substring(0,100))?pbOutput.replace(pbSelectedSection.html,edited):pbOutput+"\n/* EDIT */\n"+edited;
               setPbOutput(updated);
             } else {
-              setPbOutput(prev=>(prev||"")+"\n/* SECTION EDIT: "+pbSelectedSection.cls+" */\n"+edited);
+              setPbOutput(prev=>(prev||"")+"\n/* EDIT */\n"+edited);
             }
             setPbSelectedSection(prev=>({...prev,html:edited}));
             setPbSectionEditInput("");
-            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"✅ Section updated and applied to page.",ts:Date.now()}]);
-            // Auto re-scan so checklist reflects the edit
-            setTimeout(()=>handlePbScan(true), 400);
+            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"✅ Section updated.",ts:Date.now()}]);
+            setTimeout(()=>handlePbScan(true),400);
           } catch(e){ alert("Edit error: "+e.message); }
           setPbSectionEditing(false);
         };
@@ -5817,8 +5814,8 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           setPbAgentLoading(true);
           const nepqModes = window.GH_PB_NEPQ_MODES||[];
           const modeObj = nepqModes.find(m=>m.id===pbNepqMode);
-          const selectedCtx = pbSelectedSection ? "\nSELECTED SECTION CLASS: "+pbSelectedSection.cls+"\nSELECTED SECTION HTML:\n"+pbSelectedSection.html.substring(0,2000) : "";
-          const sys = `GH Page Builder AI — generationhealth.me. Robert Simm #10447418.${pbNepqMode?" NEPQ:"+pbNepqMode+" "+modeObj?.desc:""}\nPhone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Calendly:calendly.com/robert-generationhealth/new-meeting|Part B:$202.90/mo|Part A:$1,676|MOOP:$9,350\nStyle:dark navy #0F1A2E,gold #FFC72C,.gh- classes,Fraunces headings.\n${selectedCtx?"If editing a selected section, output ONLY the updated section HTML with same .gh- classes. No explanation.":"HTML=raw only. Advice=direct+specific."}\nPAGE:${pbPage?.name||"none"}|/${pbPage?.slug||""}|Cluster:${pbCluster?.name||""}\nFAILING:${PB_CHECKLIST.filter(i=>pbAuditResults._html&&!pbAuditResults[i.id]).map(i=>i.id).join(",")||"none"}${selectedCtx}`;
+          const selectedCtx = pbSelectedSection?"\nSECTION:"+pbSelectedSection.cls+"\n"+pbSelectedSection.html.substring(0,1200):"";
+          const sys = `GH Page Builder.Rob Simm #10447418.${pbNepqMode?" NEPQ:"+pbNepqMode:""}\n(828)761-3326|$202.90|#0F1A2E|#FFC72C|.gh-\nPAGE:${pbPage?.name||""}|/${pbPage?.slug||""}\nFAILING:${PB_CHECKLIST.filter(i=>pbAuditResults._html&&!pbAuditResults[i.id]).map(i=>i.id).join(",")||"none"}${selectedCtx?"\n"+selectedCtx:""}`;
           const imgBlocks = files.filter(f=>f.mimeType?.startsWith("image/")).map(f=>({type:"image",source:{type:"base64",media_type:f.mimeType,data:f.data}}));
           const apiMsgs = msgs.map((m,mi)=>{
             if(m.role==="user"&&mi===msgs.length-1&&imgBlocks.length>0) return {role:"user",content:[...imgBlocks,{type:"text",text:m.content||"Analyze this."}]};
@@ -5849,16 +5846,32 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           if(!pbNepqInsert||!aiApiKey.trim()) return;
           const section = (window.GH_PB_NEPQ_SECTIONS||[]).find(s=>s.id===pbNepqInsert);
           if(!section) return;
-          const prompt = "Build v5.2 NEPQ HTML section. Page:"+(pbPage?.name||"Medicare NC")+"|"+section.label+"|"+section.desc+"|NEPQ:"+section.mode+"\nPhone:(828)761-3326|SunFire:sunfirematrix.com/app/consumer/medicareadvocates/10447418/|Part B:$202.90/mo\nStyle:dark navy #0F1A2E,gold #FFC72C,.gh- classes. Output:raw HTML only,start with <div or <style.";
+          const prompt = "Draft NEPQ copy for generationhealth.me. Section: "+section.label+" — "+section.desc+". NEPQ: "+section.mode+". Page: "+(pbPage?.name||"Medicare NC")+".\nWrite in plain English for review — label parts (H1, Subtitle, Body, CTA). Problem before solution. NC-specific. (828)761-3326. $202.90/mo. NO HTML tags.";
           setPbAgentLoading(true);
-          setPbAgentMsgs(prev=>[...prev,{role:"user",content:"Insert section: "+section.label,ts:Date.now()}]);
+          setPbAgentMsgs(prev=>[...prev,{role:"user",content:"Draft: "+section.label,ts:Date.now()}]);
           try {
-            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:prompt}]})});
+            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]})});
             const data = await resp.json();
-            const html = (data.content||[]).map(b=>b.text||"").join("");
-            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:html,isHtml:true,sectionLabel:section.label,ts:Date.now()}]);
+            const draft = (data.content||[]).map(b=>b.text||"").join("");
+            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:draft,isHtml:false,isDraft:true,sectionId:section.id,sectionLabel:section.label,ts:Date.now()}]);
           } catch(e){ setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error:"+e.message,ts:Date.now()}]); }
           setPbAgentLoading(false); setPbNepqInsert("");
+        };
+
+        // Convert draft to HTML and apply to page
+                const handleBuildAndApply = async (draft,sid,slabel) => {
+          if(!aiApiKey.trim()) return;
+          const sec = (window.GH_PB_NEPQ_SECTIONS||[]).find(s=>s.id===sid)||{label:slabel};
+          setPbAgentLoading(true);
+          setPbAgentMsgs(prev=>[...prev,{role:"user",content:"Build HTML from draft",ts:Date.now()}]);
+          try {
+            const resp = await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:2000,messages:[{role:"user",content:"Build v5.2 GH HTML. Section:"+sec.label+".\nCOPY:\n"+draft+"\n(828)761-3326|$202.90|#0F1A2E|#FFC72C|.gh-|border-radius:100px.\nOUTPUT:Raw HTML,start <div or <style."}]})});
+            const data = await resp.json();
+            const raw = (data.content||[]).map(b=>b.text||"").join("").replace(/^```(?:html)?\n?/i,"").replace(/\n?```\s*$/,"").trim();
+            setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:raw,isHtml:true,sectionLabel:sec.label,ts:Date.now()}]);
+            handleApply(raw);
+          } catch(e){ setPbAgentMsgs(prev=>[...prev,{role:"assistant",content:"Error:"+e.message,ts:Date.now()}]); }
+          setPbAgentLoading(false);
         };
 
         const pbScore = PB_CHECKLIST.filter(i=>pbAuditResults[i.id]).length;
@@ -5874,7 +5887,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
 
         return <div>
 
-          {/* ── PAGE TITLE ── */}
+          
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:16,flexWrap:"wrap",gap:10}}>
             <div>
               <h2 style={{fontSize:20,fontWeight:700,color:"#FFF",margin:0,fontFamily:"Georgia,serif"}}>🏗️ Page Builder</h2>
@@ -5882,10 +5895,10 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>
           </div>
 
-          {/* ── TWO-COLUMN LAYOUT ── */}
+          
           <div style={{display:"grid",gridTemplateColumns:"240px 1fr",gap:16,alignItems:"start"}}>
 
-            {/* ── LEFT: URL LIST ── */}
+            
             <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:12,overflowY:"auto",maxHeight:"calc(100vh - 180px)",position:"sticky",top:16}}>
               <div style={{fontSize:9,fontWeight:800,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10,padding:"0 4px"}}>Clusters & Pages</div>
               {window.GH_CLUSTERS.filter(c=>c.posts.some(p=>p.status==="done")).map(c=><div key={c.id} style={{marginBottom:2}}>
@@ -5905,10 +5918,10 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               </div>)}
             </div>
 
-            {/* ── RIGHT: MAIN PANEL ── */}
+            
             <div style={{display:"flex",flexDirection:"column",gap:16}}>
 
-              {/* ── EMPTY STATE ── */}
+              
               {!pbPage&&<div style={{textAlign:"center",padding:"80px 20px",color:"#4B5C6E"}}>
                 <div style={{fontSize:40,marginBottom:10}}>👈</div>
                 <div style={{fontSize:14,color:"#6B7B8D",marginBottom:4}}>Select a page from the left</div>
@@ -5917,7 +5930,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
 
               {pbPage&&<>
 
-                {/* ── PAGE HEADER ── */}
+                
                 <div style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
                   <div>
                     <div style={{fontSize:15,fontWeight:700,color:"#FFF",marginBottom:2}}>{pbPage.name}</div>
@@ -5937,7 +5950,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>
                 </div>
 
-                {/* ── SCAN PROGRESS BAR ── */}
+                
                 {pbAuditLoading&&<div style={{background:"rgba(255,199,44,0.06)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:10,padding:"10px 16px"}}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:6,fontSize:11,color:"#FFC72C",fontWeight:600}}>
                     <span>🔍 Running 18-point checklist scan...</span>
@@ -5948,7 +5961,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>
                 </div>}
 
-                {/* ── 18-POINT CHECKLIST ── */}
+                
                 {hasAudit&&<div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:14,overflow:"hidden"}}>
                   <div style={{padding:"10px 16px",background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
                     <div style={{fontSize:11,fontWeight:700,color:"#C4CDD5"}}>18-Point Checklist</div>
@@ -5963,36 +5976,29 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                       const fixing = pbFixing?.[item.id];
                       const fixResult = pbFixResults?.[item.id];
                       const c = catColors[item.cat]||"#6B7B8D";
-                      const hasApplied = pbApplied?.[item.id];
-                      const rowBorder = pass ? "1px solid rgba(74,222,128,0.12)" : hasApplied ? "1px solid rgba(255,199,44,0.25)" : "1px solid rgba(239,68,68,0.2)";
-                      const rowBg = pass ? "rgba(74,222,128,0.04)" : hasApplied ? "rgba(255,199,44,0.04)" : "rgba(239,68,68,0.04)";
-                      return <div key={item.id} style={{borderRadius:10,border:rowBorder,background:rowBg,overflow:"hidden"}}>
+                      const hA=pbApplied?.[item.id];
+                      return <div key={item.id} style={{borderRadius:10,border:pass?"1px solid rgba(74,222,128,0.12)":hA?"1px solid rgba(255,199,44,0.25)":"1px solid rgba(239,68,68,0.2)",background:pass?"rgba(74,222,128,0.04)":hA?"rgba(255,199,44,0.04)":"rgba(239,68,68,0.04)",overflow:"hidden"}}>
                         <div style={{display:"flex",alignItems:"center",gap:10,padding:"8px 12px"}}>
-                          {/* Status icon */}
+                          
                           <div style={{width:20,height:20,borderRadius:6,flexShrink:0,background:pass?"#16A34A":"rgba(239,68,68,0.15)",border:pass?"none":"1px solid rgba(239,68,68,0.35)",display:"flex",alignItems:"center",justifyContent:"center"}}>
                             <span style={{fontSize:10,color:pass?"#FFF":"#EF4444",fontWeight:700}}>{pass?"✓":"✕"}</span>
                           </div>
-                          {/* Label */}
+                          
                           <span style={{flex:1,fontSize:11,color:pass?"#8DB4A0":"#E8ECF0",lineHeight:1.4}}>{item.label}</span>
-                          {/* Cat badge */}
+                          
                           <span style={{fontSize:8,color:c,background:`${c}15`,border:`1px solid ${c}30`,padding:"1px 6px",borderRadius:4,flexShrink:0,fontWeight:700}}>{item.cat}</span>
-                          {/* Fix button — only on failing items */}
+                          
                           {!pass&&<button onClick={()=>handlePbFix(item)} disabled={fixing} style={{padding:"4px 10px",borderRadius:6,border:"1px solid rgba(167,139,250,0.35)",background:fixing?"rgba(167,139,250,0.04)":"rgba(167,139,250,0.12)",color:fixing?"#666":"#A78BFA",fontSize:10,fontWeight:700,cursor:fixing?"not-allowed":"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-                            {fixing?"⏳ Fixing...":"⚡ Fix"}
+                            {fixing?"⏳...":"⚡ Fix"}
                           </button>}
                           {pass&&<span style={{fontSize:9,color:"#4ADE80",padding:"3px 8px",borderRadius:5,background:"rgba(74,222,128,0.08)"}}>Passing</span>}
                         </div>
-                        {/* Fix result panel — amber = applied but not yet confirmed by rescan */}
-                        {fixResult&&<div style={{borderTop:"1px solid rgba(255,199,44,0.2)",padding:"8px 12px",background:"rgba(255,199,44,0.04)"}}>
-                          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:6}}>
-                            <div style={{display:"flex",alignItems:"center",gap:6}}>
-                              <span style={{fontSize:10,fontWeight:700,color:"#FFC72C"}}>⚡ Fix generated & applied to editor</span>
-                              <span style={{fontSize:9,color:"#FFC72C",background:"rgba(255,199,44,0.1)",padding:"2px 7px",borderRadius:5,border:"1px solid rgba(255,199,44,0.25)"}}>Re-scan to confirm ↓</span>
-                            </div>
-                            <div style={{display:"flex",gap:5}}>
-                              <button onClick={()=>navigator.clipboard.writeText(fixResult)} style={{fontSize:9,padding:"2px 8px",borderRadius:5,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",cursor:"pointer"}}>📋 Copy HTML</button>
-                              <button onClick={()=>setPbFixResults(prev=>({...prev,[item.id]:null}))} style={{fontSize:9,padding:"2px 6px",borderRadius:5,border:"1px solid rgba(255,255,255,0.08)",background:"transparent",color:"#6B7B8D",cursor:"pointer"}}>✕</button>
-                            </div>
+                        
+                        {fixResult&&<div style={{borderTop:"1px solid rgba(255,199,44,0.2)",padding:"6px 12px",background:"rgba(255,199,44,0.04)",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6}}>
+                          <span style={{fontSize:9,color:"#FFC72C"}}>⚡ Applied · re-scan to confirm</span>
+                          <div style={{display:"flex",gap:4}}>
+                            <button onClick={()=>navigator.clipboard.writeText(fixResult)} style={{fontSize:9,padding:"1px 7px",borderRadius:4,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",cursor:"pointer"}}>📋</button>
+                            <button onClick={()=>setPbFixResults(prev=>({...prev,[item.id]:null}))} style={{fontSize:9,padding:"1px 5px",borderRadius:4,border:"none",background:"transparent",color:"#6B7B8D",cursor:"pointer"}}>✕</button>
                           </div>
                         </div>}
                       </div>;
@@ -6000,7 +6006,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>
                 </div>}
 
-                {/* ── LIVE PAGE SANDBOX — srcdoc bypasses X-Frame-Options ── */}
+                
                 {liveUrl&&(()=>{
                   const baseSandboxHtml = pbAuditResults._html || savedHTML?.[pbCluster?.id+"-"+(pbPage?.idx)] || null;
                   // Show merged view: live page + fix snippets injected at end of body
@@ -6023,12 +6029,12 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                         <span style={{fontSize:11,fontWeight:600,color:"#C4CDD5"}}>Page Sandbox</span>
                         <span style={{fontSize:10,color:"#4B5C6E",fontFamily:"monospace"}}>{liveUrl}</span>
                         {!sandboxHtml&&<span style={{fontSize:9,color:"#FFC72C",background:"rgba(255,199,44,0.1)",padding:"2px 7px",borderRadius:5}}>Run Scan to load preview</span>}
-                        {sandboxHtml&&<span style={{fontSize:9,color:"#4ADE80",background:"rgba(74,222,128,0.1)",padding:"2px 7px",borderRadius:5}}>✓ Loaded via proxy — full page visible</span>}
+                        {sandboxHtml&&<span style={{fontSize:9,color:"#4ADE80",background:"rgba(74,222,128,0.1)",padding:"2px 7px",borderRadius:5}}>✓ Loaded via proxy</span>}
                       </div>
                       <div style={{display:"flex",gap:8}}>
                         <a href={liveUrl} target="_blank" rel="noreferrer" style={{fontSize:10,padding:"4px 10px",borderRadius:6,border:"1px solid rgba(96,165,250,0.3)",background:"rgba(96,165,250,0.08)",color:"#60A5FA",textDecoration:"none",fontWeight:600}}>↗ Open in tab</a>
                         {!sandboxHtml&&<button onClick={loadSandbox} disabled={pbIframeLoading} style={{fontSize:10,padding:"4px 10px",borderRadius:6,border:"1px solid rgba(255,199,44,0.3)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",cursor:pbIframeLoading?"not-allowed":"pointer",fontWeight:600}}>
-                          {pbIframeLoading?"⏳ Loading...":"⬇ Load Preview"}
+                          {pbIframeLoading?"⏳...":"⬇ Load Preview"}
                         </button>}
                       </div>
                     </div>
@@ -6036,8 +6042,9 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                       ? (()=>{
                           // Inject click-handler script into srcdoc
                           const clickScript = "<scr"+"ipt>(function(){var sel=null;document.addEventListener('click',function(e){var t=e.target;var s=t.closest('[class*=\"gh-\"]')||t.closest('section')||t.closest('article > div')||t.closest('.elementor-widget-container > div');if(!s)return;e.preventDefault();e.stopPropagation();if(sel){sel.style.outline='';sel.style.boxShadow='';}sel=s;s.style.outline='2px solid #A78BFA';s.style.boxShadow='0 0 0 4px rgba(167,139,250,0.15)';var txt=s.innerText||'';window.parent.postMessage({type:'ghSectionClick',html:s.outerHTML,cls:s.className||s.tagName,tag:s.tagName,text:txt.substring(0,200)},'*');},true);})();</"+"script>";
+                                                    const shimmerScript = window.GH_SHIMMER_SCRIPT||"";
                           const colorCSS = window.GH_SANDBOX_CSS||"";
-                          const docWithClick = sandboxHtml.replace('</head>', colorCSS+'</head>').replace('</body>', clickScript+'</body>') || sandboxHtml+colorCSS+clickScript;
+                          const docWithClick = sandboxHtml.replace('</head>', colorCSS+'</head>').replace('</body>', clickScript+shimmerScript+'</body>') || sandboxHtml+colorCSS+clickScript+shimmerScript;
                           return <iframe srcDoc={docWithClick} style={{width:"100%",height:600,border:"none",display:"block"}} title="Page sandbox" sandbox="allow-scripts allow-same-origin allow-forms" />;
                         })()
                       : <div style={{height:200,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:10,color:"#4B5C6E"}}>
@@ -6049,19 +6056,19 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                   </div>;
                 })()}
 
-                {/* ── CHAT + NEPQ ── */}
+                
                 <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(167,139,250,0.2)",borderRadius:14,overflow:"hidden"}}>
 
-                  {/* Chat header with NEPQ controls */}
+                  
                   <div style={{padding:"10px 14px",background:"rgba(167,139,250,0.06)",borderBottom:"1px solid rgba(167,139,250,0.12)",display:"flex",gap:12,flexWrap:"wrap",alignItems:"flex-end"}}>
-                    {/* NEPQ Mode */}
+                    
                     <div style={{minWidth:150}}>
                       <div style={{fontSize:9,fontWeight:800,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>🎭 NEPQ Mode</div>
                       <select value={pbNepqMode} onChange={e=>setPbNepqMode(e.target.value)} style={{width:"100%",padding:"6px 8px",borderRadius:8,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:activeModeObj.color||"#C4CDD5",fontSize:11,fontWeight:600,outline:"none",cursor:"pointer"}}>
                         {nepqModesList.map(m=><option key={m.id} value={m.id} style={{background:"#1A2332",color:"#FFF"}}>{m.label}</option>)}
                       </select>
                     </div>
-                    {/* Insert Section */}
+                    
                     <div style={{minWidth:200,flex:1}}>
                       <div style={{fontSize:9,fontWeight:800,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:4}}>⚡ Insert NEPQ Section</div>
                       <div style={{display:"flex",gap:6}}>
@@ -6075,13 +6082,13 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     {pbAgentMsgs.length>0&&<button onClick={()=>{if(confirm("Clear chat?"))setPbAgentMsgs([]);}} style={{fontSize:9,color:"#4B5C6E",background:"none",border:"none",cursor:"pointer",alignSelf:"flex-end",paddingBottom:6}}>Clear</button>}
                   </div>
 
-                  {/* Messages */}
+                  
                   <div style={{minHeight:200,maxHeight:360,overflowY:"auto",padding:"12px 14px",display:"flex",flexDirection:"column",gap:10}}>
                     {pbAgentMsgs.length===0&&<div style={{textAlign:"center",padding:"30px 16px",color:"#4B5C6E"}}>
                       <div style={{fontSize:20,marginBottom:6}}>🤖</div>
                       <div style={{fontSize:11,color:"#6B7B8D",marginBottom:8}}>AI Page Agent — ask me to edit any section</div>
                       <div style={{display:"flex",flexWrap:"wrap",gap:5,justifyContent:"center"}}>
-                        {["Rewrite H1 with NEPQ","Fix the FAQ section","Add a stat row","What needs fixing?","Make the CTA stronger"].map(q=>
+                        {["Rewrite H1 with NEPQ","Fix FAQ","Add stat row","What needs fixing?","Make the CTA stronger"].map(q=>
                           <button key={q} onClick={()=>setPbChatInput(q)} style={{fontSize:9,padding:"4px 8px",borderRadius:5,border:"1px solid rgba(167,139,250,0.25)",background:"rgba(167,139,250,0.08)",color:"#A78BFA",cursor:"pointer"}}>{q}</button>
                         )}
                       </div>
@@ -6092,14 +6099,24 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                         {m.sectionLabel&&<div style={{fontSize:8,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",marginBottom:3}}>⚡ {m.sectionLabel}</div>}
                         {m.isHtml
                           ? <div>
-                              <div style={{fontSize:10,color:"#4ADE80",marginBottom:4,fontWeight:600}}>✅ HTML generated — review &amp; apply</div>
+                              <div style={{fontSize:10,color:"#4ADE80",marginBottom:4,fontWeight:600}}>✅ HTML ready — apply to page</div>
                               <pre style={{fontSize:9,color:"#8899A6",overflowX:"auto",maxHeight:90,margin:"0 0 6px",lineHeight:1.4,whiteSpace:"pre-wrap"}}>{m.content.substring(0,300)}{m.content.length>300?"...":""}</pre>
                               <div style={{display:"flex",gap:5}}>
                                 <button onClick={()=>handleApply(m.content)} style={{fontSize:9,padding:"4px 12px",borderRadius:5,border:"none",background:"linear-gradient(135deg,#7C3AED,#A78BFA)",color:"#FFF",cursor:"pointer",fontWeight:700}}>✅ Apply to Page</button>
                                 <button onClick={()=>navigator.clipboard.writeText(m.content)} style={{fontSize:9,padding:"4px 9px",borderRadius:5,border:"1px solid rgba(74,222,128,0.25)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",cursor:"pointer"}}>📋 Copy HTML</button>
                               </div>
                             </div>
-                          : <div style={{fontSize:11,color:"#C4CDD5",lineHeight:1.55,whiteSpace:"pre-wrap"}}>{m.content.substring(0,1500)}</div>
+                          : m.isDraft
+                            ? <div>
+                                <div style={{fontSize:10,color:"#FFC72C",marginBottom:6,fontWeight:600}}>📝 Draft — read, edit in chat if needed, then build</div>
+                                <div style={{fontSize:11,color:"#E8ECF0",lineHeight:1.7,whiteSpace:"pre-wrap",background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,padding:"10px 12px",marginBottom:6,maxHeight:300,overflowY:"auto"}}>{m.content}</div>
+                                <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                                  <button onClick={()=>handleBuildAndApply(m.content,m.sectionId,m.sectionLabel)} disabled={pbAgentLoading} style={{fontSize:9,padding:"4px 12px",borderRadius:5,border:"none",background:pbAgentLoading?"#333":"linear-gradient(135deg,#FFC72C,#FFD54F)",color:pbAgentLoading?"#666":"#1A2332",cursor:pbAgentLoading?"not-allowed":"pointer",fontWeight:700}}>{pbAgentLoading?"⏳...":"🔨 Build & Apply"}</button>
+                                  <button onClick={()=>setPbChatInput("Revise this draft: ")} style={{fontSize:9,padding:"4px 9px",borderRadius:5,border:"1px solid rgba(167,139,250,0.3)",background:"rgba(167,139,250,0.08)",color:"#A78BFA",cursor:"pointer"}}>✏️ Revise</button>
+                                  <button onClick={()=>navigator.clipboard.writeText(m.content)} style={{fontSize:9,padding:"4px 8px",borderRadius:5,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#6B7B8D",cursor:"pointer"}}>📋</button>
+                                </div>
+                              </div>
+                            : <div style={{fontSize:11,color:"#C4CDD5",lineHeight:1.55,whiteSpace:"pre-wrap"}}>{m.content.substring(0,1500)}</div>
                         }
                       </div>
                     </div>)}
@@ -6109,7 +6126,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     </div>}
                   </div>
 
-                  {/* File previews */}
+                  
                   {pbAgentFiles.length>0&&<div style={{padding:"6px 12px",borderTop:"1px solid rgba(255,255,255,0.05)",display:"flex",gap:5,flexWrap:"wrap"}}>
                     {pbAgentFiles.map(f=><div key={f.id} style={{display:"inline-flex",alignItems:"center",gap:4,background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",borderRadius:6,padding:"2px 6px"}}>
                       {f.preview?<img src={f.preview} alt="" style={{width:18,height:18,objectFit:"cover",borderRadius:3}} />:<span>📄</span>}
@@ -6118,32 +6135,32 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                     </div>)}
                   </div>}
 
-                  {/* ── Selected section strip + NEPQ drops — shown above input when section selected ── */}
+                  
                   {pbSelectedSection&&<div style={{borderTop:"1px solid rgba(167,139,250,0.15)",background:"rgba(167,139,250,0.05)"}}>
-                    <div style={{padding:"6px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:6}}>
-                      <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-                        <span style={{fontSize:9,fontWeight:700,color:"#A78BFA"}}>✏️ Selected:</span>
-                        <span style={{fontSize:9,color:"#C4CDD5",background:"rgba(167,139,250,0.15)",padding:"1px 6px",borderRadius:4,fontFamily:"monospace"}}>{pbSelectedSection.cls.split(" ").filter(c=>c.startsWith("gh-"))[0]||pbSelectedSection.tag}</span>
-                        <span style={{fontSize:9,color:"#6B7B8D",maxWidth:200,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{pbSelectedSection.text.substring(0,50)}</span>
+                    <div style={{padding:"5px 12px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:6,flexWrap:"wrap"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:5}}>
+                        <span style={{fontSize:9,fontWeight:700,color:"#A78BFA"}}>✏️</span>
+                        <span style={{fontSize:9,color:"#C4CDD5",background:"rgba(167,139,250,0.15)",padding:"1px 5px",borderRadius:4,fontFamily:"monospace"}}>{pbSelectedSection.cls.split(" ").filter(c=>c.startsWith("gh-"))[0]||pbSelectedSection.tag}</span>
+                        <span style={{fontSize:9,color:"#6B7B8D",maxWidth:160,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{pbSelectedSection.text.substring(0,45)}</span>
                       </div>
                       <button onClick={()=>setPbSelectedSection(null)} style={{fontSize:9,color:"#6B7B8D",background:"none",border:"none",cursor:"pointer"}}>✕</button>
                     </div>
-                    <div style={{padding:"4px 12px 8px",display:"flex",flexWrap:"wrap",gap:5,alignItems:"center"}}>
-                      <span style={{fontSize:8,fontWeight:700,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.08em"}}>Drop NEPQ:</span>
-                      {(window.GH_NEPQ_QUICK_DROPS||[]).map(phrase=><button key={phrase.label} onClick={()=>setPbChatInput((pbChatInput?pbChatInput+" ":"")+phrase.text)} style={{fontSize:8,padding:"2px 7px",borderRadius:4,border:"1px solid rgba(167,139,250,0.25)",background:"rgba(167,139,250,0.08)",color:"#C4CDD5",cursor:"pointer"}}>{phrase.label}</button>)}
+                    <div style={{padding:"3px 12px 7px",display:"flex",flexWrap:"wrap",gap:4}}>
+                      <span style={{fontSize:8,fontWeight:700,color:"#A78BFA",textTransform:"uppercase",letterSpacing:"0.06em"}}>NEPQ:</span>
+                      {(window.GH_NEPQ_QUICK_DROPS||[]).map(phrase=><button key={phrase.label} onClick={()=>setPbChatInput((pbChatInput?pbChatInput+" ":"")+phrase.text)} style={{fontSize:8,padding:"2px 6px",borderRadius:4,border:"1px solid rgba(167,139,250,0.2)",background:"rgba(167,139,250,0.07)",color:"#C4CDD5",cursor:"pointer"}}>{phrase.label}</button>)}
                     </div>
                   </div>}
 
-                  {/* Chat input */}
+                  
                   <div style={{padding:"10px 12px",borderTop:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:8,alignItems:"flex-end",background:"rgba(255,255,255,0.01)"}}>
-                    <label style={{cursor:"pointer",padding:"7px 9px",borderRadius:7,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#6B7B8D",fontSize:14,flexShrink:0}} title="Upload screenshot or PDF">
+                    <label style={{cursor:"pointer",padding:"7px 9px",borderRadius:7,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#6B7B8D",fontSize:14,flexShrink:0}} >
                       📎<input type="file" accept="image/*,application/pdf" multiple onChange={handlePbFileUpload} style={{display:"none"}} />
                     </label>
-                    <textarea value={pbChatInput||""} onChange={e=>setPbChatInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendPbChat();}}} placeholder={pbSelectedSection?"Edit selected section: describe the change or use a NEPQ drop above...":"Ask the AI to edit a section, fix a checklist item, or analyze the page..."+(pbNepqMode?" ["+activeModeObj.label+" mode]":"")} rows={2} style={{flex:1,padding:"8px 11px",borderRadius:9,border:`1px solid ${pbSelectedSection?"rgba(167,139,250,0.4)":"rgba(167,139,250,0.2)"}`,background:pbSelectedSection?"rgba(167,139,250,0.06)":"rgba(255,255,255,0.04)",color:"#FFF",fontSize:11,outline:"none",resize:"none",lineHeight:1.5,fontFamily:"inherit"}} />
+                    <textarea value={pbChatInput||""} onChange={e=>setPbChatInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendPbChat();}}} placeholder={pbSelectedSection?"Describe the edit...":"Ask AI..."+(pbNepqMode?" ["+activeModeObj.label+"]":"")} rows={2} style={{flex:1,padding:"8px 11px",borderRadius:9,border:`1px solid ${pbSelectedSection?"rgba(167,139,250,0.4)":"rgba(167,139,250,0.2)"}`,background:pbSelectedSection?"rgba(167,139,250,0.06)":"rgba(255,255,255,0.04)",color:"#FFF",fontSize:11,outline:"none",resize:"none",lineHeight:1.5,fontFamily:"inherit"}} />
                     <button onClick={sendPbChat} disabled={pbAgentLoading||(!pbChatInput?.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()} style={{padding:"10px 14px",borderRadius:9,border:"none",background:pbAgentLoading||(!pbChatInput?.trim()&&pbAgentFiles.length===0)||!aiApiKey.trim()?"#333":"linear-gradient(135deg,#7C3AED,#A78BFA)",color:pbAgentLoading?"#666":"#FFF",fontWeight:700,fontSize:13,cursor:pbAgentLoading?"not-allowed":"pointer",flexShrink:0}}>↑</button>
                   </div>
 
-                  {/* Save + Copy All — persistent bottom bar */}
+                  
                   {pbOutput&&<div style={{padding:"8px 12px",borderTop:"1px solid rgba(255,255,255,0.06)",background:"rgba(255,255,255,0.01)",display:"flex",gap:8,justifyContent:"flex-end",alignItems:"center"}}>
                     {pbSaveNotice&&<span style={{fontSize:10,fontWeight:700,color:pbSaveNotice==="applied"?"#FFC72C":"#4ADE80",marginRight:"auto"}}>{pbSaveNotice==="applied"?"⚡ Applied to page":"✅ Saved"}</span>}
                     <button onClick={()=>handlePbSave(pbOutput,"saved")} disabled={pbSaving} style={{padding:"6px 14px",borderRadius:20,border:"1px solid rgba(74,222,128,0.3)",background:"rgba(74,222,128,0.1)",color:"#4ADE80",fontSize:11,fontWeight:700,cursor:"pointer"}}>
@@ -6173,7 +6190,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         {showAddReminder&&<ReminderForm onSave={addReminder} onCancel={()=>setShowAddReminder(false)} T={T} />}
         {editReminder&&<ReminderForm initial={editReminder} onSave={(r)=>updateReminder(editReminder.id,r)} onCancel={()=>setEditReminder(null)} T={T} />}
 
-        {/* Overdue */}
+        
         {(()=>{
           const catColors = {content:"#2DD4BF",seo:"#34D399",promo:"#FB923C",local:"#F472B6",aeo:"#60A5FA",audit:"#F87171",other:"#A78BFA"};
           const catLabels = {content:"Content",seo:"SEO",promo:"Promotion",local:"Local/GMB",aeo:"AEO/Schema",audit:"Audit",other:"Other"};
@@ -6245,9 +6262,9 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       </div>}
 
 
-      {/* ═══ AI AGENT TAB ═══ */}
+      
       {view==="aiAgent"&&<div>
-        {/* Header */}
+        
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"20px 24px",background:"rgba(255,199,44,0.08)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:16,marginBottom:16,boxShadow:"none"}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg,#FFC72C,#FFD54F)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22}}>&#129504;</div>
@@ -6266,7 +6283,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           </div>
         </div>
 
-        {/* Learnings Panel */}
+        
         <div style={{marginBottom:16,border:"1px solid rgba(255,199,44,0.2)",borderRadius:14,overflow:"hidden",boxShadow:"none"}}>
           <button onClick={function(){setShowLearnings(!showLearnings)}} style={{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%",padding:"12px 18px",background:"rgba(255,199,44,0.08)",border:"none",cursor:"pointer",color:"#FFF"}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
@@ -6277,12 +6294,12 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             <span style={{fontSize:11,color:"#6B7B8D"}}>{showLearnings?"\u25B2":"\u25BC"}</span>
           </button>
           {showLearnings&&<div style={{padding:"12px 18px",background:"rgba(0,0,0,0.15)",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
-            {/* Add new learning */}
+            
             <div style={{display:"flex",gap:8,marginBottom:learnings.length>0?12:0}}>
               <input value={newLearning} onChange={function(e){setNewLearning(e.target.value)}} onKeyDown={function(e){if(e.key==="Enter"&&newLearning.trim()){setLearnings(function(prev){return prev.concat([{id:Date.now(),text:newLearning.trim(),date:new Date().toISOString().slice(0,10),category:""}])});setNewLearning("");setHasChanges(true)}}} placeholder="Add a learning... e.g. 'My pages use styled divs, not HTML tables' or 'Always check for author byline first'" style={{flex:1,padding:"10px 14px",borderRadius:10,border:"1px solid rgba(255,199,44,0.2)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:12,outline:"none"}} />
               <button onClick={function(){if(newLearning.trim()){setLearnings(function(prev){return prev.concat([{id:Date.now(),text:newLearning.trim(),date:new Date().toISOString().slice(0,10),category:""}])});setNewLearning("");setHasChanges(true)}}} disabled={!newLearning.trim()} style={{padding:"10px 18px",borderRadius:10,border:"none",background:newLearning.trim()?"#16A34A":"#333",color:"#FFF",fontSize:12,fontWeight:700,cursor:newLearning.trim()?"pointer":"not-allowed",whiteSpace:"nowrap"}}>+ Add</button>
             </div>
-            {/* List learnings */}
+            
             {learnings.length===0&&<div style={{textAlign:"center",padding:"20px",color:"#4B5C6E",fontSize:12}}>No learnings yet. Add your first one above. These get fed into every AI conversation so it learns from your feedback.</div>}
             {learnings.map(function(l,i){return React.createElement("div",{key:l.id,style:{display:"flex",alignItems:"flex-start",gap:10,padding:"8px 0",borderBottom:i<learnings.length-1?"1px solid rgba(255,255,255,0.04)":"none"}},
               React.createElement("span",{style:{fontSize:10,color:"#6B7B8D",minWidth:60,paddingTop:2}},l.date),
@@ -6293,7 +6310,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           </div>}
         </div>
 
-        {/* Fetch Page URL Bar */}
+        
         <div style={{display:"flex",gap:8,marginBottom:16,alignItems:"center"}}>
           <div style={{flex:1,display:"flex",gap:8,padding:"10px 16px",background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,boxShadow:"none"}}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={"#6B7B8D"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,marginTop:2}}><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
@@ -6338,7 +6355,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           </button>
         </div>
 
-        {/* Full Scan Progress Bar */}
+        
         {fullScanProgress&&<div style={{marginBottom:16,padding:"12px 16px",background:"rgba(74,222,128,0.06)",border:"1px solid rgba(74,222,128,0.2)",borderRadius:12}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
             <span style={{fontSize:12,fontWeight:700,color:"#4ADE80"}}>📊 Scanning {fullScanProgress.total} pages...</span>
@@ -6350,7 +6367,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           <div style={{fontSize:10,color:"#6B7B8D",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>Currently: {fullScanProgress.current}</div>
         </div>}
 
-        {/* Full Scan Results Summary (shown after scan, before AI responds) */}
+        
         {fullScanResults&&!fullScanActive&&<div style={{marginBottom:16,padding:"12px 16px",background:"rgba(74,222,128,0.04)",border:"1px solid rgba(74,222,128,0.15)",borderRadius:12}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
             <span style={{fontSize:13,fontWeight:700,color:"#4ADE80"}}>✅ Scan Complete — {fullScanResults.length} pages</span>
@@ -6375,7 +6392,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           </div>
         </div>}
 
-        {/* Quick Actions */}
+        
         {aiMessages.length===0&&aiApiKey.trim()&&!aiShowKey&&<div style={{display:"flex",flexWrap:"wrap",gap:8,marginBottom:16}}>
           {[
             {label:"Site Health Report",msg:"Give me a complete site health report. Use my full 24-week performance data to identify trends and opportunities."},
@@ -6388,9 +6405,9 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
           ].map(function(qa,i){return React.createElement("button",{key:i,onClick:function(){sendAiMessage(qa.msg)},style:{padding:"10px 16px",borderRadius:12,border:"1px solid rgba(255,255,255,0.08)",background:"rgba(255,255,255,0.03)",color:"#C4CDD5",fontSize:12,boxShadow:"none",fontWeight:500,cursor:"pointer"}},qa.label)})}
         </div>}
 
-        {/* Chat Area */}
+        
         <div style={{background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:16,boxShadow:"none",display:"flex",flexDirection:"column",height:"calc(100vh - 440px)",minHeight:350}}>
-          {/* Messages */}
+          
           <div ref={aiChatRef} style={{flex:1,overflowY:"auto",padding:"20px 24px",display:"flex",flexDirection:"column",gap:14}}>
             {aiMessages.length===0&&<div style={{textAlign:"center",padding:"60px 40px",color:"#4B5C6E"}}>
               <div style={{fontSize:48,marginBottom:16}}>&#129504;</div>
@@ -6448,7 +6465,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
             </div>}
           </div>
 
-          {/* Input */}
+          
           <div style={{padding:"16px 20px",borderTop:"1px solid rgba(255,255,255,0.08)",background:"rgba(0,0,0,0.15)",borderRadius:"0 0 16px 16px"}}>
             {aiAttachedPage&&(function(){var pg=allPagesFlat.find(function(p){return p.key===aiAttachedPage});var label=pg?pg.name:aiAttachedPage.indexOf("ai-fetch")===0?"Fetched page":"Attached";var size=pg?Math.round(pg.htmlSize/1024):savedHTML[aiAttachedPage]?Math.round(savedHTML[aiAttachedPage].length/1024):0;return React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",marginBottom:8,background:"rgba(255,199,44,0.08)",border:"1px solid rgba(255,199,44,0.2)",borderRadius:8}},
               React.createElement("span",{style:{fontSize:11,color:"#FFC72C"}},"Attached: "+label),
@@ -6459,7 +6476,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
               <div style={{fontSize:10,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.1em",padding:"4px 8px",marginBottom:4}}>Attach cached page HTML</div>
               {allPagesFlat.filter(function(p){return p.hasHTML}).map(function(pg){return React.createElement("button",{key:pg.key,onClick:function(){setAiAttachedPage(pg.key);setAiAttachOpen(false)},style:{display:"block",width:"100%",textAlign:"left",padding:"6px 8px",borderRadius:6,border:"none",background:aiAttachedPage===pg.key?"rgba(255,199,44,0.08)":"transparent",color:"#C4CDD5",fontSize:11,cursor:"pointer",marginBottom:2}},pg.name+" /"+pg.slug)})}
             </div>}
-            {/* File upload preview */}
+            
             {aiFile&&<div style={{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",marginBottom:8,background:"rgba(75,156,211,0.08)",border:"1px solid rgba(75,156,211,0.25)",borderRadius:10}}>
               <span style={{fontSize:16}}>{aiFile.type?.includes("pdf")?"📄":"🖼️"}</span>
               {aiFile.type?.includes("image")&&<img src={aiFile.data} style={{height:40,borderRadius:6,border:"1px solid rgba(255,255,255,0.1)"}} alt="preview"/>}
@@ -6491,7 +6508,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
     {scanTarget && <ScanModal onScan={handleScan} onClose={()=>setScanTarget(null)} initialHTML={savedHTML[`${scanTarget.clusterId}-${scanTarget.postIdx}`]||""} T={T} />}
     {saveTarget && <ScanModal onScan={handleSaveOnly} onClose={()=>setSaveTarget(null)} initialHTML={savedHTML[`${saveTarget.clusterId}-${saveTarget.postIdx}`]||""} saveOnly={true} T={T} />}
 
-    {/* File Preview Modal */}
+    
     {previewFile&&<div style={{position:"fixed",inset:0,zIndex:10000,display:"flex",alignItems:"center",justifyContent:"center"}}>
       <div onClick={()=>setPreviewFile(null)} style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.85)",backdropFilter:"blur(8px)"}}></div>
       <div style={{position:"relative",zIndex:2,maxWidth:"90vw",maxHeight:"90vh",background:"#1A2840",borderRadius:16,border:"1px solid rgba(255,255,255,0.12)",overflow:"hidden",display:"flex",flexDirection:"column"}}>
