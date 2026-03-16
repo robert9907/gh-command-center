@@ -328,7 +328,7 @@ window.GH_NEPQ_QUICK_DROPS = [
 ];
 </script>
 <script>
-window.GH_SHIMMER_SCRIPT = "<scr"+"ipt>(function(){function activate(card,delay){var s=document.createElement('div');s.className='gh-card-sweep';card.appendChild(s);card.classList.add('gh-shimmer-active');}setTimeout(function(){var cards=document.querySelectorAll('.gh-cta-card');cards.forEach(function(c,i){activate(c,i===1?'1.75s':null);});},200);})();</"+"script>";
+window.GH_SHIMMER_SCRIPT = "<scr"+"ipt>(function(){function activate(card,delay){var s=document.createElement('div');s.className='gh-card-sweep';if(delay){s.style.animationDelay=delay;}card.appendChild(s);card.classList.add('gh-shimmer-active');}setTimeout(function(){var cards=document.querySelectorAll('.gh-cta-card');cards.forEach(function(c,i){activate(c,i===1?'1.75s':null);if(i===1){c.querySelectorAll('.gh-ghost--compare,.gh-ghost--primary,.gh-ghost--call,.gh-ghost--text,.gh-ghost--sched').forEach(function(b){var cur=b.style.animationDelay||'0s';b.style.animationDelay='1.75s';});}});},300);})();</"+"script>";
   var css='@keyframes ghCardShimmer{0%{left:-150%}100%{left:220%}}'
     +'@keyframes ghGlowCompare{0%,28%{background:rgba(75,156,211,.08);border-color:rgba(75,156,211,.3);box-shadow:none}30%{background:rgba(75,156,211,.35);border-color:rgba(75,156,211,.95);box-shadow:0 0 24px rgba(75,156,211,.55)}100%{background:rgba(75,156,211,.12);border-color:rgba(75,156,211,.45);box-shadow:0 0 10px rgba(75,156,211,.2)}}'
     +'@keyframes ghGlowCall{0%,40%{background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.3);box-shadow:none}42%{background:rgba(22,163,74,.35);border-color:rgba(22,163,74,.95);box-shadow:0 0 24px rgba(22,163,74,.55)}100%{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.45);box-shadow:0 0 10px rgba(22,163,74,.2)}}'
@@ -6355,7 +6355,13 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
                       ? (()=>{
                           const clickScript = "<scr"+"ipt>(function(){var sel=null;document.addEventListener('click',function(e){var t=e.target;var s=t.closest('[class*=\'gh-\']')||t.closest('section')||t.closest('article > div');if(!s)return;e.preventDefault();e.stopPropagation();if(sel){sel.style.outline='';sel.style.boxShadow='';}sel=s;s.style.outline='2px solid #A78BFA';s.style.boxShadow='0 0 0 4px rgba(167,139,250,0.15)';var txt=s.innerText||'';window.parent.postMessage({type:'ghSectionClick',html:s.outerHTML,cls:s.className||s.tagName,tag:s.tagName,text:txt.substring(0,200)},'*');},true);})();</"+"script>";
                           const shimmerScript = window.GH_SHIMMER_SCRIPT||"";
-                          const masterCSS = (window.GH_SANDBOX_CSS||"").replace(/<style>|<\/style>/g,"");
+                          // Extract base CSS from master template, add shimmer overlay on top
+                          const tmplCSS = (()=>{
+                            var t = window.GH_NEPQ_TEMPLATE||"";
+                            var m = t.match(/<style>([\s\S]*?)<\/style>/);
+                            return m ? m[1] : "";
+                          })();
+                          const masterCSS = tmplCSS + (window.GH_SANDBOX_CSS||"");
                           const stripFn = window.GH_STRIP_PAGE;
                           const cleanDoc = stripFn
                             ? stripFn(sandboxHtml, masterCSS, clickScript, shimmerScript)
