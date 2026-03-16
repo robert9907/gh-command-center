@@ -602,53 +602,47 @@ window.GH_NEPQ_FRAMEWORK = [
 </script>
 <script>
 window.GH_STRIP_PAGE = function(rawHtml, masterCSS, clickScript, shimmerScript) {
-  var doc = new DOMParser().parseFromString(rawHtml, 'text/html');
+  var doc = new DOMParser().parseFromString(rawHtml, "text/html");
 
-  // 1. Remove all <script> tags — no WordPress/Elementor/jQuery JS
-  doc.querySelectorAll('script').forEach(function(s){ s.remove(); });
+  // Remove all scripts — no WP/Elementor/jQuery
+  doc.querySelectorAll("script").forEach(function(s){ s.remove(); });
 
-  // 2. Remove all <link rel="stylesheet"> except fonts
-  doc.querySelectorAll('link[rel="stylesheet"]').forEach(function(l){
-    if(!l.href || l.href.indexOf('fonts.googleapis') === -1) l.remove();
+  // Remove stylesheets except Google Fonts
+  doc.querySelectorAll("link[rel=stylesheet]").forEach(function(l){
+    if(!l.href || l.href.indexOf("fonts.googleapis") === -1) l.remove();
   });
 
-  // 3. Remove all <style> tags — we replace with master template CSS
-  doc.querySelectorAll('style').forEach(function(s){ s.remove(); });
+  // Remove all style tags
+  doc.querySelectorAll("style").forEach(function(s){ s.remove(); });
 
-  // 4. Strip inline styles from .gh- elements so our CSS can take over
-  doc.querySelectorAll('[class]').forEach(function(el){
-    var cls = el.className || '';
-    if(cls.indexOf('gh-') > -1) {
-      el.removeAttribute('style');
-    }
+  // Strip inline styles from .gh- elements — use getAttribute to handle SVG safely
+  doc.querySelectorAll("[class]").forEach(function(el){
+    var cls = el.getAttribute("class") || "";
+    if(cls.indexOf("gh-") > -1) el.removeAttribute("style");
   });
 
-  // 5. Remove Elementor wrapper divs but keep content
-  // Keep: .gh-* elements, article, section, main, header, footer, nav, div with content
-  // Remove: data-elementor-* attributes (keep structure, strip attrs)
-  doc.querySelectorAll('[data-elementor-type],[data-element_type]').forEach(function(el){
-    ['data-elementor-type','data-element_type','data-elementor-id','data-id',
-     'data-settings','data-widget_type'].forEach(function(a){ el.removeAttribute(a); });
+  // Strip Elementor data attributes
+  doc.querySelectorAll("[data-elementor-type],[data-element_type]").forEach(function(el){
+    ["data-elementor-type","data-element_type","data-elementor-id",
+     "data-id","data-settings","data-widget_type"].forEach(function(a){ el.removeAttribute(a); });
   });
 
-  // 6. Build clean head
-  var head = '<!DOCTYPE html><html lang="en"><head>'
-    + '<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-    + '<link rel="preconnect" href="https://fonts.googleapis.com">'
-    + '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
-    + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@300;400;600;700;800&display=swap" rel="stylesheet">'
-    + '<style>' + masterCSS + '</style>'
-    + '</head>';
+  var bodyHtml = doc.body ? doc.body.innerHTML : "";
 
-  // 7. Get cleaned body HTML
-  var bodyHtml = doc.body ? doc.body.innerHTML : '';
-
-  // 8. Return full clean document
-  return head + '<body style="margin:0;padding:0;background:#fff">'
+  var out = "<!DOCTYPE html><html lang=en><head>"
+    + "<meta charset=UTF-8>"
+    + "<meta name=viewport content=width=device-width,initial-scale=1>"
+    + "<link rel=preconnect href=https://fonts.googleapis.com>"
+    + "<link rel=preconnect href=https://fonts.gstatic.com crossorigin>"
+    + "<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@300;400;600;700;800&display=swap" rel=stylesheet>"
+    + "<style>" + masterCSS + "</style>"
+    + "</head><body style="margin:0;padding:16px;background:#f9fafb">"
     + bodyHtml
     + clickScript
     + shimmerScript
-    + '</body></html>';
+    + "</body></html>";
+
+  return out;
 };
 </script>
 <script type="text/babel">
