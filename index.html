@@ -329,8 +329,52 @@ window.GH_NEPQ_QUICK_DROPS = [
 </script>
 <script>
 window.GH_SHIMMER_SCRIPT = "<scr"+"ipt>(function(){
-  // Keyframe CSS still needed — inject into document
-  var style=document.createElement('style');
+  var CYCLE='3.5s';
+  var css='@keyframes ghCardShimmer{0%{left:-150%}100%{left:220%}}'
+    +'@keyframes ghGlowCompare{0%,28%{background:rgba(75,156,211,.08);border-color:rgba(75,156,211,.3);box-shadow:none}30%{background:rgba(75,156,211,.35);border-color:rgba(75,156,211,.95);box-shadow:0 0 24px rgba(75,156,211,.55)}100%{background:rgba(75,156,211,.12);border-color:rgba(75,156,211,.45);box-shadow:0 0 10px rgba(75,156,211,.2)}}'
+    +'@keyframes ghGlowCall{0%,40%{background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.3);box-shadow:none}42%{background:rgba(22,163,74,.35);border-color:rgba(22,163,74,.95);box-shadow:0 0 24px rgba(22,163,74,.55)}100%{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.45);box-shadow:0 0 10px rgba(22,163,74,.2)}}'
+    +'@keyframes ghGlowText{0%,52%{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.3);box-shadow:none}54%{background:rgba(139,92,246,.35);border-color:rgba(139,92,246,.95);box-shadow:0 0 24px rgba(139,92,246,.55)}100%{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.45);box-shadow:0 0 10px rgba(139,92,246,.2)}}'
+    +'@keyframes ghGlowSched{0%,64%{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);box-shadow:none}66%{background:rgba(245,158,11,.35);border-color:rgba(245,158,11,.95);box-shadow:0 0 24px rgba(245,158,11,.55)}100%{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.45);box-shadow:0 0 10px rgba(245,158,11,.2)}}';
+  var st=document.createElement('style');
+  st.textContent=css;
+  document.head.appendChild(st);
+
+  function pill(el){
+    el.style.cssText+='border-radius:9999px!important;';
+    el.setAttribute('style',(el.getAttribute('style')||'')+';border-radius:9999px!important');
+  }
+
+  function wire(btn,kf,delay){
+    pill(btn);
+    var anim=kf+' '+CYCLE+' ease-in-out infinite'+(delay?' '+delay:'');
+    btn.style.cssText+=';animation:'+anim+'!important';
+    btn.setAttribute('style',(btn.getAttribute('style')||'')+';animation:'+anim+'!important');
+  }
+
+  function activateCard(card,delay){
+    card.style.cssText+=';position:relative!important;overflow:hidden!important';
+    var sw=document.createElement('div');
+    var d=delay||'0s';
+    sw.style.cssText='position:absolute;top:0;left:-150%;width:65%;height:100%;'
+      +'background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,.25) 50%,transparent 80%);'
+      +'transform:skewX(-18deg);pointer-events:none;z-index:999;'
+      +'animation:ghCardShimmer '+CYCLE+' ease-in-out infinite '+d+';';
+    card.appendChild(sw);
+    card.querySelectorAll('.gh-ghost--compare,.gh-ghost--primary').forEach(function(b){wire(b,'ghGlowCompare',d);});
+    card.querySelectorAll('.gh-ghost--call').forEach(function(b){wire(b,'ghGlowCall',d);});
+    card.querySelectorAll('.gh-ghost--text').forEach(function(b){wire(b,'ghGlowText',d);});
+    card.querySelectorAll('.gh-ghost--sched').forEach(function(b){wire(b,'ghGlowSched',d);});
+    card.querySelectorAll('a,button').forEach(function(b){pill(b);});
+  }
+
+  function run(){
+    var cards=document.querySelectorAll('.gh-cta-card');
+    if(!cards.length) return;
+    cards.forEach(function(c,i){activateCard(c,i===1?'1.75s':null);});
+  }
+
+  setTimeout(run,350);
+})();</"+"script>";
   style.textContent='@keyframes ghCardShimmer{0%{left:-150%}100%{left:220%}}@keyframes ghGlowCompare{0%,28%{background:rgba(75,156,211,.08);border-color:rgba(75,156,211,.3);box-shadow:none}30%{background:rgba(75,156,211,.35);border-color:rgba(75,156,211,.95);box-shadow:0 0 24px rgba(75,156,211,.55)}100%{background:rgba(75,156,211,.12);border-color:rgba(75,156,211,.45);box-shadow:0 0 10px rgba(75,156,211,.2)}}@keyframes ghGlowCall{0%,40%{background:rgba(22,163,74,.08);border-color:rgba(22,163,74,.3);box-shadow:none}42%{background:rgba(22,163,74,.35);border-color:rgba(22,163,74,.95);box-shadow:0 0 24px rgba(22,163,74,.55)}100%{background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.45);box-shadow:0 0 10px rgba(22,163,74,.2)}}@keyframes ghGlowText{0%,52%{background:rgba(139,92,246,.08);border-color:rgba(139,92,246,.3);box-shadow:none}54%{background:rgba(139,92,246,.35);border-color:rgba(139,92,246,.95);box-shadow:0 0 24px rgba(139,92,246,.55)}100%{background:rgba(139,92,246,.12);border-color:rgba(139,92,246,.45);box-shadow:0 0 10px rgba(139,92,246,.2)}}@keyframes ghGlowSched{0%,64%{background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);box-shadow:none}66%{background:rgba(245,158,11,.35);border-color:rgba(245,158,11,.95);box-shadow:0 0 24px rgba(245,158,11,.55)}100%{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.45);box-shadow:0 0 10px rgba(245,158,11,.2)}}';
   document.head.appendChild(style);
 
