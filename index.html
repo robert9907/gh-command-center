@@ -291,6 +291,10 @@ window.GH_PB_NEPQ=[
       function glowBtn(el,r,g,b,delayMs,sweepColor){
         el.style.position="relative";
         el.style.overflow="hidden";
+        // Immediate visible test - set border bright
+        el.style.border="2px solid rgba("+r+","+g+","+b+",0.8)";
+        el.style.boxShadow="0 0 20px rgba("+r+","+g+","+b+",0.6)";
+        window.parent.postMessage({type:"GH_DEBUG",msg:"glowBtn called on: "+el.className},"*");
         // Sweep span
         var sw=document.createElement("span");
         sw.style.cssText="position:absolute;top:0;left:-100%;width:65%;height:100%;background:linear-gradient(120deg,transparent 10%,"+sweepColor+" 50%,transparent 90%);transform:skewX(-15deg);pointer-events:none;z-index:2;";
@@ -686,6 +690,7 @@ window.GH_PB_NEPQ=[
       }
       window.addEventListener("message",onMsg);
       function onContentChanged(ev){
+        if(ev.data&&ev.data.type==="GH_DEBUG"){console.log("[GH_DEBUG from iframe]",ev.data.msg);return;}
         if(!ev.data||ev.data.type!=="GH_CONTENT_CHANGED")return;
         setSaved(false);
         // Ask iframe for updated HTML and re-run scan so checks flip green
