@@ -1240,6 +1240,7 @@ function App() {
   const [pbShowApiKey, setPbShowApiKey] = useState(false);
   const [pbSearch, setPbSearch] = useState("");
   const [pbNepqExpanded, setPbNepqExpanded] = useState(null);
+  const [pbNepqPlacement, setPbNepqPlacement] = useState({});
   const [pbEditMode, setPbEditMode] = useState(false);
   const [pbEditHTML, setPbEditHTML] = useState("");
   const [pbFixing, setPbFixing] = useState(false);
@@ -3787,64 +3788,66 @@ function App() {
           var midHTML    = wrapSection(midBlocks, "Consequence + Solution Awareness");
           var bottomHTML = wrapSection(bottomBlocks, "Decision + Transition + Committing");
 
-          // ── Smart injection: 6 distributed points through the page ──
+          // ── Placement-aware injection ──
           var out = html;
-          var sections = [];
-          var sp = 0;
-          while(true){var si=out.indexOf("</section>",sp);if(si===-1)break;sections.push(si);sp=si+10;}
 
-          function insertAt(str,pos,insert){return str.slice(0,pos)+insert+str.slice(pos);}
+          function insertAt(str,pos,ins){return str.slice(0,pos)+ins+str.slice(pos);}
           function afterSection(str,n){
             var c=0,p=0;
             while(true){var i=str.indexOf("</section>",p);if(i===-1)break;c++;if(c===n)return i+10;p=i+10;}
             return str.length;
           }
           function beforePattern(str,pattern){
-            var i=str.indexOf(pattern);
-            if(i===-1)return -1;
-            var s=str.lastIndexOf("<section",i);
-            return s>-1?s:i;
+            var i=str.indexOf(pattern);if(i===-1)return -1;
+            var s=str.lastIndexOf("<section",i);return s>-1?s:i;
+          }
+          function getInsertPos(str,placement){
+            if(placement==="after-hero"||placement==="auto")return afterSection(str,1);
+            if(placement==="after-intro")return afterSection(str,2);
+            if(placement==="before-cta1"){var p=beforePattern(str,"gh-cta-modal");return p>-1?p:afterSection(str,3);}
+            if(placement==="before-cta2"){
+              var f=str.indexOf("gh-cta-modal");
+              var s2=f>-1?str.indexOf("gh-cta-modal",f+20):-1;
+              if(s2>-1){var ps=str.lastIndexOf("<section",s2);return ps>-1?ps:s2;}
+              return afterSection(str,4);
+            }
+            if(placement==="before-compare"){var pc=beforePattern(str,"gh-compare");return pc>-1?pc:afterSection(str,4);}
+            if(placement==="before-faq"){var pf=beforePattern(str,"gh-faq");return pf>-1?pf:afterSection(str,5);}
+            if(placement==="before-end"){var be=str.lastIndexOf("</body>");return be>-1?be:str.length;}
+            return afterSection(str,1);
           }
 
-          // POINT 1: Connecting + Situation → after hero (section 1)
-          var pt1 = wrapSection(["connecting","situation"].map(function(id){return pbNepqContent[id];}).filter(Boolean),"Connecting");
-          if(pt1){var p1=afterSection(out,1);out=insertAt(out,p1,pt1);}
+          // Group stages by their placement, then inject group by group
+          var STAGE_ORDER = ["connecting","situation","problem","two-truths","solution",
+            "consequence","qualifying","clarifying","expanded","decision","transition","committing","resolving"];
+          
+          // Build placement groups
+          var placementGroups = {};
+          STAGE_ORDER.forEach(function(id){
+            if(!pbNepqContent[id]) return;
+            var pl = pbNepqPlacement[id]||"auto";
+            // Default auto placements
+            if(pl==="auto"){
+              if(id==="connecting"||id==="situation") pl="after-hero";
+              else if(id==="problem"||id==="two-truths") pl="after-intro";
+              else if(id==="solution"||id==="consequence") pl="before-cta1";
+              else if(id==="qualifying"||id==="clarifying"||id==="expanded") pl="before-compare";
+              else if(id==="decision"||id==="transition") pl="before-faq";
+              else pl="before-end";
+            }
+            if(!placementGroups[pl]) placementGroups[pl]=[];
+            placementGroups[pl].push(pbNepqContent[id]);
+          });
 
-          // POINT 2: Problem Awareness + Two Truths → after section 2
-          var pt2 = wrapSection(["problem","two-truths"].map(function(id){return pbNepqContent[id];}).filter(Boolean),"Problem Awareness");
-          if(pt2){var p2=afterSection(out,2);out=insertAt(out,p2,pt2);}
-
-          // POINT 3: Consequence + Solution → before first CTA modal
-          var pt3 = wrapSection(["solution","consequence"].map(function(id){return pbNepqContent[id];}).filter(Boolean),"Consequence");
-          if(pt3){
-            var ctaP=beforePattern(out,"gh-cta-modal");
-            if(ctaP>-1){out=insertAt(out,ctaP,pt3);}
-            else{var p3=afterSection(out,3);out=insertAt(out,p3,pt3);}
-          }
-
-          // POINT 4: Qualifying + Clarifying → near comparison section
-          var pt4 = wrapSection(["qualifying","clarifying"].map(function(id){return pbNepqContent[id];}).filter(Boolean),"Qualifying");
-          if(pt4){
-            var compP=beforePattern(out,"gh-compare");
-            if(compP>-1){out=insertAt(out,compP,pt4);}
-            else{var p4=afterSection(out,4);out=insertAt(out,p4>-1?p4:out.length,pt4);}
-          }
-
-          // POINT 5: Decision Making + Transition → before FAQ
-          var pt5 = wrapSection(["expanded","decision","transition"].map(function(id){return pbNepqContent[id];}).filter(Boolean),"Decision");
-          if(pt5){
-            var faqP=beforePattern(out,"gh-faq");
-            if(faqP>-1){out=insertAt(out,faqP,pt5);}
-            else{var p5=beforePattern(out,"</body>");if(p5>-1){out=insertAt(out,p5,pt5);}else{out=out+pt5;}}
-          }
-
-          // POINT 6: Committing + Resolving → before footer CTA / end
-          var pt6 = wrapSection(["committing","resolving"].map(function(id){return pbNepqContent[id];}).filter(Boolean),"Committing");
-          if(pt6){
-            var bodyE=out.lastIndexOf("</body>");
-            if(bodyE>-1){out=out.slice(0,bodyE)+pt6+out.slice(bodyE);}
-            else{out=out+pt6;}
-          }
+          // Inject in reverse order of page position so offsets don't shift
+          var ORDER = ["before-end","before-faq","before-compare","before-cta2","before-cta1","after-intro","after-hero"];
+          ORDER.forEach(function(placement){
+            var blocks = placementGroups[placement];
+            if(!blocks||!blocks.length) return;
+            var wrapped = wrapSection(blocks,"");
+            var pos = getInsertPos(out,placement);
+            out = insertAt(out,pos,wrapped);
+          });
 
           // ── Add comment header ──
           var slug = pbPage.slug||"new-page";
@@ -4157,7 +4160,28 @@ function App() {
                         onClick:function(e){e.stopPropagation();generateNepq(stage);},
                         disabled:!!pbGenerating,
                         style:{padding:"3px 9px",borderRadius:7,border:"1px solid rgba(75,156,211,0.35)",background:isGen?"rgba(75,156,211,0.18)":"transparent",color:"#4B9CD3",fontSize:10,fontWeight:700,cursor:pbGenerating?"not-allowed":"pointer",flexShrink:0}},
-                        isGen?"⏳":"✨")
+                        isGen?"⏳":"✨"),
+                      hasCont&&React.createElement("select",{
+                        value:pbNepqPlacement[stage.id]||"auto",
+                        onChange:function(e){
+                          e.stopPropagation();
+                          var v=e.target.value;
+                          setPbNepqPlacement(function(p){var n=Object.assign({},p);n[stage.id]=v;return n;});
+                        },
+                        onClick:function(e){e.stopPropagation();},
+                        style:{fontSize:9,padding:"2px 4px",borderRadius:6,border:"1px solid rgba(255,255,255,0.12)",
+                          background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)",
+                          color:mc,cursor:"pointer",flexShrink:0,maxWidth:80}
+                      },
+                        React.createElement("option",{value:"auto"},"Auto"),
+                        React.createElement("option",{value:"after-hero"},"After Hero"),
+                        React.createElement("option",{value:"after-intro"},"After Intro"),
+                        React.createElement("option",{value:"before-cta1"},"Before CTA 1"),
+                        React.createElement("option",{value:"before-cta2"},"Before CTA 2"),
+                        React.createElement("option",{value:"before-compare"},"Near Table"),
+                        React.createElement("option",{value:"before-faq"},"Before FAQ"),
+                        React.createElement("option",{value:"before-end"},"End of Page")
+                      )
                     ),
                     isExp&&React.createElement("div",{style:{padding:"0 10px 10px",borderTop:br}},
                       React.createElement("div",{style:{fontSize:10,color:mc,padding:"6px 0 4px"}},stage.desc),
