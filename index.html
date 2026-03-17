@@ -2743,7 +2743,11 @@ function App() {
                 React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},
                   React.createElement("span",{style:{fontSize:10,color:mc,padding:"2px 8px",borderRadius:6,background:"rgba(96,165,250,0.1)",color:"#60A5FA",fontWeight:700}},(gscData&&gscData.dateRange||28)+" days"),
                   ga4Connected&&React.createElement("button",{onClick:function(){gscFetch();},disabled:gscLoading,style:{fontSize:10,padding:"3px 10px",borderRadius:6,border:"1px solid rgba(96,165,250,0.3)",background:"rgba(96,165,250,0.08)",color:"#60A5FA",fontWeight:700,cursor:"pointer"}},gscLoading?"⏳":"🔄 Fetch"),
-                  !ga4Connected&&React.createElement("span",{style:{fontSize:10,color:"#FB923C",padding:"2px 8px",borderRadius:6,background:"rgba(251,146,60,0.1)",fontWeight:700}},"Connect GA4 ↓")
+                  !ga4Connected&&React.createElement("button",{
+                    onClick:ga4StartAuth,
+                    style:{fontSize:10,padding:"3px 10px",borderRadius:6,border:"none",
+                      background:"#4285F4",color:"#fff",fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}
+                  },"🔗 Connect")
                 )
               ),
               React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}},
@@ -2788,7 +2792,16 @@ function App() {
                 React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},
                   ga4Connected&&React.createElement("button",{onClick:function(){ga4Fetch("30daysAgo");},disabled:ga4Loading,style:{fontSize:10,padding:"3px 10px",borderRadius:6,border:"1px solid rgba(74,222,128,0.3)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",fontWeight:700,cursor:"pointer"}},ga4Loading?"⏳":"🔄 30d"),
                   ga4Connected&&React.createElement("button",{onClick:function(){ga4Fetch("90daysAgo");},disabled:ga4Loading,style:{fontSize:10,padding:"3px 10px",borderRadius:6,border:"1px solid rgba(96,165,250,0.3)",background:"rgba(96,165,250,0.08)",color:"#60A5FA",fontWeight:700,cursor:"pointer"}},"90d"),
-                  React.createElement("span",{style:{fontSize:10,padding:"2px 8px",borderRadius:6,background:ga4Data&&ga4Data.overview?"rgba(74,222,128,0.1)":"rgba(255,255,255,0.05)",color:ga4Data&&ga4Data.overview?"#4ADE80":mc,fontWeight:700}},ga4Data&&ga4Data.overview?"● Live":"Not Connected")
+                  !ga4Connected&&React.createElement("button",{
+                    onClick:ga4StartAuth,
+                    style:{fontSize:10,padding:"3px 10px",borderRadius:6,border:"none",
+                      background:"#4285F4",color:"#fff",fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}
+                  },"🔗 Connect GA4"),
+                  ga4Connected&&React.createElement("span",{style:{fontSize:10,padding:"2px 8px",borderRadius:6,background:"rgba(74,222,128,0.1)",color:"#4ADE80",fontWeight:700}},"● Live"),
+                  ga4Connected&&React.createElement("button",{
+                    onClick:function(){setGa4Token("");setGa4Connected(false);},
+                    style:{fontSize:10,padding:"3px 8px",borderRadius:6,border:"1px solid rgba(248,113,113,0.2)",background:"none",color:"#F87171",fontWeight:600,cursor:"pointer"}
+                  },"✕")
                 )
               ),
               React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}},
@@ -3565,21 +3578,45 @@ function App() {
           var topic = (pbPage.slug||"").replace(/-/g," ");
           setPbFixProgress({msg:"✨ Generating comparison table...",done:0,total:3});
           var rows = await generateFixContent("aeo-table",topic,apiKey);
-          if(rows&&html.indexOf("<tbody>")>-1){
+          if(rows){
+            // Try tbody first
             var tbS=html.indexOf("<tbody>");var tbE=html.indexOf("</tbody>");
-            if(tbS>-1&&tbE>-1){html=html.slice(0,tbS+7)+rows+html.slice(tbE);}
+            if(tbS>-1&&tbE>-1){
+              html=html.slice(0,tbS+7)+rows+html.slice(tbE);
+            } else {
+              // Fallback: replace placeholder rows between <tr> blocks
+              var tblS=html.indexOf("<table");var tblE=html.indexOf("</table>");
+              if(tblS>-1&&tblE>-1){
+                // Find first data row (after header row)
+                var firstTh=html.indexOf("</tr>",tblS);
+                if(firstTh>-1){
+                  var rowsEnd=html.lastIndexOf("</tr>",tblE);
+                  if(rowsEnd>firstTh){
+                    html=html.slice(0,firstTh+5)+rows+html.slice(rowsEnd+5);
+                  }
+                }
+              }
+            }
           }
           setPbFixProgress({msg:"✨ Generating how-to steps...",done:1,total:3});
           var stepsRaw = await generateFixContent("aeo-howto",topic,apiKey);
-          if(stepsRaw&&html.indexOf("<ol")>-1){
+          if(stepsRaw){
             var stepLines2 = stepsRaw.split("\n").filter(function(l){return l.trim();}).slice(0,4);
             var liItems2 = stepLines2.map(function(line){
               var clean=line.replace(/^\d+[.)\s]+/,"").trim();
               if(clean.indexOf(" — ")>-1){var pts=clean.split(" — ");return "<li><strong>"+pts[0]+"</strong> — "+pts.slice(1).join(" — ")+"</li>";}
               return "<li>"+clean+"</li>";
             }).join("\n");
-            var olS=html.indexOf("<ol");var olOpenE=html.indexOf(">",olS)+1;var olE=html.indexOf("</ol>");
-            if(olS>-1&&olE>-1){html=html.slice(0,olOpenE)+liItems2+html.slice(olE);}
+            var olS=html.indexOf("<ol");
+            if(olS>-1){
+              var olOpenE=html.indexOf(">",olS)+1;
+              var olE=html.indexOf("</ol>");
+              if(olE>-1){html=html.slice(0,olOpenE)+liItems2+html.slice(olE);}
+            } else if(html.indexOf("[Step 1 title]")>-1){
+              // Replace placeholder li items directly
+              var liS=html.indexOf("<li>");var liE=html.lastIndexOf("</li>")+5;
+              if(liS>-1&&liE>4){html=html.slice(0,liS)+liItems2+html.slice(liE);}
+            }
           }
           setPbFixProgress({msg:"✨ Generating FAQ answers...",done:2,total:3});
           var faqRaw2 = await generateFixContent("aeo-faq",topic,apiKey);
@@ -3736,10 +3773,9 @@ function App() {
 
           function wrapSection(blocks, label){
             if(!blocks.length) return "";
-            return "\n<!-- ═══ NEPQ: "+label+" ═══ -->\n"+
-              "<section class=\"gh-section\" style=\"padding:40px 0\">"+
-              "<div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px\">\n"+
-              blocks.join("\n")+
+            return "\n<section class=\"gh-section\" style=\"padding:40px 0;display:block\">"+
+              "<div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block\">\n"+
+              blocks.map(function(b){return "<div style=\"display:block;margin:32px 0\">"+b+"</div>";}).join("\n")+
               "\n</div></section>\n";
           }
 
@@ -3974,7 +4010,7 @@ function App() {
                     function wrapP(ids,label){
                       var blks=ids.map(function(id){return pbNepqContent[id];}).filter(Boolean);
                       if(!blks.length)return "";
-                      return "<section style=\"padding:40px 0;\"><div style=\"max-width:780px;margin:0 auto;padding:0 24px;\"><div style=\"font-size:10px;font-weight:700;color:#0D9488;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:16px\">NEPQ: "+label+"</div>"+blks.map(function(b){return "<div class=\"gh-np\">"+b+"</div>";}).join("")+"</div></section>";
+                      return "<section style=\"padding:40px 0;display:block;width:100%;\"><div style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block;\">"+blks.map(function(b){return "<div class=\"gh-np\" style=\"display:block;margin:32px 0;\">"+b+"</div>";}).join("")+"</div></section>";
                     }
 
                     function insAfterSec(str,n,html){
@@ -4115,7 +4151,7 @@ function App() {
                       React.createElement("span",{style:{fontSize:13}},(hasCont?"✅":stage.icon)),
                       React.createElement("div",{style:{flex:1,minWidth:0}},
                         React.createElement("div",{style:{fontSize:12,fontWeight:600,color:hasCont?"#4ADE80":tc}},stage.n+". "+stage.label),
-                        !isExp&&React.createElement("div",{style:{fontSize:10,color:mc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},stage.desc)
+                        !isExp&&React.createElement("div",{style:{fontSize:10,color:mc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},hasCont?"✅ Content ready — click to expand":stage.desc)
                       ),
                       React.createElement("button",{className:"pb-gen",
                         onClick:function(e){e.stopPropagation();generateNepq(stage);},
