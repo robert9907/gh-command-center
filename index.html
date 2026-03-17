@@ -3535,77 +3535,134 @@ function App() {
           finally{setPbGenerating(null);}
         }
 
+        async function generateFixContent(checkId, topic, apiKey){
+          // Use Claude to generate real content instead of placeholders
+          var prompts = {
+            "aeo-table": "Write a concise 3-row HTML comparison table for a Medicare page about '"+topic+"'. Use these exact three Medicare Advantage plan types as rows: HMO, PPO, PFFS. For each row fill in: Best For (1 short phrase), Cost (typical NC monthly premium range), Coverage (1 key benefit). Return ONLY the 3 <tr> rows with <td> cells — no <table> wrapper, no headers. Example format: <tr><td>HMO</td><td>Budget-conscious</td><td>$0-$50/mo</td><td>Low copays</td></tr>",
+            "aeo-howto": "Write exactly 4 concise How-To steps for a Medicare page about '"+topic+"'. Each step: bold title (4-6 words) then dash then 1-sentence description. Format as plain text, one step per line: [Bold Title] — [description]. Steps should be: 1) Check doctors/network, 2) Compare drug coverage, 3) Review out-of-pocket max, 4) Call Rob at (828) 761-3326 for a free comparison.",
+            "aeo-faq": "Write exactly 3 FAQ question+answer pairs for a Medicare page about '"+topic+"'. Each answer 1-2 sentences, conversational Rob Simm voice. Format as JSON array: [{q:'question',a:'answer'},{q:'question',a:'answer'},{q:'question',a:'answer'}]. Return ONLY the JSON array, nothing else."
+          };
+          if(!prompts[checkId]||!apiKey) return null;
+          try{
+            var resp = await fetch("https://api.anthropic.com/v1/messages",{
+              method:"POST",
+              headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+              body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,
+                messages:[{role:"user",content:prompts[checkId]}]})
+            });
+            var data = await resp.json();
+            return (data.content&&data.content[0]&&data.content[0].text)||null;
+          }catch(e){return null;}
+        }
+
         async function fixAllIssues(){
           if(!pbPage||!pbScanResults) return;
           var failing = pbScanResults.checks.filter(function(c){return !c.pass&&window.GH_FIX_SNIPPETS&&window.GH_FIX_SNIPPETS[c.id];});
           if(failing.length===0){alert("No auto-fixable issues found.");return;}
+          var apiKey = pbApiKey||localStorage.getItem("gh-cc-pb-apikey")||localStorage.getItem("gh-cc-perf-apikey")||"";
           setPbFixing(true);
           var html = pbPage.html||"";
+          var topic = (pbPage.slug||"").replace(/-/g," ");
           var done = 0;
+          var total = failing.length;
+
           for(var i=0;i<failing.length;i++){
             var check = failing[i];
             var snippet = window.GH_FIX_SNIPPETS[check.id];
             if(!snippet) continue;
-            setPbFixProgress({msg:"Fixing: "+check.label,done:done,total:failing.length});
-            // Smart injection based on check type
-            if(check.id==="aeo-faq"){
-              // Insert FAQ schema before closing </head> or at top; insert FAQ section before </body>
-              var schemaTag = snippet.split("\n<section")[0];
-              var faqSection = "<section"+snippet.split("<section")[1];
-              if(html.indexOf("</head>")>-1){
-                html = html.replace("</head>", schemaTag+"\n</head>");
-              } else {
-                html = schemaTag+"\n"+html;
+            setPbFixProgress({msg:"Fixing: "+check.label,done:done,total:total});
+
+            // ── AI-generated content for structural elements ──
+            if(check.id==="aeo-table"&&apiKey){
+              setPbFixProgress({msg:"✨ Generating comparison table...",done:done,total:total});
+              var rows = await generateFixContent("aeo-table",topic,apiKey);
+              if(rows){
+                // Replace tbody content with AI rows
+                var tbodyS = snippet.indexOf("<tbody>");
+                var tbodyE = snippet.indexOf("</tbody>");
+                if(tbodyS>-1&&tbodyE>-1){
+                  snippet = snippet.slice(0,tbodyS+7)+rows+snippet.slice(tbodyE);
+                }                }
+            } else if(check.id==="aeo-howto"&&apiKey){
+              setPbFixProgress({msg:"✨ Generating how-to steps...",done:done,total:total});
+              var stepsRaw = await generateFixContent("aeo-howto",topic,apiKey);
+              if(stepsRaw){
+                var stepLines = stepsRaw.split("\n").filter(function(l){return l.trim();}).slice(0,4);
+                var liItems = stepLines.map(function(line){
+                  var clean = line.replace(/^\d+[.)\s]+/,"").trim();
+                  if(clean.indexOf(" — ")>-1){
+                    var parts = clean.split(" — ");
+                    return "<li><strong>"+parts[0]+"</strong> — "+parts.slice(1).join(" — ")+"</li>";
+                  }
+                  return "<li>"+clean+"</li>";
+                }).join("\n");
+                var olStart = snippet.indexOf("<ol");
+                var olEnd = snippet.indexOf("</ol>");
+                if(olStart>-1&&olEnd>-1){
+                  var olOpen = snippet.indexOf(">",olStart)+1;
+                  snippet = snippet.slice(0,olOpen)+liItems+snippet.slice(olEnd);
+                }
               }
-              if(html.indexOf("</body>")>-1){
-                html = html.replace("</body>", faqSection+"\n</body>");
-              } else {
-                html = html+"\n"+faqSection;
-              }
-            } else if(check.id==="eeat-author"){
-              // Insert author before first <section or at top of body
-              var insertPt = html.indexOf("<section");
-              if(insertPt>-1){
-                html = html.slice(0,insertPt)+snippet+"\n"+html.slice(insertPt);
-              } else {
-                html = html+"\n"+snippet;
-              }
-            } else if(check.id==="aeo-table"||check.id==="aeo-howto"){
-              // Insert after first </h2> or before first CTA
-              var h2end = html.indexOf("</h2>");
-              var insertAt = h2end>-1?h2end+5:html.length;
-              html = html.slice(0,insertAt)+"\n"+snippet+"\n"+html.slice(insertAt);
-            } else if(check.id==="conv-sunfire"||check.id==="conv-calendly"||check.id==="conv-phone"){
-              // Append before </body> or at end
-              if(html.indexOf("</body>")>-1){
-                html = html.replace("</body>", "<div style=\"padding:20px;text-align:center;\">"+snippet+"</div>\n</body>");
-              } else {
-                html = html+"\n<div style=\"padding:20px;text-align:center;\">"+snippet+"</div>";
-              }
-            } else {
-              // Default: append before </body>
-              if(html.indexOf("</body>")>-1){
-                html = html.replace("</body>", snippet+"\n</body>");
-              } else {
-                html = html+"\n"+snippet;
+            } else if(check.id==="aeo-faq"&&apiKey){
+              setPbFixProgress({msg:"✨ Generating FAQ content...",done:done,total:total});
+              var faqRaw = await generateFixContent("aeo-faq",topic,apiKey);
+              if(faqRaw){
+                try{
+                  var faqClean = faqRaw.replace(/```json|```/g,"").trim();
+                  var faqs = JSON.parse(faqClean);
+                  if(faqs&&faqs.length>=3){
+                    snippet = snippet
+                      .replace("[FAQ Q1]",faqs[0].q).replace("[FAQ A1]",faqs[0].a)
+                      .replace("[FAQ Q2]",faqs[1].q).replace("[FAQ A2]",faqs[1].a)
+                      .replace("[FAQ Q3]",faqs[2].q).replace("[FAQ A3]",faqs[2].a);
+                  }
+                }catch(e){}
               }
             }
+
+            if(check.id==="aeo-faq"){
+              var schemaTag2 = snippet.indexOf("<section")>-1?snippet.split("<section")[0]:snippet;
+              var faqSection2 = snippet.indexOf("<section")>-1?"<section"+snippet.split("<section").slice(1).join("<section"):"";
+              if(html.indexOf("</head>")>-1){ html = html.replace("</head>",schemaTag2+"\n</head>"); }
+              else { html = schemaTag2+"\n"+html; }
+              if(faqSection2){
+                var faqIdx2 = html.indexOf("gh-faq");
+                if(faqIdx2>-1){
+                  var faqSec2 = html.lastIndexOf("<section",faqIdx2);
+                  html = html.slice(0,faqSec2)+faqSection2+"\n"+html.slice(faqSec2);
+                } else if(html.indexOf("</body>")>-1){ html = html.replace("</body>",faqSection2+"\n</body>"); }
+                else { html = html+"\n"+faqSection2; }
+              }
+            } else if(check.id==="eeat-author"){
+              var insertPt2 = html.indexOf("<section");
+              html = insertPt2>-1?html.slice(0,insertPt2)+snippet+"\n"+html.slice(insertPt2):html+"\n"+snippet;
+            } else if(check.id==="aeo-table"||check.id==="aeo-howto"){
+              var h2end2 = html.indexOf("</h2>");
+              var insertAt2 = h2end2>-1?h2end2+5:html.length;
+              html = html.slice(0,insertAt2)+"\n"+snippet+"\n"+html.slice(insertAt2);
+            } else if(check.id==="conv-sunfire"||check.id==="conv-calendly"||check.id==="conv-phone"){
+              if(html.indexOf("</body>")>-1){ html = html.replace("</body>","<div style=\"padding:20px;text-align:center;\">"+snippet+"</div>\n</body>"); }
+              else { html = html+"\n<div style=\"padding:20px;text-align:center;\">"+snippet+"</div>"; }
+            } else {
+              if(html.indexOf("</body>")>-1){ html = html.replace("</body>",snippet+"\n</body>"); }
+              else { html = html+"\n"+snippet; }
+            }
+
             done++;
-            setPbFixProgress({msg:"Fixed: "+check.label,done:done,total:failing.length});
-            // Small delay so progress bar animates visibly
-            await new Promise(function(r){setTimeout(r,300);});
+            setPbFixProgress({msg:"✅ "+check.label,done:done,total:total});
+            await new Promise(function(r){setTimeout(r,200);});
           }
-          // Save and rescan
-          var key = pbPage.clusterId+"-"+pbPage.idx;
-          setSavedHTML(function(prev){var n=Object.assign({},prev);n[key]=html;return n;});
+
+          var key2 = pbPage.clusterId+"-"+pbPage.idx;
+          setSavedHTML(function(prev){var n=Object.assign({},prev);n[key2]=html;return n;});
           setPbPage(function(p){return Object.assign({},p,{html:html});});
           setPbEditHTML(html);
           setPbScanResults(scan17(html));
-          setPbFixProgress({msg:"✅ All fixes applied!",done:failing.length,total:failing.length});
-          setTimeout(function(){setPbFixProgress(null);setPbFixing(false);},2000);
+          setPbFixProgress({msg:"🎯 All fixes applied — "+total+" items resolved",done:total,total:total});
+          setTimeout(function(){setPbFixProgress(null);setPbFixing(false);},2500);
         }
 
-        function copyOutput(){
+                function copyOutput(){
           if(!pbPage) return;
           var nepqBlocks = Object.values(pbNepqContent).filter(Boolean);
           if(nepqBlocks.length===0){
