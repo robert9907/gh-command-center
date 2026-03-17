@@ -265,13 +265,28 @@ window.GH_PB_NEPQ=[
       if(!tgt)return;
       var h2=tgt.querySelector("h2");
       if(!h2)return;
-      Array.from(tgt.querySelectorAll("p,ul,ol,.gh-answer,.ghpb-applied")).forEach(function(el){el.remove();});
+      Array.from(tgt.querySelectorAll("p,ul,ol,.gh-answer,.ghpb-applied,.ghpb-question")).forEach(function(el){el.remove();});
+      // NEPQ question as prominent subheadline
+      if(ev.data.q){
+        var qEl=document.createElement("p");
+        qEl.className="ghpb-question";
+        qEl.style.cssText="font-size:1.15rem;font-weight:700;color:#0D9488;font-style:italic;line-height:1.5;margin:12px 0 14px;padding:0;border:none;background:none;";
+        qEl.textContent="\u201c"+ev.data.q+"\u201d";
+        h2.insertAdjacentElement("afterend",qEl);
+      }
+      // Body paragraphs after the question
       var wrap2=document.createElement("div");
       wrap2.className="ghpb-applied";
-      wrap2.style.cssText="border-left:3px solid #0D9488;padding:10px 16px;margin:8px 0;background:rgba(13,148,136,0.04);border-radius:0 6px 6px 0;";
-      if(ev.data.q){var qp=document.createElement("p");qp.style.cssText="font-style:italic;font-weight:700;color:#0D9488;margin:0 0 8px;font-size:15px;";qp.textContent="\u201c"+ev.data.q+"\u201d";wrap2.appendChild(qp);}
-      (ev.data.rw||"").split("\n\n").forEach(function(para){if(!para.trim())return;var p=document.createElement("p");p.style.margin="0 0 8px";p.textContent=para.trim();wrap2.appendChild(p);});
-      h2.insertAdjacentElement("afterend",wrap2);
+      wrap2.style.cssText="margin:0 0 16px;";
+      (ev.data.rw||"").split("\n\n").forEach(function(para){
+        if(!para.trim())return;
+        var p=document.createElement("p");
+        p.style.cssText="margin:0 0 12px;line-height:1.75;";
+        p.textContent=para.trim();
+        wrap2.appendChild(p);
+      });
+      var qNode=tgt.querySelector(".ghpb-question");
+      if(qNode){qNode.insertAdjacentElement("afterend",wrap2);}else{h2.insertAdjacentElement("afterend",wrap2);}
       tgt.style.outline="2px solid #4ADE80";tgt.style.background="rgba(74,222,128,0.04)";
       setTimeout(function(){tgt.style.outline="";tgt.style.background="";},2000);
     });
@@ -292,13 +307,26 @@ window.GH_PB_NEPQ=[
         // Replace section content like GH_APPLY
         var h2=tgt.querySelector("h2");
         if(h2){
-          Array.from(tgt.querySelectorAll("p,ul,ol,.gh-answer,.ghpb-applied,.ghpb-appended")).forEach(function(el){el.remove();});
+          Array.from(tgt.querySelectorAll("p,ul,ol,.gh-answer,.ghpb-applied,.ghpb-appended,.ghpb-question")).forEach(function(el){el.remove();});
+          if(ev2.data.q){
+            var qElR=document.createElement("p");
+            qElR.className="ghpb-question";
+            qElR.style.cssText="font-size:1.15rem;font-weight:700;color:#0D9488;font-style:italic;line-height:1.5;margin:12px 0 14px;padding:0;border:none;background:none;";
+            qElR.textContent="\u201c"+ev2.data.q+"\u201d";
+            h2.insertAdjacentElement("afterend",qElR);
+          }
           var wrapR=document.createElement("div");
           wrapR.className="ghpb-applied";
-          wrapR.style.cssText="border-left:3px solid #0D9488;padding:10px 16px;margin:8px 0;background:rgba(13,148,136,0.04);border-radius:0 6px 6px 0;";
-          if(ev2.data.q){var qpR=document.createElement("p");qpR.style.cssText="font-style:italic;font-weight:700;color:#0D9488;margin:0 0 8px;font-size:15px;";qpR.textContent="\u201c"+ev2.data.q+"\u201d";wrapR.appendChild(qpR);}
-          (ev2.data.rw||"").split("\n\n").forEach(function(para){if(!para.trim())return;var pR=document.createElement("p");pR.style.margin="0 0 8px";pR.textContent=para.trim();wrapR.appendChild(pR);});
-          h2.insertAdjacentElement("afterend",wrapR);
+          wrapR.style.cssText="margin:0 0 16px;";
+          (ev2.data.rw||"").split("\n\n").forEach(function(para){
+            if(!para.trim())return;
+            var pR=document.createElement("p");
+            pR.style.cssText="margin:0 0 12px;line-height:1.75;";
+            pR.textContent=para.trim();
+            wrapR.appendChild(pR);
+          });
+          var qNodeR=tgt.querySelector(".ghpb-question");
+          if(qNodeR){qNodeR.insertAdjacentElement("afterend",wrapR);}else{h2.insertAdjacentElement("afterend",wrapR);}
           tgt.style.outline="2px solid #4ADE80";tgt.style.background="rgba(74,222,128,0.04)";
           setTimeout(function(){tgt.style.outline="";tgt.style.background="";},2000);
           tgt.scrollIntoView({behavior:"smooth",block:"center"});
@@ -316,6 +344,12 @@ window.GH_PB_NEPQ=[
       wrap3.scrollIntoView({behavior:"smooth",block:"center"});
       wrap3.style.outline="2px solid #4ADE80";
       setTimeout(function(){wrap3.style.outline="";},2000);
+    });
+    // GH_GET_HTML: parent requests current body HTML
+    window.addEventListener("message",function(ev3){
+      if(!ev3.data||ev3.data.type!=="GH_GET_HTML")return;
+      var html=document.body.innerHTML;
+      window.parent.postMessage({type:"GH_HTML_RESULT",html:html},"*");
     });
   }).toString();
 
@@ -578,9 +612,36 @@ window.GH_PB_NEPQ=[
     function savePage(){
       if(!pbHtml||!pbPage)return;
       setSaving(true);setSaved(false);
-      var out=buildOutput();
-      if(typeof window.GH_SET_SAVED_HTML==="function")window.GH_SET_SAVED_HTML(pbPage.key,out);
-      setTimeout(function(){setSaving(false);setSaved(true);},350);
+      // Ask iframe for its current edited DOM
+      var frames=document.querySelectorAll("iframe[title='Page Sandbox']");
+      if(frames.length){
+        // Listen for one-time response
+        var handler=function(ev){
+          if(!ev.data||ev.data.type!=="GH_HTML_RESULT")return;
+          window.removeEventListener("message",handler);
+          var liveHtml=ev.data.html||pbHtml;
+          var parts=["<!-- GenerationHealth.me | "+(pbPage?pbPage.name:"")+" | "+new Date().toLocaleDateString()+" -->\n"+liveHtml];
+          var out=parts.join("");
+          setPbOutput(out);
+          if(typeof window.GH_SET_SAVED_HTML==="function")window.GH_SET_SAVED_HTML(pbPage.key,out);
+          setTimeout(function(){setSaving(false);setSaved(true);},350);
+        };
+        window.addEventListener("message",handler);
+        frames[0].contentWindow.postMessage({type:"GH_GET_HTML"},"*");
+        // Timeout fallback if iframe doesnt respond
+        setTimeout(function(){
+          window.removeEventListener("message",handler);
+          var out=buildOutput();
+          setPbOutput(out);
+          if(typeof window.GH_SET_SAVED_HTML==="function")window.GH_SET_SAVED_HTML(pbPage.key,out);
+          setTimeout(function(){setSaving(false);setSaved(true);},350);
+        },3000);
+      }else{
+        var out=buildOutput();
+        setPbOutput(out);
+        if(typeof window.GH_SET_SAVED_HTML==="function")window.GH_SET_SAVED_HTML(pbPage.key,out);
+        setTimeout(function(){setSaving(false);setSaved(true);},350);
+      }
     }
 
     // ── Sandbox doc ────────────────────────────────────────────────────
