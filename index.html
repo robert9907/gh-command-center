@@ -437,6 +437,54 @@ window.GH_PB_NEPQ=[
       var html=document.body.innerHTML;
       window.parent.postMessage({type:"GH_HTML_RESULT",html:html},"*");
     });
+    // GH_INJECT_FIX: apply a checklist fix snippet into the live sandbox
+    window.addEventListener("message",function(ev4){
+      if(!ev4.data||ev4.data.type!=="GH_INJECT_FIX")return;
+      var html=ev4.data.html||"";
+      var fixId=ev4.data.fixId||"";
+      if(!html.trim())return;
+      // Parse snippet into a temp container
+      var tmp=document.createElement("div");
+      tmp.innerHTML=html;
+      var injected=false;
+      // Instant answer / gh-answer block: insert after first H1 or H2
+      if(fixId==="o-instant"||html.toLowerCase().indexOf("gh-answer")>=0){
+        var anchor=document.querySelector("h1")||document.querySelector("h2");
+        if(anchor){anchor.insertAdjacentElement("afterend",tmp.firstElementChild||tmp);injected=true;}
+      }
+      // FAQ items: insert before first existing .gh-faq or append to body
+      if(!injected&&(fixId==="o-faq"||fixId==="v-faq5"||html.toLowerCase().indexOf("gh-faq")>=0)){
+        var faqWrap=document.querySelector(".gh-faq,.gh-faq-wrap,.gh-faq-item");
+        if(faqWrap){faqWrap.parentNode.insertBefore(tmp.firstElementChild||tmp,faqWrap);injected=true;}
+      }
+      // Schema JSON-LD: inject as script tag in head
+      if(!injected&&html.indexOf("application/ld+json")>=0){
+        var sc=document.createElement("script");
+        sc.type="application/ld+json";
+        var match=html.match(/\{[\s\S]+\}/);
+        if(match){sc.textContent=match[0];document.head.appendChild(sc);injected=true;}
+      }
+      // Author block: insert before last section or append
+      if(!injected&&(fixId==="v-author"||fixId==="o-author"||html.toLowerCase().indexOf("gh-author")>=0)){
+        var lastSec=document.querySelector(".gh-trust-strip,.gh-cta-modal,.gh-float-call");
+        if(lastSec){lastSec.insertAdjacentElement("beforebegin",tmp.firstElementChild||tmp);injected=true;}
+      }
+      // Stat rows, charts, comparison: find logical anchor
+      if(!injected&&(html.toLowerCase().indexOf("gh-stat")>=0||html.toLowerCase().indexOf("gh-chart")>=0||html.toLowerCase().indexOf("gh-comparison")>=0)){
+        var h2s=document.querySelectorAll("h2");
+        var mid=h2s[Math.floor(h2s.length/2)];
+        if(mid){mid.insertAdjacentElement("afterend",tmp.firstElementChild||tmp);injected=true;}
+      }
+      // Fallback: prepend to body
+      if(!injected){
+        var el=tmp.firstElementChild||tmp;
+        document.body.insertBefore(el,document.body.firstChild);
+      }
+      // Flash green on injected element
+      var target=document.body.querySelector(".ghpb-injected-latest")||document.body.lastElementChild;
+      if(tmp.firstElementChild){tmp.firstElementChild.style.outline="2px solid #4ADE80";setTimeout(function(){if(tmp.firstElementChild)tmp.firstElementChild.style.outline="";},2000);}
+      window.parent.postMessage({type:"GH_CONTENT_CHANGED"},"*");
+    });
   }).toString();
 
   window.GH_PageBuilder=function GHPageBuilder(props){
@@ -934,9 +982,17 @@ window.GH_PB_NEPQ=[
             )
           ),
           exp&&fix&&fix.html?ce("div",{style:{padding:"6px 9px",background:"rgba(0,0,0,0.2)",borderRadius:"0 0 6px 6px",border:"1px solid rgba(74,222,128,0.08)",borderTop:"none"}},
-            ce("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:3}},
+            ce("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}},
               ce("span",{style:{fontSize:7,color:"#4ADE80",fontWeight:700}},"Snippet"),
-              ce("button",{onClick:function(h){return function(){navigator.clipboard.writeText(h);};}(fix.html),style:{padding:"1px 6px",borderRadius:3,border:"none",background:"rgba(255,255,255,0.07)",color:"#C4CDD5",fontSize:7,cursor:"pointer"}},"Copy")
+              ce("div",{style:{display:"flex",gap:4}},
+                ce("button",{onClick:function(h){return function(){navigator.clipboard.writeText(h);};}(fix.html),style:{padding:"1px 6px",borderRadius:3,border:"none",background:"rgba(255,255,255,0.07)",color:"#C4CDD5",fontSize:7,cursor:"pointer"}},"Copy"),
+                ce("button",{onClick:function(h,itId){return function(){
+                  var frames=document.querySelectorAll("iframe[title='Page Sandbox']");
+                  if(!frames.length)return;
+                  frames[0].contentWindow.postMessage({type:"GH_INJECT_FIX",html:h,fixId:itId},"*");
+                  setSaved(false);
+                };}(fix.html,item.id),style:{padding:"1px 6px",borderRadius:3,border:"none",background:"rgba(13,148,136,0.2)",color:"#2DD4BF",fontSize:7,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},"Apply")
+              )
             ),
             ce("pre",{style:{fontSize:7,color:"#5A6A7A",margin:0,overflow:"auto",maxHeight:70,whiteSpace:"pre-wrap",fontFamily:"monospace",background:"rgba(0,0,0,0.25)",padding:5,borderRadius:4}},fix.html.slice(0,400)+(fix.html.length>400?"\u2026":""))
           ):null
