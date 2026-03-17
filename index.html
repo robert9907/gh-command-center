@@ -3849,10 +3849,29 @@ function App() {
             out = insertAt(out,pos,wrapped);
           });
 
-          // ── Add comment header ──
+          // ── Fix URLs in merged output ──
+          // Replace old sunfire URL (without #/)
+          out = out.split("sunfirematrix.com/app/consumer/medicareadvocates/10447418/\"").join("sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/\"");
+          // Replace internal compare page links
+          out = out.split('href="/compare"').join('href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
+          out = out.split("href='/compare'").join("href='https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/'");
+          out = out.split('href="https://generationhealth.me/compare"').join('href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
+          out = out.split('href="/compare/"').join('href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
+          // Fix Compare Plans button text links
+          out = out.split('class="gh-hero-btn gh-hero-btn--compare"').join('class="gh-hero-btn gh-hero-btn--compare" href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
+
+          // ── Add shimmer fix + comment header ──
           var slug = pbPage.slug||"new-page";
           var today2 = new Date().toISOString().split("T")[0];
+          var shimmerFix = '<style id="gh-shimmer-fix">\n/* GH Shimmer Fix — self-contained CSS variables and animations */\n:root{--r-full:100px;--r-xl:20px;--r-2xl:24px;--r-lg:16px;--ease:cubic-bezier(.4,0,.2,1);}\n@keyframes ghSweep{0%{left:-100%;}100%{left:200%;}}\n@keyframes ghGlowBlue{0%,100%{box-shadow:0 0 0 0 rgba(75,156,211,0);}50%{box-shadow:0 0 12px 3px rgba(75,156,211,.4);}}\n@keyframes ghGlowGreen{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}50%{box-shadow:0 0 12px 3px rgba(22,163,74,.4);}}\n@keyframes ghGlowAmber{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);}50%{box-shadow:0 0 12px 3px rgba(245,158,11,.4);}}\n.gh-cta-card{position:relative;overflow:hidden;border-radius:20px;}\n.gh-cta-card::after{content:"";position:absolute;top:0;left:-150%;width:80%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.07),transparent);transform:skewX(-15deg);animation:ghSweep 5s ease-in-out infinite;pointer-events:none;}\n.gh-cta-card:nth-child(2)::after{animation-delay:2.5s;}\n.gh-ghost{display:block;text-align:center;padding:14px 24px;border-radius:100px;font-size:15px;text-decoration:none!important;margin-bottom:8px;border:1.5px solid rgba(255,255,255,.32);background:transparent;color:#fff!important;font-weight:600;transition:all 280ms ease;position:relative;overflow:hidden;}\n.gh-ghost::before{content:"";position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-15deg);animation:ghSweep 3.5s ease-in-out infinite;pointer-events:none;}\n.gh-ghost--compare{border-color:rgba(75,156,211,.55);background:rgba(75,156,211,.07);}\n.gh-ghost--compare::before{background:linear-gradient(120deg,transparent 20%,rgba(75,156,211,.75) 50%,transparent 80%);animation-duration:8s;animation-delay:0s;}\n.gh-ghost--call{border-color:rgba(22,163,74,.55);}\n.gh-ghost--call::before{background:linear-gradient(120deg,transparent 20%,rgba(22,163,74,.75) 50%,transparent 80%);animation-duration:8s;animation-delay:2s;}\n.gh-ghost--calendly{border-color:rgba(245,158,11,.55);}\n.gh-ghost--calendly::before{background:linear-gradient(120deg,transparent 20%,rgba(245,158,11,.75) 50%,transparent 80%);animation-duration:8s;animation-delay:4s;}\n.gh-ghost--compare{animation:ghGlowBlue 8s ease-in-out infinite;}\n.gh-ghost--call{animation:ghGlowGreen 8s ease-in-out 2s infinite;}\n.gh-ghost--calendly{animation:ghGlowAmber 8s ease-in-out 4s infinite;}\n</style>';
           var header = "<!-- GH Page Builder · "+slug+" · "+today2+" · Score:"+(pbScanResults?pbScanResults.score:0)+"/17 -->\n";
+          // Inject shimmer CSS after existing </style> block or at top
+          var existingStyleEnd = out.indexOf("</style>");
+          if(existingStyleEnd>-1){
+            out = out.slice(0,existingStyleEnd+8)+shimmerFix+out.slice(existingStyleEnd+8);
+          } else {
+            out = shimmerFix + out;
+          }
           out = header + out;
 
           // ── Copy ──
@@ -4222,8 +4241,28 @@ function App() {
                     fontSize:13,fontWeight:700,
                     cursor:(pbPage&&Object.keys(pbNepqContent).length>0)?"pointer":"not-allowed",
                     boxShadow:(pbPage&&Object.keys(pbNepqContent).length>0)?"0 4px 16px rgba(13,148,136,0.3)":"none",
+                    transition:"all 0.2s",marginBottom:8}},
+                  Object.keys(pbNepqContent).length>0?"🧬 Merge & Copy for WordPress":"Generate NEPQ content first"),
+                React.createElement("button",{
+                  onClick:function(){
+                    if(!pbPage||!pbPage.html){alert("No saved HTML for this page.");return;}
+                    navigator.clipboard.writeText(pbPage.html).then(function(){
+                      alert("✅ Raw HTML copied!");
+                    }).catch(function(){
+                      var ta=document.createElement("textarea");ta.value=pbPage.html;
+                      document.body.appendChild(ta);ta.select();document.execCommand("copy");
+                      document.body.removeChild(ta);
+                      alert("✅ Raw HTML copied!");
+                    });
+                  },
+                  disabled:!pbPage||!pbPage.html,
+                  style:{width:"100%",padding:"9px",borderRadius:10,border:br,
+                    background:"transparent",
+                    color:(pbPage&&pbPage.html)?mc:"#6B7B8D",
+                    fontSize:12,fontWeight:600,
+                    cursor:(pbPage&&pbPage.html)?"pointer":"not-allowed",
                     transition:"all 0.2s"}},
-                  Object.keys(pbNepqContent).length>0?"🧬 Merge & Copy for WordPress":"Generate NEPQ content first")
+                  "📄 Copy Raw HTML")
               )
             )
           )
