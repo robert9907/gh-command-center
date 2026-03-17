@@ -124,6 +124,7 @@ body.light ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
 @keyframes donePulse { 0% { background: rgba(22,163,74,0.18); } 100% { background: transparent; } }
 @keyframes savePulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
 @keyframes dotPulse { 0%,100% { opacity:0.3; transform:scale(0.8); } 50% { opacity:1; transform:scale(1.2); } }
+@keyframes pbPulse { 0%,100% { opacity:0.6; } 50% { opacity:1; } }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -251,6 +252,8 @@ window.GH_PB_NEPQ=[
     var s22=R.useState(null);  var fetchAllProg=s22[0];var setFetchAllProg=s22[1];
     var s23=R.useState([]);    var pbSections=s23[0]; var setPbSections=s23[1];
     var s24=R.useState({});    var pbExpandedFix=s24[0];var setPbExpandedFix=s24[1];
+    var s25=R.useState(false); var pbSaved=s25[0];   var setPbSaved=s25[1];
+    var s26=R.useState(false); var pbSaving=s26[0];  var setPbSaving=s26[1];
     var chatRef=R.useRef(null);
 
     // Computed scores
@@ -444,7 +447,7 @@ window.GH_PB_NEPQ=[
     var pageGroups={};
     filteredPages.forEach(function(p){if(!pageGroups[p.cluster])pageGroups[p.cluster]=[];pageGroups[p.cluster].push(p);});
 
-    var sidebar=ce("div",{style:{width:160,flexShrink:0,borderRight:"1px solid rgba(255,255,255,0.06)",display:"flex",flexDirection:"column",background:"rgba(0,0,0,0.2)",overflow:"hidden"}},
+    var sidebar=ce("div",{style:{width:180,flexShrink:0,borderRight:"1px solid rgba(255,255,255,0.06)",display:"flex",flexDirection:"column",background:"rgba(0,0,0,0.2)",overflow:"hidden"}},
       ce("div",{style:{padding:"10px 10px 6px",borderBottom:"1px solid rgba(255,255,255,0.06)"}},
         ce("input",{value:pbSearch,onChange:function(e){setPbSearch(e.target.value);},placeholder:"Search pages\u2026",style:{width:"100%",padding:"5px 8px",borderRadius:6,border:"1px solid rgba(255,255,255,0.1)",background:"rgba(255,255,255,0.04)",color:"#FFF",fontSize:10,outline:"none",boxSizing:"border-box"}}),
         ce("div",{style:{display:"flex",gap:3,marginTop:6}},
@@ -514,39 +517,62 @@ window.GH_PB_NEPQ=[
     })():"";
 
     // Scan widget — compact horizontal bar showing all scores
-    var scanWidget=pbScan?ce("div",{style:{display:"flex",alignItems:"center",gap:6,padding:"4px 0"}},
-      ce("div",{style:{width:32,height:32,borderRadius:8,border:"2px solid "+gi.bd,background:gi.bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}},
-        ce("span",{style:{fontSize:15,fontWeight:800,color:gi.c,fontFamily:"Georgia,serif"}},gi.g)
-      ),
-      ce("div",{style:{flex:1,minWidth:0}},
-        ce("div",{style:{height:4,background:"rgba(255,255,255,0.06)",borderRadius:100,overflow:"hidden",marginBottom:3}},
-          ce("div",{style:{height:"100%",width:Math.round(passed/27*100)+"%",background:"linear-gradient(90deg,"+gi.c+"70,"+gi.c+")",borderRadius:100,transition:"width .5s"}})
-        ),
-        ce("div",{style:{display:"flex",gap:5}},
-          ce("span",{style:{fontSize:8,fontWeight:700,color:"#FB923C"}},opt10p+"/10 opt"),
-          ce("span",{style:{color:"#2A3A4A",fontSize:8}},"\u00b7"),
-          ce("span",{style:{fontSize:8,fontWeight:700,color:"#2DD4BF"}},v52p+"/17 v5.2"),
-          ce("span",{style:{color:"#2A3A4A",fontSize:8}},"\u00b7"),
-          ce("span",{style:{fontSize:8,fontWeight:700,color:"#60A5FA"}},nepqDone+" NEPQ")
-        )
-      )
-    ):null;
+    // Progress bar (top of center)
+    var pbActive=pbFetching||Object.values(pbRewriting).some(Boolean)||Object.values(pbFixing).some(Boolean);
+    var progressBar=ce("div",{style:{height:3,background:"rgba(255,255,255,0.04)",flexShrink:0,overflow:"hidden"}},
+      ce("div",{style:{
+        height:"100%",
+        width:pbSaved?"100%":(pbScan?Math.round(passed/27*100)+"%":"0%"),
+        background:pbSaved?"#4ADE80":pbActive?"#FFC72C":passed>0?"rgba(255,199,44,0.5)":"transparent",
+        borderRadius:0,
+        transition:"width 0.5s ease, background 0.3s ease",
+        animation:pbActive?"pbPulse 1.2s ease-in-out infinite":"none"
+      }})
+    );
 
-    var centerTopBar=ce("div",{style:{padding:"8px 14px",borderBottom:"1px solid rgba(255,255,255,0.06)",background:"rgba(0,0,0,0.25)",display:"flex",alignItems:"center",gap:10,flexShrink:0}},
-      pbPage?ce(R.Fragment,null,
-        ce("div",{style:{flex:1,minWidth:0}},
-          ce("div",{style:{display:"flex",alignItems:"center",gap:7,marginBottom:2}},
-            ce("span",{style:{fontSize:8,color:"#4B9CD3",fontFamily:"monospace"}},"/"+pbPage.slug+"/"),
-            pbHtml?ce("span",{style:{fontSize:7,color:"#2A3A4A"}},Math.round(pbHtml.length/1024)+"KB"):null
-          ),
-          scanWidget
-        ),
-        pbScan&&aiApiKey?ce("button",{onClick:pbFixAll,style:{padding:"5px 10px",borderRadius:7,border:"1px solid rgba(13,148,136,0.3)",background:"rgba(13,148,136,0.1)",color:"#2DD4BF",fontSize:9,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}},
-          "\u2a0c Fix All ("+(ALL27.filter(function(it){return!it.manual&&pbScan&&!pbScan[it.id];}).length)+")"
-        ):null,
-        ce("button",{onClick:pbBuildOutput,disabled:!pbScan,style:{padding:"5px 12px",borderRadius:8,border:"none",background:pbScan?"#FFC72C":"rgba(255,255,255,0.05)",color:pbScan?"#1A2332":"#2A3A4A",fontSize:10,fontWeight:800,cursor:pbScan?"pointer":"not-allowed",whiteSpace:"nowrap",flexShrink:0}},"Assemble Output"),
-        ce("button",{onClick:function(){if(!pbPage)return;setRepasteTxt("");setShowRepaste(true);},style:{padding:"5px 10px",borderRadius:8,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#6B7B8D",fontSize:10,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}},"Re-paste")
-      ):ce("span",{style:{fontSize:10,color:"#2A3A4A"}},"\u2b05 Select a page")
+    // Save page: push html into savedHTML cache -> feeds Optimize tab
+    var pbSavePage=function(){
+      if(!pbHtml||!pbPage)return;
+      setPbSaving(true);setPbSaved(false);
+      var parts=[pbHtml];
+      var nepqParts=Object.entries(pbNepqData).filter(function(e){return e[1]&&e[1].rw;});
+      if(nepqParts.length)parts.push("<!-- NEPQ REWRITES -->\n"+nepqParts.map(function(e){var t=NEPQ_TYPES.find(function(n){return n.id===e[0];});return"<!-- "+( t?t.label:"")+" -->\n"+e[1].rw;}).join("\n\n"));
+      var fixParts=Object.entries(pbFixes).filter(function(e){return e[1].status==="fixed"&&e[1].html;});
+      if(fixParts.length)parts.push("<!-- AI FIXES -->\n"+fixParts.map(function(e){var it=ALL27.find(function(i){return i.id===e[0];});return"<!-- "+(it?it.label:"")+" -->\n"+e[1].html;}).join("\n\n"));
+      var finalHtml=parts.join("\n\n");
+      // Push into Optimize tab savedHTML via global setter
+      if(typeof window.GH_SET_SAVED_HTML==="function")window.GH_SET_SAVED_HTML(pbPage.key,finalHtml);
+      // Also persist to IndexedDB
+      try{
+        var req2=indexedDB.open("gh-command-center",1);
+        req2.onsuccess=function(ev){var db2=ev.target.result;var tx2=db2.transaction("savedHTML","readwrite");tx2.objectStore("savedHTML").put(finalHtml,pbPage.key);db2.close();};
+      }catch(ex){}
+      setPbOutput(finalHtml);
+      setTimeout(function(){setPbSaving(false);setPbSaved(true);},350);
+    };
+
+    var centerTopBar=ce("div",{style:{flexShrink:0}},
+      progressBar,
+      ce("div",{style:{padding:"6px 14px",borderBottom:"1px solid rgba(255,255,255,0.06)",background:"rgba(0,0,0,0.18)",display:"flex",alignItems:"center",gap:8}},
+        pbPage?ce(R.Fragment,null,
+          ce("span",{style:{fontSize:9,color:"#4B9CD3",fontFamily:"monospace",flex:1,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",minWidth:0}},"/"+pbPage.slug+"/"),
+          pbHtml?ce("span",{style:{fontSize:7,color:"#3A4A5A",flexShrink:0}},Math.round(pbHtml.length/1024)+"KB"):null,
+          pbScan?ce("span",{style:{fontSize:9,fontWeight:800,padding:"2px 7px",borderRadius:5,background:gi.bg,color:gi.c,border:"1px solid "+gi.bd,flexShrink:0}},gi.g+" · "+Math.round(passed/27*100)+"%"):null,
+          ce("button",{
+            onClick:function(){if(pbPage)window.open("https://generationhealth.me/"+pbPage.slug+"/","_blank");},
+            style:{padding:"5px 11px",borderRadius:7,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#C4CDD5",fontSize:10,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}
+          },"Edit Page"),
+          ce("button",{
+            onClick:function(){if(!pbPage)return;setRepasteTxt("");setShowRepaste(true);},
+            style:{padding:"5px 11px",borderRadius:7,border:"1px solid rgba(96,165,250,0.3)",background:"rgba(96,165,250,0.07)",color:"#60A5FA",fontSize:10,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}
+          },"Paste HTML"),
+          ce("button",{
+            onClick:pbSavePage,
+            disabled:!pbHtml||pbSaving,
+            style:{padding:"5px 14px",borderRadius:7,border:"none",background:pbSaved?"#16A34A":pbHtml&&!pbSaving?"#FFC72C":"rgba(255,255,255,0.05)",color:pbSaved?"#FFF":pbHtml?"#1A2332":"#2A3A4A",fontSize:10,fontWeight:800,cursor:pbHtml&&!pbSaving?"pointer":"not-allowed",whiteSpace:"nowrap",flexShrink:0,transition:"background 0.3s"}
+          },pbSaving?"Saving...":pbSaved?"Saved":"Save Page")
+        ):ce("span",{style:{fontSize:10,color:"#2A3A4A"}},"Select a page")
+      )
     );
 
     var centerBody;
@@ -764,7 +790,7 @@ window.GH_PB_NEPQ=[
       );
     }
 
-    var rightPanel=ce("div",{style:{width:380,flexShrink:0,borderLeft:"1px solid rgba(255,255,255,0.06)",display:"flex",flexDirection:"column",background:"rgba(0,0,0,0.2)",overflow:"hidden"}},
+    var rightPanel=ce("div",{style:{width:400,flexShrink:0,borderLeft:"1px solid rgba(255,255,255,0.06)",display:"flex",flexDirection:"column",background:"rgba(0,0,0,0.2)",overflow:"hidden"}},
       ce("div",{style:{display:"flex",alignItems:"center",gap:1,padding:"6px 7px",borderBottom:"1px solid rgba(255,255,255,0.06)",flexShrink:0}},
         tabBtn("checks","\u2705 Checks"),
         tabBtn("nepq","\ud83e\udde0 NEPQ"),
@@ -1936,6 +1962,8 @@ function App() {
   const [fetchingPages, setFetchingPages] = useState({}); // { "cluster-idx": true } while fetching
   const [fetchAllProgress, setFetchAllProgress] = useState(null); // { total, done, current, errors } or null
   const [savedHTML, setSavedHTML] = useState({});
+  // Expose setter for Page Builder (plain script) to push HTML back here
+  useEffect(function(){ window.GH_SET_SAVED_HTML=function(key,html){ setSavedHTML(function(p){var n=Object.assign({},p);n[key]=html;return n;}); }; },[]);
   const [reminders, setReminders] = useState([]);
   const [bellOpen, setBellOpen] = useState(false);
   const [showAddReminder, setShowAddReminder] = useState(false);
