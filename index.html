@@ -182,7 +182,7 @@ window.GH_FIX_SNIPPETS = {
   "eeat-gov": '<p style="font-size:13px;color:#6B7B8D;margin-top:16px">Sources: <a href="https://www.medicare.gov" target="_blank" rel="noopener">Medicare.gov</a> · <a href="https://www.cms.gov" target="_blank" rel="noopener">CMS.gov</a> · <a href="https://www.ssa.gov" target="_blank" rel="noopener">SSA.gov</a></p>',
   "eeat-license": '<p style="font-size:13px;color:#6B7B8D">Robert Simm · NC Insurance License #10447418 · NPN #10447418 · AHIP Certified · <a href="tel:8287613326">(828) 761-3326</a></p>',
   "geo-2026": '<p class="gh-answer" style="background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;padding:14px 18px;border-radius:0 8px 8px 0;font-size:15px">2026 Medicare Part B premium: <strong>$202.90/month</strong>. Part B deductible: <strong>$257</strong>. Part A deductible: <strong>$1,676</strong>. Source: CMS.gov</p>',
-  "conv-sunfire": '<a href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/" target="_blank" rel="noopener" style="display:inline-block;padding:14px 28px;background:#0D9488;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px">Compare Plans Online — Free</a>',
+  "conv-sunfire": '<a href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/" target="_blank" rel="noopener" style="display:inline-block;padding:14px 28px;background:#0D9488;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px">Compare Plans Online — Free</a>',
   "conv-calendly": '<a href="https://calendly.com/robert-generationhealth/new-meeting" target="_blank" rel="noopener" style="display:inline-block;padding:14px 28px;background:#4B9CD3;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:15px">Book a Free Consultation</a>',
   "conv-phone": '<a href="tel:8287613326" style="display:inline-block;padding:14px 28px;background:#16A34A;color:#fff;text-decoration:none;border-radius:8px;font-weight:700;font-size:16px">Call (828) 761-3326 — Free</a>'
 };
@@ -1242,6 +1242,8 @@ function App() {
   const [pbNepqExpanded, setPbNepqExpanded] = useState(null);
   const [pbEditMode, setPbEditMode] = useState(false);
   const [pbEditHTML, setPbEditHTML] = useState("");
+  const [pbFixing, setPbFixing] = useState(false);
+  const [pbFixProgress, setPbFixProgress] = useState(null);
 
 
   const [expandedCluster, setExpandedCluster] = useState(null);
@@ -3533,6 +3535,76 @@ function App() {
           finally{setPbGenerating(null);}
         }
 
+        async function fixAllIssues(){
+          if(!pbPage||!pbScanResults) return;
+          var failing = pbScanResults.checks.filter(function(c){return !c.pass&&window.GH_FIX_SNIPPETS&&window.GH_FIX_SNIPPETS[c.id];});
+          if(failing.length===0){alert("No auto-fixable issues found.");return;}
+          setPbFixing(true);
+          var html = pbPage.html||"";
+          var done = 0;
+          for(var i=0;i<failing.length;i++){
+            var check = failing[i];
+            var snippet = window.GH_FIX_SNIPPETS[check.id];
+            if(!snippet) continue;
+            setPbFixProgress({msg:"Fixing: "+check.label,done:done,total:failing.length});
+            // Smart injection based on check type
+            if(check.id==="aeo-faq"){
+              // Insert FAQ schema before closing </head> or at top; insert FAQ section before </body>
+              var schemaTag = snippet.split("\n<section")[0];
+              var faqSection = "<section"+snippet.split("<section")[1];
+              if(html.indexOf("</head>")>-1){
+                html = html.replace("</head>", schemaTag+"\n</head>");
+              } else {
+                html = schemaTag+"\n"+html;
+              }
+              if(html.indexOf("</body>")>-1){
+                html = html.replace("</body>", faqSection+"\n</body>");
+              } else {
+                html = html+"\n"+faqSection;
+              }
+            } else if(check.id==="eeat-author"){
+              // Insert author before first <section or at top of body
+              var insertPt = html.indexOf("<section");
+              if(insertPt>-1){
+                html = html.slice(0,insertPt)+snippet+"\n"+html.slice(insertPt);
+              } else {
+                html = html+"\n"+snippet;
+              }
+            } else if(check.id==="aeo-table"||check.id==="aeo-howto"){
+              // Insert after first </h2> or before first CTA
+              var h2end = html.indexOf("</h2>");
+              var insertAt = h2end>-1?h2end+5:html.length;
+              html = html.slice(0,insertAt)+"\n"+snippet+"\n"+html.slice(insertAt);
+            } else if(check.id==="conv-sunfire"||check.id==="conv-calendly"||check.id==="conv-phone"){
+              // Append before </body> or at end
+              if(html.indexOf("</body>")>-1){
+                html = html.replace("</body>", "<div style=\"padding:20px;text-align:center;\">"+snippet+"</div>\n</body>");
+              } else {
+                html = html+"\n<div style=\"padding:20px;text-align:center;\">"+snippet+"</div>";
+              }
+            } else {
+              // Default: append before </body>
+              if(html.indexOf("</body>")>-1){
+                html = html.replace("</body>", snippet+"\n</body>");
+              } else {
+                html = html+"\n"+snippet;
+              }
+            }
+            done++;
+            setPbFixProgress({msg:"Fixed: "+check.label,done:done,total:failing.length});
+            // Small delay so progress bar animates visibly
+            await new Promise(function(r){setTimeout(r,300);});
+          }
+          // Save and rescan
+          var key = pbPage.clusterId+"-"+pbPage.idx;
+          setSavedHTML(function(prev){var n=Object.assign({},prev);n[key]=html;return n;});
+          setPbPage(function(p){return Object.assign({},p,{html:html});});
+          setPbEditHTML(html);
+          setPbScanResults(scan17(html));
+          setPbFixProgress({msg:"✅ All fixes applied!",done:failing.length,total:failing.length});
+          setTimeout(function(){setPbFixProgress(null);setPbFixing(false);},2000);
+        }
+
         function copyOutput(){
           if(!pbPage) return;
           var slug = pbPage.slug||"new-page";
@@ -3736,12 +3808,29 @@ function App() {
                 )
               ),
               pbPage&&pbScanResults&&React.createElement("div",{style:{background:bg,border:br,borderRadius:14,padding:"14px 16px",maxHeight:200,overflowY:"auto"}},
-                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:10}},
+                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:10,flexWrap:"wrap"}},
                   React.createElement(ScoreRing,{score:pbScanResults.score,total:17,size:54}),
-                  React.createElement("div",null,
+                  React.createElement("div",{style:{flex:1}},
                     React.createElement("div",{style:{fontSize:14,fontWeight:700,color:tc}},"17-Point Optimization Scan"),
                     React.createElement("div",{style:{fontSize:12,color:mc}},
                       pbScanResults.score===17?"🎯 Perfect — ready to deploy":(17-pbScanResults.score)+" items need work")
+                  ),
+                  pbScanResults.score<17&&React.createElement("button",{
+                    onClick:fixAllIssues,
+                    disabled:!!pbFixing,
+                    style:{padding:"6px 14px",borderRadius:9,border:"none",
+                      background:pbFixing?"rgba(255,255,255,0.06)":"linear-gradient(135deg,#F59E0B,#FBBF24)",
+                      color:pbFixing?"#888":"#1a1a2e",fontSize:12,fontWeight:700,cursor:pbFixing?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}
+                  },pbFixing?"⏳ Fixing...":"⚡ Fix All Issues")
+                ),
+                pbFixProgress&&React.createElement("div",{style:{marginBottom:8}},
+                  React.createElement("div",{style:{display:"flex",justifyContent:"space-between",fontSize:10,color:mc,marginBottom:3}},
+                    React.createElement("span",null,pbFixProgress.msg),
+                    React.createElement("span",null,pbFixProgress.done+"/"+pbFixProgress.total)
+                  ),
+                  React.createElement("div",{style:{height:5,background:"rgba(255,255,255,0.08)",borderRadius:100,overflow:"hidden"}},
+                    React.createElement("div",{style:{height:"100%",width:Math.round(pbFixProgress.done/pbFixProgress.total*100)+"%",
+                      background:"linear-gradient(90deg,#F59E0B,#4ADE80)",borderRadius:100,transition:"width 0.3s ease"}})
                   )
                 ),
                 React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:3}},
