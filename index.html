@@ -545,101 +545,67 @@ window.GH_PB_NEPQ=[
     // Build sandbox doc
         var sandboxDoc=pbHtml?(function(){
       var clean=pbHtml.replace(/<script[\s\S]*?<\/script>/gi,"");
-      // Inject click-to-edit + apply-rewrite script into sandbox
-      var injectScript='<scr'+'ipt>(function(){
+      // Sandbox inject logic defined as window global (avoids parser issues)
+    if(!window.GH_PB_INJECT_FN_STR){
+      window.GH_PB_INJECT_FN_STR=(function(){
         var active=null;
         var NEPQ_TYPES=["connecting","situation","problem","solution","consequence","qualifying","committing"];
-        function applyStyles(el,sel){
-          document.querySelectorAll(".gh-pb-section").forEach(function(e){
-            e.style.outline="";
-            e.style.background="";
-          });
-          if(sel){
-            sel.style.outline="2.5px solid #0D9488";
-            sel.style.background="rgba(13,148,136,0.04)";
-          }
+        function applyOutline(sel){
+          document.querySelectorAll(".gh-pb-section").forEach(function(e){e.style.outline="";e.style.background="";});
+          if(sel){sel.style.outline="2.5px solid #0D9488";sel.style.background="rgba(13,148,136,0.04)";}
         }
-        // Wrap each H2 and its following content
         var h2s=Array.from(document.querySelectorAll("h2"));
         var total=h2s.length;
         h2s.forEach(function(h2,idx){
           var wrap=document.createElement("div");
           wrap.className="gh-pb-section";
-          wrap.style.cursor="pointer";
-          wrap.style.transition="outline 0.15s, background 0.15s";
-          wrap.style.borderRadius="6px";
-          wrap.style.margin="4px -8px";
-          wrap.style.padding="0 8px";
-          // Collect siblings until next H2
+          wrap.style.cssText="cursor:pointer;transition:outline 0.15s,background 0.15s;border-radius:6px;margin:4px -8px;padding:0 8px;";
           var siblings=[h2];
           var next=h2.nextElementSibling;
-          while(next&&next.tagName!=="H2"){
-            siblings.push(next);
-            next=next.nextElementSibling;
-          }
+          while(next&&next.tagName!=="H2"){siblings.push(next);next=next.nextElementSibling;}
           h2.parentNode.insertBefore(wrap,h2);
           siblings.forEach(function(s){wrap.appendChild(s);});
-          // Auto-assign NEPQ type by position
           var slot=total<=1?0:Math.round((idx/(total-1))*6);
           var nepqType=NEPQ_TYPES[slot]||"connecting";
-          // Add badge
           var badge=document.createElement("span");
           badge.textContent=nepqType;
-          badge.style.cssText="display:inline-block;font-size:9px;font-weight:700;color:#0D9488;background:rgba(13,148,136,0.1);border:1px solid rgba(13,148,136,0.3);border-radius:4px;padding:1px 7px;margin-left:8px;vertical-align:middle;text-transform:capitalize;letter-spacing:0.05em;opacity:0.7;";
+          badge.style.cssText="display:inline-block;font-size:9px;font-weight:700;color:#0D9488;background:rgba(13,148,136,0.1);border:1px solid rgba(13,148,136,0.3);border-radius:4px;padding:1px 7px;margin-left:8px;vertical-align:middle;text-transform:capitalize;letter-spacing:0.05em;opacity:0.8;";
           h2.appendChild(badge);
           wrap.addEventListener("click",function(e){
             e.stopPropagation();
-            active=wrap;
-            applyStyles(null,wrap);
-            // Gather section text (H2 + following siblings)
-            var sectionText=Array.from(wrap.querySelectorAll("h2,p,li")).map(function(el){return el.textContent.trim();}).filter(Boolean).join("\\n").substring(0,1200);
-            window.parent.postMessage({
-              type:"GH_PB_SECTION_CLICK",
-              secIdx:idx,
-              heading:h2.firstChild?h2.firstChild.textContent.trim():h2.textContent.trim(),
-              nepqType:nepqType,
-              text:sectionText,
-              total:total
-            },"*");
+            applyOutline(wrap);
+            var sectionText=Array.from(wrap.querySelectorAll("h2,p,li")).map(function(el){return el.textContent.trim();}).filter(Boolean).join("\n").substring(0,1200);
+            window.parent.postMessage({type:"GH_PB_SECTION_CLICK",secIdx:idx,heading:h2.firstChild?h2.firstChild.textContent.trim():h2.textContent.trim(),nepqType:nepqType,text:sectionText,total:total},"*");
           });
         });
-        // Listen for apply-rewrite from parent
         window.addEventListener("message",function(e){
           if(!e.data||e.data.type!=="GH_PB_APPLY_REWRITE")return;
           var sections=document.querySelectorAll(".gh-pb-section");
           var target=sections[e.data.secIdx];
           if(!target)return;
-          // Find H2 and replace following paragraphs
           var h2=target.querySelector("h2");
           if(!h2)return;
-          // Remove old paragraphs
-          var old=Array.from(target.querySelectorAll("p"));
-          old.forEach(function(p){p.remove();});
-          // Insert new content after H2
+          Array.from(target.querySelectorAll("p")).forEach(function(p){p.remove();});
           var newContent=document.createElement("div");
           newContent.className="gh-nepq-applied";
           newContent.style.cssText="border-left:3px solid #0D9488;padding:10px 16px;margin:8px 0;background:rgba(13,148,136,0.04);border-radius:0 6px 6px 0;";
-          if(e.data.question){
-            var qEl=document.createElement("p");
-            qEl.style.cssText="font-style:italic;font-weight:700;color:#0D9488;margin:0 0 10px;font-size:16px;";
-            qEl.textContent="\u201c"+e.data.question+"\u201d";
-            newContent.appendChild(qEl);
-          }
-          e.data.rewrite.split("\\n\\n").forEach(function(para){
-            if(!para.trim())return;
-            var p=document.createElement("p");
-            p.textContent=para.trim();
-            newContent.appendChild(p);
-          });
+          if(e.data.question){var qEl=document.createElement("p");qEl.style.cssText="font-style:italic;font-weight:700;color:#0D9488;margin:0 0 10px;font-size:16px;";qEl.textContent="“"+e.data.question+"”";newContent.appendChild(qEl);}
+          e.data.rewrite.split("\n\n").forEach(function(para){if(!para.trim())return;var p=document.createElement("p");p.textContent=para.trim();newContent.appendChild(p);});
           h2.insertAdjacentElement("afterend",newContent);
-          // Flash green
-          target.style.outline="2.5px solid #4ADE80";
-          target.style.background="rgba(74,222,128,0.05)";
+          target.style.outline="2.5px solid #4ADE80";target.style.background="rgba(74,222,128,0.05)";
           setTimeout(function(){target.style.outline="";target.style.background="";},2000);
         });
-      })();<\/scr'+'ipt>';
-      return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="https://generationhealth.me/"><style>*{box-sizing:border-box}body{font-family:Georgia,serif;max-width:900px;margin:0 auto;padding:20px 28px;line-height:1.75;color:#1A2332;font-size:15px}h1{font-size:2rem;margin:0 0 .5em;line-height:1.2}h2{font-size:1.35rem;margin:1.4em 0 .5em;color:#1A2332}h3{font-size:1.1rem;margin:1.1em 0 .4em}p{margin:.7em 0}img{max-width:100%;height:auto}a{color:#0D9488}.gh-answer{background:linear-gradient(135deg,rgba(13,148,136,0.08),rgba(96,165,250,0.08));border-left:3px solid #0D9488;border-radius:8px;padding:14px 18px;margin:14px 0;font-style:italic;font-size:16px;font-weight:600}</style></head><body>'+clean+injectScript+'</body></html>';
+      }).toString();
+    }
+
+    var sandboxDoc=pbHtml?(function(){
+      var clean=pbHtml.replace(/<script[\s\S]*?<\/script>/gi,"");
+      // Serialize the inject function and wrap in IIFE at runtime
+      var fnBody=window.GH_PB_INJECT_FN_STR||"";
+      var injectTag="<"+"script>("+fnBody+")();<"+"/script>";
+      return "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><base href=\"https://generationhealth.me/\"><style>*{box-sizing:border-box}body{font-family:Georgia,serif;max-width:900px;margin:0 auto;padding:20px 28px;line-height:1.75;color:#1A2332;font-size:15px}h1{font-size:2rem;margin:0 0 .5em;line-height:1.2}h2{font-size:1.35rem;margin:1.4em 0 .5em;color:#1A2332}h3{font-size:1.1rem;margin:1.1em 0 .4em}p{margin:.7em 0}img{max-width:100%;height:auto}a{color:#0D9488}.gh-answer{background:linear-gradient(135deg,rgba(13,148,136,0.08),rgba(96,165,250,0.08));border-left:3px solid #0D9488;border-radius:8px;padding:14px 18px;margin:14px 0;font-style:italic;font-size:16px;font-weight:600}</style></head><body>"+clean+injectTag+"</body></html>";
     })():"";
+
 
     // Scan widget — compact horizontal bar showing all scores
     // Progress bar (top of center)
