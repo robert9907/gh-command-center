@@ -2696,7 +2696,11 @@ function App() {
             React.createElement("div",{style:card},
               React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
                 React.createElement("div",{style:{fontSize:14,fontWeight:700,color:tc}},"🔍 Search Console"),
-                React.createElement("span",{style:{fontSize:10,color:mc,padding:"2px 8px",borderRadius:6,background:"rgba(96,165,250,0.1)",color:"#60A5FA",fontWeight:700}},(gscData&&gscData.dateRange||28)+" days")
+                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},
+                  React.createElement("span",{style:{fontSize:10,color:mc,padding:"2px 8px",borderRadius:6,background:"rgba(96,165,250,0.1)",color:"#60A5FA",fontWeight:700}},(gscData&&gscData.dateRange||28)+" days"),
+                  ga4Connected&&React.createElement("button",{onClick:function(){gscFetch();},disabled:gscLoading,style:{fontSize:10,padding:"3px 10px",borderRadius:6,border:"1px solid rgba(96,165,250,0.3)",background:"rgba(96,165,250,0.08)",color:"#60A5FA",fontWeight:700,cursor:"pointer"}},gscLoading?"⏳":"🔄 Fetch"),
+                  !ga4Connected&&React.createElement("span",{style:{fontSize:10,color:"#FB923C",padding:"2px 8px",borderRadius:6,background:"rgba(251,146,60,0.1)",fontWeight:700}},"Connect GA4 ↓")
+                )
               ),
               React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}},
                 [{l:"Impressions",v:gscRows.reduce(function(a,r){return a+(r.impressions||0);},0).toLocaleString(),c:"#60A5FA"},
@@ -2737,7 +2741,11 @@ function App() {
             React.createElement("div",{style:card},
               React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}},
                 React.createElement("div",{style:{fontSize:14,fontWeight:700,color:tc}},"📊 Analytics (GA4)"),
-                React.createElement("span",{style:{fontSize:10,padding:"2px 8px",borderRadius:6,background:ga4Data&&ga4Data.overview?"rgba(74,222,128,0.1)":"rgba(255,255,255,0.05)",color:ga4Data&&ga4Data.overview?"#4ADE80":mc,fontWeight:700}},ga4Data&&ga4Data.overview?"Connected":"Not Connected")
+                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},
+                  ga4Connected&&React.createElement("button",{onClick:function(){ga4Fetch("30daysAgo");},disabled:ga4Loading,style:{fontSize:10,padding:"3px 10px",borderRadius:6,border:"1px solid rgba(74,222,128,0.3)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",fontWeight:700,cursor:"pointer"}},ga4Loading?"⏳":"🔄 30d"),
+                  ga4Connected&&React.createElement("button",{onClick:function(){ga4Fetch("90daysAgo");},disabled:ga4Loading,style:{fontSize:10,padding:"3px 10px",borderRadius:6,border:"1px solid rgba(96,165,250,0.3)",background:"rgba(96,165,250,0.08)",color:"#60A5FA",fontWeight:700,cursor:"pointer"}},"90d"),
+                  React.createElement("span",{style:{fontSize:10,padding:"2px 8px",borderRadius:6,background:ga4Data&&ga4Data.overview?"rgba(74,222,128,0.1)":"rgba(255,255,255,0.05)",color:ga4Data&&ga4Data.overview?"#4ADE80":mc,fontWeight:700}},ga4Data&&ga4Data.overview?"● Live":"Not Connected")
+                )
               ),
               React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}},
                 [{l:"Users",v:ga4Users,c:"#4ADE80"},{l:"Sessions",v:ga4Sessions,c:"#60A5FA"},
