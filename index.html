@@ -227,6 +227,7 @@ window.GH_PB_NEPQ=[
 (function(){
   var R=React;
   var ce=R.createElement;
+  console.log("[PLAIN SCRIPT] Starting execution");
 
   // ── inject fn defined as serialisable string (no script-close literals) ──
   window.GH_PB_INJECT=(function(){
@@ -501,6 +502,7 @@ window.GH_PB_NEPQ=[
     });
   }).toString();
 
+  console.log("[PLAIN SCRIPT] Defining GH_PageBuilder");
   window.GH_PageBuilder=function GHPageBuilder(props){
     var clusters=props.clusters||[];
     var aiApiKey=props.aiApiKey||"";
