@@ -230,6 +230,7 @@ window.GH_PB_NEPQ=[
 
   // ── inject fn defined as serialisable string (no script-close literals) ──
   window.GH_PB_INJECT=(function(){
+    console.log("[GH Inject] Script running in sandbox");
     var NEPQ=["situation","problem","impact","statusquo","solution","vision","consequence","qualifying","quoteaccess"];
     var h2s=Array.from(document.querySelectorAll("h2"));
     var total=h2s.length;
@@ -317,18 +318,19 @@ window.GH_PB_NEPQ=[
         }
         requestAnimationFrame(tick);
       }
-      document.querySelectorAll(".gh-ghost--compare,.gh-ghost--primary").forEach(function(el){
-        glowBtn(el,75,156,211,-800,"rgba(255,255,255,.35)");
-      });
-      document.querySelectorAll(".gh-ghost--call").forEach(function(el){
-        glowBtn(el,22,163,74,1800,"rgba(74,222,128,.5)");
-      });
-      document.querySelectorAll(".gh-ghost--text").forEach(function(el){
-        glowBtn(el,139,92,246,2000,"rgba(167,139,250,.5)");
-      });
-      document.querySelectorAll(".gh-ghost--sched").forEach(function(el){
-        glowBtn(el,245,158,11,2200,"rgba(251,191,36,.5)");
-      });
+      // Run after paint to ensure elements are styled and visible
+      setTimeout(function(){
+        var compare=document.querySelectorAll(".gh-ghost--compare,.gh-ghost--primary");
+        var call=document.querySelectorAll(".gh-ghost--call");
+        var text=document.querySelectorAll(".gh-ghost--text");
+        var sched=document.querySelectorAll(".gh-ghost--sched");
+        console.log("[GH] Glow targets — compare:"+compare.length+" call:"+call.length+" text:"+text.length+" sched:"+sched.length);
+        compare.forEach(function(el){glowBtn(el,75,156,211,-800,"rgba(255,255,255,.35)");});
+        call.forEach(function(el){glowBtn(el,22,163,74,1800,"rgba(74,222,128,.5)");});
+        text.forEach(function(el){glowBtn(el,139,92,246,2000,"rgba(167,139,250,.5)");});
+        sched.forEach(function(el){glowBtn(el,245,158,11,2200,"rgba(251,191,36,.5)");});
+      },100);
+
       // Hero btn -- call (white bg, bright blue shimmer wave)
       document.querySelectorAll(".gh-hero-btn--call").forEach(function(el){
         el.style.position="relative";el.style.overflow="hidden";
