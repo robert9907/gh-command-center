@@ -258,6 +258,57 @@ window.GH_PB_NEPQ=[
         window.parent.postMessage({type:"GH_SEC_CLICK",idx:idx,heading:h2.childNodes[0]?h2.childNodes[0].textContent.trim():h2.textContent.trim(),ntype:ntype,txt:txt,total:total},"*");
       });
     });
+    // ── Double-click to edit inline ──────────────────────────────────
+    var hint=document.createElement("div");
+    hint.className="ghpb-edit-hint";
+    hint.textContent="Double-click any text to edit — click away to save";
+    document.body.appendChild(hint);
+    var hintTimer=null;
+    function showHint(){
+      hint.classList.add("visible");
+      clearTimeout(hintTimer);
+      hintTimer=setTimeout(function(){hint.classList.remove("visible");},2500);
+    }
+    function makeEditable(el){
+      if(el.getAttribute("contenteditable")==="true")return;
+      el.setAttribute("contenteditable","true");
+      el.setAttribute("spellcheck","true");
+      el.addEventListener("blur",function(){
+        // Notify parent that content changed
+        window.parent.postMessage({type:"GH_CONTENT_CHANGED"},"*");
+      });
+      el.addEventListener("keydown",function(e){
+        if(e.key==="Escape"){el.blur();}
+        // Prevent Enter from creating new block elements in headings
+        if(e.key==="Enter"&&(el.tagName==="H1"||el.tagName==="H2"||el.tagName==="H3")){
+          e.preventDefault();
+          el.blur();
+        }
+      });
+    }
+    document.addEventListener("dblclick",function(e){
+      var el=e.target;
+      // Make any text-bearing element editable on double-click
+      var editable=["P","H1","H2","H3","H4","LI","SPAN","TD","DIV"];
+      if(editable.indexOf(el.tagName)>=0&&el.textContent.trim().length>0){
+        e.preventDefault();
+        makeEditable(el);
+        // Place cursor at click position
+        el.focus();
+        showHint();
+      }
+    });
+    // First hover shows the hint
+    var hintShown=false;
+    document.addEventListener("mouseover",function(e){
+      if(hintShown)return;
+      var editable=["P","H1","H2","H3","LI"];
+      if(editable.indexOf(e.target.tagName)>=0&&e.target.textContent.trim().length>0){
+        hintShown=true;
+        showHint();
+      }
+    });
+
     window.addEventListener("message",function(ev){
       if(!ev.data||ev.data.type!=="GH_APPLY")return;
       var secs=document.querySelectorAll(".ghpb-sec");
@@ -473,7 +524,15 @@ window.GH_PB_NEPQ=[
         });
       }
       window.addEventListener("message",onMsg);
-      return function(){window.removeEventListener("message",onMsg);};
+      function onContentChanged(ev){
+        if(!ev.data||ev.data.type!=="GH_CONTENT_CHANGED")return;
+        setSaved(false);
+      }
+      window.addEventListener("message",onContentChanged);
+      return function(){
+        window.removeEventListener("message",onMsg);
+        window.removeEventListener("message",onContentChanged);
+      };
     },[]);
 
     // ── Apply rewrite to iframe ────────────────────────────────────────
@@ -650,7 +709,7 @@ window.GH_PB_NEPQ=[
       var clean=pbHtml.replace(/<script[\s\S]*?<\/script>/gi,"");
       var fnStr=window.GH_PB_INJECT||"function(){}";
       var itag="<"+"script>("+fnStr+")();<"+"/script>";
-      sandboxDoc="<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><base href=\"https://generationhealth.me/\"><style>*{box-sizing:border-box}body{font-family:Georgia,serif;max-width:900px;margin:0 auto;padding:20px 28px;line-height:1.75;color:#1A2332;font-size:15px}h1{font-size:2rem;margin:0 0 .4em;line-height:1.2}h2{font-size:1.3rem;margin:1.4em 0 .4em;color:#1A2332}h3{font-size:1.05rem;margin:1.1em 0 .3em}p{margin:.65em 0}img{max-width:100%;height:auto}a{color:#0D9488}.gh-answer{background:linear-gradient(135deg,rgba(13,148,136,0.08),rgba(96,165,250,0.08));border-left:3px solid #0D9488;border-radius:8px;padding:12px 16px;margin:12px 0;font-style:italic;font-weight:600}</style></head><body>"+clean+itag+"</body></html>";
+      sandboxDoc="<!DOCTYPE html><html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><base href=\"https://generationhealth.me/\"><style>*{box-sizing:border-box}body{font-family:Georgia,serif;max-width:900px;margin:0 auto;padding:20px 28px;line-height:1.75;color:#1A2332;font-size:15px}h1{font-size:2rem;margin:0 0 .4em;line-height:1.2}h2{font-size:1.3rem;margin:1.4em 0 .4em;color:#1A2332}h3{font-size:1.05rem;margin:1.1em 0 .3em}p{margin:.65em 0}img{max-width:100%;height:auto}a{color:#0D9488}.gh-answer{background:linear-gradient(135deg,rgba(13,148,136,0.08),rgba(96,165,250,0.08));border-left:3px solid #0D9488;border-radius:8px;padding:12px 16px;margin:12px 0;font-style:italic;font-weight:600}[contenteditable]{outline:none;border-radius:3px;transition:background 0.15s;}[contenteditable]:hover{background:rgba(255,199,44,0.08);cursor:text;}[contenteditable]:focus{background:rgba(255,199,44,0.12);box-shadow:0 0 0 2px rgba(255,199,44,0.4);border-radius:3px;}.ghpb-edit-hint{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(26,35,50,0.92);color:#FFC72C;font-size:11px;font-weight:600;padding:6px 14px;border-radius:20px;pointer-events:none;opacity:0;transition:opacity 0.3s;font-family:system-ui,sans-serif;z-index:9999;letter-spacing:0.02em;}.ghpb-edit-hint.visible{opacity:1;}</style></head><body>"+clean+itag+"</body></html>";
     }
 
     // ── Progress bar ───────────────────────────────────────────────────
