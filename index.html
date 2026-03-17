@@ -4042,8 +4042,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
         <button onClick={()=>{if(confirm("Reset all progress?")){setDone({});setNotes({});setReminders([]);setLearnings([]);setSavedHTML({});idbClearAllHTML();[SKEY,SKEY_DONE,SKEY_NOTES,SKEY_REMINDERS,SKEY_PERF,SKEY_LEARNINGS,SKEY_META].forEach(k=>localStorage.removeItem(k));}}} style={{background:"none",border:"1px solid rgba(255,255,255,0.12)",borderRadius:8,padding:"8px 20px",fontSize:12,color:"#6B7B8D",cursor:"pointer"}}>Reset All Progress</button>
       </div>
       </div>
-      </div>
-      </div>
 
 
       {/* ═══ PAGE BUILDER ═══ */}
@@ -5337,6 +5335,8 @@ Rewrite this section using NEPQ ${sec.nepqType || "connecting"} style. Lead with
         aiApiKey={aiApiKey} setAiApiKey={setAiApiKey}
       />}
 
+    </div>
+    </div>
     </div>
   );
 }
