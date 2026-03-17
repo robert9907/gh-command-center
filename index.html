@@ -3839,10 +3839,37 @@ function App() {
                   React.createElement("div",{style:{fontSize:15,fontWeight:700,color:tc}},"No saved HTML"),
                   React.createElement("div",{style:{fontSize:13,color:mc,textAlign:"center"}},"Go to Optimize tab → find this page → Fetch → Save HTML.")
                 ),
-                pbPage&&pbPage.html&&!pbEditMode&&React.createElement("iframe",{
-                  srcDoc:pbPage.html,style:{width:"100%",height:"100%",border:"none"},
-                  sandbox:"allow-same-origin allow-scripts",title:"Page Preview"
-                }),
+                pbPage&&pbPage.html&&!pbEditMode&&(function(){
+                  // Build live preview with NEPQ blocks merged in
+                  var previewHtml = pbPage.html;
+                  var nepqKeys = ["connecting","situation","problem","two-truths","solution",
+                    "consequence","qualifying","clarifying","expanded","decision","transition",
+                    "committing","resolving"];
+                  var hasNepq = nepqKeys.some(function(k){return !!pbNepqContent[k];});
+                  if(hasNepq){
+                    // Build NEPQ preview section with styled cards
+                    var nepqStyle = "<style>.gh-nepq-preview{font-family:-apple-system,BlinkMacSystemFont,sans-serif;}.gh-nepq-preview-card{margin:24px 0;max-width:720px;}.gh-nepq-preview-card .gh-nepq-q{background:linear-gradient(135deg,rgba(75,156,211,0.1),rgba(13,148,136,0.07));border-left:4px solid #4B9CD3;border-radius:0 12px 12px 0;padding:18px 22px;}.gh-nepq-preview-card .gh-nepq-q h3{font-size:20px;font-weight:700;color:#0A1628;margin:0;line-height:1.4;}.gh-nepq-preview-card .gh-answer{background:#fff;border:1px solid rgba(75,156,211,0.15);border-top:none;border-radius:0 0 12px 12px;padding:18px 22px;}.gh-nepq-preview-card .gh-answer p{font-size:15px;color:#374151;line-height:1.7;margin:0;}</style>";
+                    var blocks = nepqKeys.map(function(k){return pbNepqContent[k];}).filter(Boolean);
+                    var nepqSection = "<div class=\"gh-nepq-preview\" style=\"padding:48px 24px;max-width:780px;margin:0 auto\">"+
+                      "<div style=\"background:linear-gradient(135deg,#0D9488,#14B8A6);color:#fff;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:24px;display:inline-block\">"+
+                      "✨ NEPQ Preview — "+blocks.length+" of 13 stages generated</div>"+
+                      blocks.join("\n")+
+                      "</div>";
+                    // Inject after first </section> (after hero)
+                    var heroClose = previewHtml.indexOf("</section>");
+                    if(heroClose>-1){
+                      previewHtml = previewHtml.slice(0,heroClose+10)+nepqStyle+nepqSection+previewHtml.slice(heroClose+10);
+                    } else {
+                      previewHtml = nepqStyle+nepqSection+previewHtml;
+                    }
+                  }
+                  return React.createElement("iframe",{
+                    srcDoc:previewHtml,
+                    style:{width:"100%",height:"100%",border:"none"},
+                    sandbox:"allow-same-origin allow-scripts",
+                    title:"Page Preview"
+                  });
+                })(),
                 pbPage&&pbEditMode&&React.createElement("div",{style:{display:"flex",flexDirection:"column",height:"100%",padding:12,gap:8}},
                   React.createElement("textarea",{
                     value:pbEditHTML,
