@@ -285,65 +285,49 @@ window.GH_PB_NEPQ=[
       // Web Animations API — bypasses CSS entirely, cannot be overridden by any stylesheet
       var ease="ease-in-out";
       // Ghost compare/primary — carolina blue glow
-      document.querySelectorAll(".gh-ghost--compare,.gh-ghost--primary").forEach(function(el){
-        el.style.position="relative";el.style.overflow="hidden";
-        el.animate([
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0},
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0.35},
-          {background:"rgba(75,156,211,.38)",borderColor:"rgba(75,156,211,.95)",boxShadow:"0 0 22px rgba(75,156,211,.5),0 0 40px rgba(75,156,211,.18)",offset:0.5},
-          {background:"rgba(75,156,211,.07)",borderColor:"rgba(75,156,211,.25)",boxShadow:"none",offset:0.65},
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:1}
-        ],{duration:5000,delay:-800,iterations:Infinity,easing:ease,fill:"both"});
+      // Glow each ghost button using requestAnimationFrame — direct DOM style writes
+      // that bypass CSS entirely. Runs box-shadow + border-color each frame.
+      function glowBtn(el,r,g,b,delayMs,sweepColor){
+        el.style.position="relative";
+        el.style.overflow="hidden";
         // Sweep span
         var sw=document.createElement("span");
-        sw.style.cssText="position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
+        sw.style.cssText="position:absolute;top:0;left:-100%;width:65%;height:100%;background:linear-gradient(120deg,transparent 10%,"+sweepColor+" 50%,transparent 90%);transform:skewX(-15deg);pointer-events:none;z-index:2;";
         el.insertBefore(sw,el.firstChild);
-        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3500,delay:200,iterations:Infinity,easing:ease});
+        sw.animate([{left:"-100%"},{left:"210%"}],{duration:3500,delay:delayMs,iterations:Infinity,easing:"ease-in-out"});
+        // Glow cycle
+        var period=5000;
+        var start=null;
+        function tick(ts){
+          if(!start)start=ts-delayMs;
+          var t=((ts-start)%period)/period;
+          var glow=0;
+          if(t>=0.35&&t<=0.65){
+            var mid=(t-0.35)/0.30;
+            glow=mid<=0.5?mid/0.5:1-(mid-0.5)/0.5;
+          }
+          var alpha1=(glow*0.42).toFixed(3);
+          var alpha2=(glow*0.95).toFixed(3);
+          var sh1=(glow*22).toFixed(1);
+          var sh2=(glow*40).toFixed(1);
+          el.style.setProperty("box-shadow","0 0 "+sh1+"px rgba("+r+","+g+","+b+","+alpha1+"),0 0 "+sh2+"px rgba("+r+","+g+","+b+","+(glow*0.18).toFixed(3)+")");
+          el.style.setProperty("border-color","rgba("+r+","+g+","+b+","+alpha2+")");
+          el.style.setProperty("background","rgba("+r+","+g+","+b+","+alpha1+")");
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+      document.querySelectorAll(".gh-ghost--compare,.gh-ghost--primary").forEach(function(el){
+        glowBtn(el,75,156,211,-800,"rgba(255,255,255,.35)");
       });
-      // Ghost call — green glow
       document.querySelectorAll(".gh-ghost--call").forEach(function(el){
-        el.style.position="relative";el.style.overflow="hidden";
-        el.animate([
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0},
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0.35},
-          {background:"rgba(22,163,74,.40)",borderColor:"rgba(22,163,74,.95)",boxShadow:"0 0 22px rgba(22,163,74,.52),0 0 40px rgba(22,163,74,.18)",offset:0.5},
-          {background:"rgba(22,163,74,.07)",borderColor:"rgba(22,163,74,.25)",boxShadow:"none",offset:0.65},
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:1}
-        ],{duration:5000,delay:1800,iterations:Infinity,easing:ease,fill:"both"});
-        var sw=document.createElement("span");
-        sw.style.cssText="position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(74,222,128,.45),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
-        el.insertBefore(sw,el.firstChild);
-        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3500,delay:500,iterations:Infinity,easing:ease});
+        glowBtn(el,22,163,74,1800,"rgba(74,222,128,.5)");
       });
-      // Ghost text — purple glow
       document.querySelectorAll(".gh-ghost--text").forEach(function(el){
-        el.style.position="relative";el.style.overflow="hidden";
-        el.animate([
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0},
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0.35},
-          {background:"rgba(139,92,246,.38)",borderColor:"rgba(139,92,246,.95)",boxShadow:"0 0 22px rgba(139,92,246,.5),0 0 40px rgba(139,92,246,.16)",offset:0.5},
-          {background:"rgba(139,92,246,.07)",borderColor:"rgba(139,92,246,.25)",boxShadow:"none",offset:0.65},
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:1}
-        ],{duration:5000,delay:2000,iterations:Infinity,easing:ease,fill:"both"});
-        var sw=document.createElement("span");
-        sw.style.cssText="position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(167,139,250,.45),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
-        el.insertBefore(sw,el.firstChild);
-        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3500,delay:1000,iterations:Infinity,easing:ease});
+        glowBtn(el,139,92,246,2000,"rgba(167,139,250,.5)");
       });
-      // Ghost sched — amber glow
       document.querySelectorAll(".gh-ghost--sched").forEach(function(el){
-        el.style.position="relative";el.style.overflow="hidden";
-        el.animate([
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0},
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0.35},
-          {background:"rgba(245,158,11,.38)",borderColor:"rgba(245,158,11,.95)",boxShadow:"0 0 22px rgba(245,158,11,.5),0 0 40px rgba(245,158,11,.16)",offset:0.5},
-          {background:"rgba(245,158,11,.07)",borderColor:"rgba(245,158,11,.25)",boxShadow:"none",offset:0.65},
-          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:1}
-        ],{duration:5000,delay:2200,iterations:Infinity,easing:ease,fill:"both"});
-        var sw=document.createElement("span");
-        sw.style.cssText="position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(251,191,36,.45),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
-        el.insertBefore(sw,el.firstChild);
-        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3500,delay:1500,iterations:Infinity,easing:ease});
+        glowBtn(el,245,158,11,2200,"rgba(251,191,36,.5)");
       });
       // Hero btn -- call (white bg, bright blue shimmer wave)
       document.querySelectorAll(".gh-hero-btn--call").forEach(function(el){
