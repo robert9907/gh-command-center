@@ -167,48 +167,60 @@ window.GH_PB_V52=[
   {id:"v-nepq",label:"NEPQ question-first opening",desc:"Page opens with reader question before answering",cat:"NEPQ",col:"#F472B6",manual:false,fix:"Rewrite opening: lead with reader unspoken question, then answer directly",chk:function(h){return/gh-answer|gh-nepq/i.test(h)||(function(){var m=h.substring(0,3000).match(/\?/g);return!!(m&&m.length>=2);})();}},
 ];
 window.GH_PB_NEPQ=[
-  {id:"connecting",label:"Connecting",emoji:"🤝",col:"#60A5FA",cordBg:"#0F2035",bdr:"rgba(96,165,250,0.25)",
-   goal:"They feel seen — not sold to",
-   cord:"What question is already living rent-free in their head?",
-   why:"This is the trust handshake. Medicare is an emotional purchase buyers justify with logic — earn the emotion first. A reader who feels understood will read everything. A reader who feels pitched will leave. Mirror their world back before any product is mentioned.",
-   ex:'"Are you turning 65 and wondering if you are making the right Medicare decision?"',
-   prompt:"Write in CONNECTING style. Mirror the reader world back — they should feel understood not pitched. Lead with their unspoken question not your answer. Warm local like Rob talking to a neighbor. No product mentions in the opening."},
   {id:"situation",label:"Situation Awareness",emoji:"🗺️",col:"#A78BFA",cordBg:"#1A0F35",bdr:"rgba(167,139,250,0.25)",
    goal:"They see their own life in your words",
    cord:"What does their life look like right now — specifically?",
    why:"Before you can surface a problem they need to see themselves in the story. Describe their current circumstances so precisely that they think that is exactly me. Generic situation statements bounce off. Specific ones arrest. The map before the journey.",
    ex:'"You have had employer coverage your whole career. Now you are staring at Medicare and it feels like learning a new language at 64."',
-   prompt:"Write in SITUATION AWARENESS style. Describe the reader current life in specific concrete terms. They should feel like you have been quietly observing their exact situation. No problems surfaced yet. Just accurate reflection."},
+   prompt:"Write in SITUATION AWARENESS style. Describe the reader current life in specific concrete terms. They should feel like you have been quietly observing their exact situation. No problems surfaced yet. Just accurate reflection. Short paragraphs 2-3 sentences."},
   {id:"problem",label:"Problem Awareness",emoji:"⚠️",col:"#F87171",cordBg:"#2A0808",bdr:"rgba(248,113,113,0.25)",
    goal:"They feel the pain they have been pushing away",
    cord:"What frustration have they never been able to name?",
    why:"Not fear-mongering — honest mirror work. The best problem statement makes someone exhale and say finally someone gets it. The Medicare confusion is real. Late enrollment penalties are real. Wrong network choice is real. Name it directly and specifically.",
    ex:'"What happens when you choose the wrong plan — and you do not find out until your doctor is not covered?"',
-   prompt:"Write in PROBLEM AWARENESS style. Surface the real specific frustration this reader has been carrying. Be honest and direct not threatening. Use real Medicare stakes: penalties OOP gaps wrong networks. Make them exhale."},
+   prompt:"Write in PROBLEM AWARENESS style. Surface the real specific frustration this reader has been carrying. Be honest and direct not threatening. Use real Medicare stakes: penalties OOP gaps wrong networks. Make them exhale. Short paragraphs 2-3 sentences."},
+  {id:"impact",label:"Impact Questions",emoji:"💥",col:"#FB7185",cordBg:"#2A0818",bdr:"rgba(251,113,133,0.25)",
+   goal:"They feel the emotional toll not just the financial one",
+   cord:"How has not having the right coverage affected your peace of mind?",
+   why:"Impact questions surface the emotional cost beneath the surface problem — the anxiety, the second-guessing, the late nights wondering if you chose right. Financial stakes alone don't move people. The feeling of uncertainty is what drives action. Name the emotional weight directly.",
+   ex:'"How many times have you caught yourself wondering if the plan you have is actually the right one for you?"',
+   prompt:"Write in IMPACT QUESTIONS style. Surface the emotional toll of the Medicare problem — not just the financial cost. Name the anxiety the second-guessing the peace-of-mind stolen by uncertainty. Use questions that make the reader confront how this is affecting their daily life. Short paragraphs 2-3 sentences."},
+  {id:"statusquo",label:"Status Quo Questions",emoji:"🔄",col:"#FBBF24",cordBg:"#251800",bdr:"rgba(251,191,36,0.25)",
+   goal:"They question the default path they were about to take",
+   cord:"Most people do what their neighbor did. How is that working out?",
+   why:"Most Medicare decisions are made by inertia — following a friend or calling the first number they see. Status quo questions make the reader pause and examine the default path without confrontation. The goal is gentle disruption. They should think — wait, why was I just going to do that?",
+   ex:'"Most people turning 65 in North Carolina just call the first Medicare number they find online. How confident are you that approach is finding the best plan for your specific doctors?"',
+   prompt:"Write in STATUS QUO QUESTIONS style. Challenge the default behavior the reader was about to take — calling a 1-800 number following a neighbor picking randomly — without being confrontational. Use questions that make them pause and reconsider. Sound curious not critical. Short paragraphs 2-3 sentences."},
   {id:"solution",label:"Solution Awareness",emoji:"💡",col:"#4ADE80",cordBg:"#082010",bdr:"rgba(74,222,128,0.25)",
    goal:"They can picture a better outcome",
    cord:"What does their life feel like when this problem is solved?",
    why:"Not buy insurance. The solution is a feeling — certainty protection someone in their corner who answers the phone. Paint the destination before asking them to take a single step. Specific and tangible. Believable. They should be able to mentally step into the picture.",
    ex:'"What would it feel like to have one local person who knows your situation — and actually picks up the phone?"',
-   prompt:"Write in SOLUTION AWARENESS style. Help the reader picture a specific believable better outcome. NOT a product pitch — a feeling: certainty someone in their corner no confusion. Warm and concrete. Show the destination not the vehicle."},
+   prompt:"Write in SOLUTION AWARENESS style. Help the reader picture a specific believable better outcome. NOT a product pitch — a feeling: certainty someone in their corner no confusion. Warm and concrete. Show the destination not the vehicle. Short paragraphs 2-3 sentences."},
+  {id:"vision",label:"Vision Questions",emoji:"🔭",col:"#38BDF8",cordBg:"#041828",bdr:"rgba(56,189,248,0.25)",
+   goal:"They imagine their life after the problem disappears",
+   cord:"If this was solved and you never had to think about it again — what would that free up for you?",
+   why:"Vision questions let the reader paint their own future in their own words. You are not describing the outcome — they are. This is more powerful than any copy you can write because it comes from inside them. The reader becomes the author of their own transformation. Let them see it.",
+   ex:'"If you had a Medicare plan that just worked — where you could see your doctor without a second thought and never worry about a surprise bill — what would that peace of mind change for you?"',
+   prompt:"Write in VISION QUESTIONS style. Help the reader mentally inhabit a future where the Medicare problem is completely solved. Use open questions that let them fill in the picture themselves. Do not describe the solution — invite them to imagine it. Warm expansive hopeful. Short paragraphs 2-3 sentences."},
   {id:"consequence",label:"Consequence",emoji:"⏰",col:"#FB923C",cordBg:"#281000",bdr:"rgba(251,146,60,0.25)",
    goal:"The cost of doing nothing becomes real",
    cord:"What is the true price of guessing waiting or choosing wrong?",
    why:"Not manipulation — honest clarity about tradeoffs. The Part B late penalty is 10% per year forever. Wrong plan can mean $9,350 out of pocket. These are real permanent consequences that deserve to be named plainly. Used carefully this is the most powerful section on any Medicare page.",
    ex:'"Some people pick a plan without guidance. Some find out the hard way — $9,350 out-of-pocket later."',
-   prompt:"Write in CONSEQUENCE style. Name the real specific cost of not acting or choosing wrong. Be factual and direct not threatening. Use real Medicare numbers: Part B penalty 10%/yr MA OOP max $9,350 Part D penalty network gaps."},
+   prompt:"Write in CONSEQUENCE style. Name the real specific cost of not acting or choosing wrong. Be factual and direct not threatening. Use real Medicare numbers: Part B penalty 10%/yr MA OOP max $9,350 Part D penalty network gaps. Short paragraphs 2-3 sentences."},
   {id:"qualifying",label:"Qualifying",emoji:"🎯",col:"#FFC72C",cordBg:"#201000",bdr:"rgba(255,199,44,0.25)",
    goal:"The right person self-selects",
    cord:"Who is this specifically for — and who is it not for?",
    why:"Honest positioning not exclusion. People who want a local broker who answers the phone are the right fit. People who want the cheapest option with zero guidance are not. Qualifying prevents bad matches and makes ideal prospects lean in. Use it with confidence.",
    ex:'"If you want someone who actually answers the phone — not a hold queue — you might be in the right place."',
-   prompt:"Write in QUALIFYING style. Help the right reader self-select. Be honest about who Rob is for: local personal no-1800-number service. Note briefly who this is NOT for. Make the ideal prospect feel they have found their person. No apology no hedging."},
-  {id:"committing",label:"Committing",emoji:"🚀",col:"#2DD4BF",cordBg:"#041814",bdr:"rgba(45,212,191,0.25)",
-   goal:"Taking action feels obvious not pressured",
-   cord:"What is the single smallest clearest next step right now?",
-   why:"Not a close — an invitation. Medicare buyers respond to low-pressure clear next steps. Talk to a real person outperforms Buy Now every time. One action. One CTA. They should think I can do this right now and then do it.",
-   ex:'"Ready to stop guessing and just talk to someone? Here is how to reach Rob directly — no scripts no pressure."',
-   prompt:"Write in COMMITTING style. Make the next step feel obvious small completely pressure-free. One clear CTA: call or book. Sound like an advisor not a closer. Include (828) 761-3326 and https://calendly.com/robert-generationhealth/new-meeting."},
+   prompt:"Write in QUALIFYING style. Help the right reader self-select. Be honest about who Rob is for: local personal no-1800-number service. Note briefly who this is NOT for. Make the ideal prospect feel they have found their person. No apology no hedging. Short paragraphs 2-3 sentences."},
+  {id:"quoteaccess",label:"Quote Access",emoji:"🔐",col:"#34D399",cordBg:"#041C10",bdr:"rgba(52,211,153,0.25)",
+   goal:"They realize getting a real quote should not cost them their privacy",
+   cord:"What if you could see real plan options without giving up your personal information first?",
+   why:"The number one reason people abandon Medicare quote pages is the form. Name DOB Social Security income — it feels like a data trap. This awareness names that friction directly and reframes the quote process as safe fast and human. People do not want a quote from a database. They want a real answer from a real person who does not sell their number to seventeen call centers.",
+   ex:'"Most Medicare quote sites ask for your Social Security number before they show you a single plan. That is not how we work."',
+   prompt:"Write in QUOTE ACCESS style. Address the reader deepest fear about getting Medicare quotes online: that they will hand over personal information and get bombarded by robocalls and spam forever. Name this fear directly and honestly. Then reframe what a quote should feel like: fast private safe and from a real local person who actually knows the market. Reference SunFire quote tool at https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/ as the secure no-pressure path. Short paragraphs 2-3 sentences."},
 ];
 </script>
 <script>
@@ -218,7 +230,7 @@ window.GH_PB_NEPQ=[
 
   // ── inject fn defined as serialisable string (no script-close literals) ──
   window.GH_PB_INJECT=(function(){
-    var NEPQ=["connecting","situation","problem","solution","consequence","qualifying","committing"];
+    var NEPQ=["situation","problem","impact","statusquo","solution","vision","consequence","qualifying","quoteaccess"];
     var h2s=Array.from(document.querySelectorAll("h2"));
     var total=h2s.length;
     function clearOutlines(){document.querySelectorAll(".ghpb-sec").forEach(function(e){e.style.outline="";e.style.background="";});}
@@ -231,8 +243,8 @@ window.GH_PB_NEPQ=[
       while(next&&next.tagName!=="H2"){siblings.push(next);next=next.nextElementSibling;}
       h2.parentNode.insertBefore(wrap,h2);
       siblings.forEach(function(s){wrap.appendChild(s);});
-      var slot=total<=1?0:Math.min(6,Math.round((idx/(total-1))*6));
-      var ntype=NEPQ[slot]||"connecting";
+      var slot=total<=1?0:Math.min(8,Math.round((idx/(total-1))*8));
+      var ntype=NEPQ[slot]||"situation";
       var badge=document.createElement("span");
       badge.textContent=ntype;
       badge.style.cssText="font-size:8px;font-weight:700;color:#0D9488;background:rgba(13,148,136,0.1);border:1px solid rgba(13,148,136,0.25);border-radius:3px;padding:1px 6px;margin-left:7px;vertical-align:middle;text-transform:capitalize;";
@@ -284,7 +296,7 @@ window.GH_PB_NEPQ=[
     var r5=_s(null);   var pbScan=r5[0];       var setPbScan=r5[1];
     var r6=_s({});     var pbManual=r6[0];     var setPbManual=r6[1];
     var r7=_s("checks"); var pbTab=r7[0];      var setPbTab=r7[1];
-    var r8=_s("connecting"); var nepqTab=r8[0];var setNepqTab=r8[1];
+    var r8=_s("situation");  var nepqTab=r8[0];var setNepqTab=r8[1];
     var r9=_s({});     var nepqData=r9[0];     var setNepqData=r9[1];
     var r10=_s({});    var rewriting=r10[0];   var setRewriting=r10[1];
     var r11=_s({});    var fixes=r11[0];       var setFixes=r11[1];
@@ -374,12 +386,12 @@ window.GH_PB_NEPQ=[
         if(!editModeRef.current)return;
         var m=ev.data;
         setActiveSec({idx:m.idx,heading:m.heading,ntype:m.ntype,txt:m.txt,total:m.total});
-        setNepqTab(m.ntype||"connecting");
+        setNepqTab(m.ntype||"situation");
         setSecResult(null);setSecOverride(false);
         setPbTab("nepq");
         setNepqData(function(prev){
           var n=Object.assign({},prev);
-          var key=m.ntype||"connecting";
+          var key=m.ntype||"situation";
           n[key]=Object.assign({},prev[key]||{},{original:m.txt||""});
           return n;
         });
@@ -460,9 +472,9 @@ window.GH_PB_NEPQ=[
       if(!aiApiKey||!pbPage||!sec)return;
       setSecRewriting(true);setSecResult(null);setSecOverride(false);
       try{
-        var NEPQ_IDS=["connecting","situation","problem","solution","consequence","qualifying","committing"];
-        var slot=sec.total<=1?0:Math.min(6,Math.round((sec.idx/(sec.total-1))*6));
-        var suggestedId=NEPQ_IDS[slot]||"connecting";
+        var NEPQ_IDS=["situation","problem","impact","statusquo","solution","vision","consequence","qualifying","quoteaccess"];
+        var slot=sec.total<=1?0:Math.min(8,Math.round((sec.idx/(sec.total-1))*8));
+        var suggestedId=NEPQ_IDS[slot]||"situation";
         var suggestedType=NEPQ_TYPES.find(function(n){return n.id===suggestedId;})||NEPQ_TYPES[0];
         var resp=await fetch("https://api.anthropic.com/v1/messages",{
           method:"POST",
