@@ -3802,19 +3802,46 @@ function App() {
             var s=str.lastIndexOf("<section",i);return s>-1?s:i;
           }
           function getInsertPos(str,placement){
-            if(placement==="after-hero"||placement==="auto")return afterSection(str,1);
-            if(placement==="after-intro")return afterSection(str,2);
-            if(placement==="before-cta1"){var p=beforePattern(str,"gh-cta-modal");return p>-1?p:afterSection(str,3);}
+            // Smart fallback: if no sections, use heading positions
+            function fallback(n){
+              var sPos=afterSection(str,n);
+              if(sPos<str.length) return sPos;
+              // No sections - fall back to after nth heading
+              var h2s=[],p=0;
+              while(true){var i=str.indexOf("</h2>",p);if(i===-1)break;h2s.push(i+5);p=i+5;}
+              if(h2s.length>=n) return h2s[n-1];
+              if(h2s.length>0) return h2s[h2s.length-1];
+              var h1e=str.indexOf("</h1>");
+              return h1e>-1?h1e+5:Math.floor(str.length*0.2);
+            }
+            if(placement==="after-hero"||placement==="auto")return fallback(1);
+            if(placement==="after-intro")return fallback(2);
+            if(placement==="before-cta1"){
+              var p=beforePattern(str,"gh-cta-modal");
+              if(p>-1)return p;
+              var p2=beforePattern(str,"cta-modal");
+              return p2>-1?p2:fallback(3);
+            }
             if(placement==="before-cta2"){
               var f=str.indexOf("gh-cta-modal");
               var s2=f>-1?str.indexOf("gh-cta-modal",f+20):-1;
               if(s2>-1){var ps=str.lastIndexOf("<section",s2);return ps>-1?ps:s2;}
-              return afterSection(str,4);
+              return fallback(4);
             }
-            if(placement==="before-compare"){var pc=beforePattern(str,"gh-compare");return pc>-1?pc:afterSection(str,4);}
-            if(placement==="before-faq"){var pf=beforePattern(str,"gh-faq");return pf>-1?pf:afterSection(str,5);}
+            if(placement==="before-compare"){
+              var pc=beforePattern(str,"gh-compare");
+              if(pc>-1)return pc;
+              var pt=str.indexOf("<table");
+              return pt>-1?pt:fallback(3);
+            }
+            if(placement==="before-faq"){
+              var pf=beforePattern(str,"gh-faq");
+              if(pf>-1)return pf;
+              var pfq=str.indexOf("<details");
+              return pfq>-1?pfq:fallback(5);
+            }
             if(placement==="before-end"){var be=str.lastIndexOf("</body>");return be>-1?be:str.length;}
-            return afterSection(str,1);
+            return fallback(1);
           }
 
           // Group stages by their placement, then inject group by group
@@ -3850,15 +3877,20 @@ function App() {
           });
 
           // ── Fix URLs in merged output ──
-          // Replace old sunfire URL (without #/)
-          out = out.split("sunfirematrix.com/app/consumer/medicareadvocates/10447418/\"").join("sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/\"");
-          // Replace internal compare page links
-          out = out.split('href="/compare"').join('href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
-          out = out.split("href='/compare'").join("href='https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/'");
-          out = out.split('href="https://generationhealth.me/compare"').join('href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
-          out = out.split('href="/compare/"').join('href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
-          // Fix Compare Plans button text links
-          out = out.split('class="gh-hero-btn gh-hero-btn--compare"').join('class="gh-hero-btn gh-hero-btn--compare" href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
+          // Fix ALL compare/sunfire URLs comprehensively
+          var SF_URL = "https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/";
+          // Old sunfire without #/
+          out = out.split('sunfirematrix.com/app/consumer/medicareadvocates/10447418/"').join('sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
+          // All internal /compare variations
+          ["/compare","/compare/","https://generationhealth.me/compare","https://www.generationhealth.me/compare","http://generationhealth.me/compare"].forEach(function(u){
+            out = out.split('href="'+u+'"').join('href="'+SF_URL+'"');
+            out = out.split("href='"+u+"'").join("href='"+SF_URL+"'");
+          });
+          // Fix gh-hero-btn--compare that may have missing or wrong href
+          out = out.replace(/(<a[^>]*class="[^"]*gh-hero-btn--compare[^"]*"[^>]*href=")[^"]*"/g, '$1'+SF_URL+'"');
+          out = out.replace(/(<a[^>]*href=")[^"]*"([^>]*class="[^"]*gh-hero-btn--compare[^"]*")/g, '$1'+SF_URL+'"$2');
+          // Fix any "Compare Plans" buttons pointing nowhere or to /compare
+          out = out.replace(/href="[^"]*generationhealth\.me[/]compare[^"]*"/g, 'href="'+SF_URL+'"');
 
           // ── Add shimmer fix + comment header ──
           var slug = pbPage.slug||"new-page";
@@ -3866,12 +3898,8 @@ function App() {
           var shimmerFix = '<style id="gh-shimmer-fix">\n/* GH Shimmer Fix — self-contained CSS variables and animations */\n:root{--r-full:100px;--r-xl:20px;--r-2xl:24px;--r-lg:16px;--ease:cubic-bezier(.4,0,.2,1);}\n@keyframes ghSweep{0%{left:-100%;}100%{left:200%;}}\n@keyframes ghGlowBlue{0%,100%{box-shadow:0 0 0 0 rgba(75,156,211,0);}50%{box-shadow:0 0 12px 3px rgba(75,156,211,.4);}}\n@keyframes ghGlowGreen{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0);}50%{box-shadow:0 0 12px 3px rgba(22,163,74,.4);}}\n@keyframes ghGlowAmber{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);}50%{box-shadow:0 0 12px 3px rgba(245,158,11,.4);}}\n.gh-cta-card{position:relative;overflow:hidden;border-radius:20px;}\n.gh-cta-card::after{content:"";position:absolute;top:0;left:-150%;width:80%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.07),transparent);transform:skewX(-15deg);animation:ghSweep 5s ease-in-out infinite;pointer-events:none;}\n.gh-cta-card:nth-child(2)::after{animation-delay:2.5s;}\n.gh-ghost{display:block;text-align:center;padding:14px 24px;border-radius:100px;font-size:15px;text-decoration:none!important;margin-bottom:8px;border:1.5px solid rgba(255,255,255,.32);background:transparent;color:#fff!important;font-weight:600;transition:all 280ms ease;position:relative;overflow:hidden;}\n.gh-ghost::before{content:"";position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-15deg);animation:ghSweep 3.5s ease-in-out infinite;pointer-events:none;}\n.gh-ghost--compare{border-color:rgba(75,156,211,.55);background:rgba(75,156,211,.07);}\n.gh-ghost--compare::before{background:linear-gradient(120deg,transparent 20%,rgba(75,156,211,.75) 50%,transparent 80%);animation-duration:8s;animation-delay:0s;}\n.gh-ghost--call{border-color:rgba(22,163,74,.55);}\n.gh-ghost--call::before{background:linear-gradient(120deg,transparent 20%,rgba(22,163,74,.75) 50%,transparent 80%);animation-duration:8s;animation-delay:2s;}\n.gh-ghost--calendly{border-color:rgba(245,158,11,.55);}\n.gh-ghost--calendly::before{background:linear-gradient(120deg,transparent 20%,rgba(245,158,11,.75) 50%,transparent 80%);animation-duration:8s;animation-delay:4s;}\n.gh-ghost--compare{animation:ghGlowBlue 8s ease-in-out infinite;}\n.gh-ghost--call{animation:ghGlowGreen 8s ease-in-out 2s infinite;}\n.gh-ghost--calendly{animation:ghGlowAmber 8s ease-in-out 4s infinite;}\n</style>';
           var header = "<!-- GH Page Builder · "+slug+" · "+today2+" · Score:"+(pbScanResults?pbScanResults.score:0)+"/17 -->\n";
           // Inject shimmer CSS after existing </style> block or at top
-          var existingStyleEnd = out.indexOf("</style>");
-          if(existingStyleEnd>-1){
-            out = out.slice(0,existingStyleEnd+8)+shimmerFix+out.slice(existingStyleEnd+8);
-          } else {
-            out = shimmerFix + out;
-          }
+          // Inject shimmer at very top so it loads first
+          out = shimmerFix + "\n" + out;
           out = header + out;
 
           // ── Copy ──
@@ -4256,13 +4284,14 @@ function App() {
                     });
                   },
                   disabled:!pbPage||!pbPage.html,
-                  style:{width:"100%",padding:"9px",borderRadius:10,border:br,
-                    background:"transparent",
-                    color:(pbPage&&pbPage.html)?mc:"#6B7B8D",
-                    fontSize:12,fontWeight:600,
+                  style:{width:"100%",padding:"9px",borderRadius:10,
+                    border:(pbPage&&pbPage.html)?"1px solid rgba(96,165,250,0.4)":"1px solid rgba(255,255,255,0.06)",
+                    background:(pbPage&&pbPage.html)?"rgba(96,165,250,0.08)":"transparent",
+                    color:(pbPage&&pbPage.html)?"#60A5FA":"#6B7B8D",
+                    fontSize:12,fontWeight:700,
                     cursor:(pbPage&&pbPage.html)?"pointer":"not-allowed",
                     transition:"all 0.2s"}},
-                  "📄 Copy Raw HTML")
+                  (pbPage&&pbPage.html)?"📄 Copy Raw HTML":"No HTML saved yet")
               )
             )
           )
