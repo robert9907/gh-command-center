@@ -483,7 +483,22 @@ window.GH_PB_NEPQ=[
       // Flash green on injected element
       var target=document.body.querySelector(".ghpb-injected-latest")||document.body.lastElementChild;
       if(tmp.firstElementChild){tmp.firstElementChild.style.outline="2px solid #4ADE80";setTimeout(function(){if(tmp.firstElementChild)tmp.firstElementChild.style.outline="";},2000);}
-      window.parent.postMessage({type:"GH_CONTENT_CHANGED"},"*");
+      // Scroll injected element into view
+      var injectedEl=document.querySelector("[data-ghpb-latest]");
+      if(!injectedEl){
+        // Find the most recently added element
+        var allEls=document.body.querySelectorAll(".ghpb-applied,.ghpb-injected,.gh-answer,.gh-author,.gh-stat-row,.gh-faq-item,.gh-chart");
+        injectedEl=allEls[allEls.length-1]||null;
+      }
+      if(injectedEl){
+        injectedEl.setAttribute("data-ghpb-latest","1");
+        injectedEl.scrollIntoView({behavior:"smooth",block:"center"});
+        var oldOutline=injectedEl.style.outline;
+        injectedEl.style.outline="2px solid #4ADE80";
+        injectedEl.style.borderRadius="6px";
+        setTimeout(function(){injectedEl.style.outline=oldOutline||"";},2500);
+      }
+      window.parent.postMessage({type:"GH_CONTENT_CHANGED",fixId:ev4.data.fixId},"*");
     });
   }).toString();
 
@@ -610,6 +625,28 @@ window.GH_PB_NEPQ=[
       function onContentChanged(ev){
         if(!ev.data||ev.data.type!=="GH_CONTENT_CHANGED")return;
         setSaved(false);
+        // Ask iframe for updated HTML and re-run scan so checks flip green
+        var frames2=document.querySelectorAll("iframe[title='Page Sandbox']");
+        if(frames2.length){
+          var reScanHandler=function(ev5){
+            if(!ev5.data||ev5.data.type!=="GH_HTML_RESULT")return;
+            window.removeEventListener("message",reScanHandler);
+            var newHtml=ev5.data.html||"";
+            if(newHtml&&newHtml.length>100){
+              setPbHtml(newHtml);
+              var newScan={};
+              var ALL27check=(window.GH_PB_OPT10||[]).concat(window.GH_PB_V52||[]);
+              ALL27check.forEach(function(it){
+                if(!it.manual&&it.chk){try{newScan[it.id]=it.chk(newHtml);}catch(e){newScan[it.id]=false;}}
+                else{newScan[it.id]=false;}
+              });
+              setPbScan(newScan);
+            }
+          };
+          window.addEventListener("message",reScanHandler);
+          frames2[0].contentWindow.postMessage({type:"GH_GET_HTML"},"*");
+          setTimeout(function(){window.removeEventListener("message",reScanHandler);},5000);
+        }
       }
       window.addEventListener("message",onContentChanged);
       return function(){
@@ -660,6 +697,14 @@ window.GH_PB_NEPQ=[
         var d=await resp.json();
         var out=(d.content||[]).map(function(b){return b.text||"";}).join("").trim();
         setFixes(function(p){var n=Object.assign({},p);n[item.id]={html:out,status:"fixed"};return n;});
+        // Auto-apply to sandbox immediately
+        if(out){
+          var frames=document.querySelectorAll("iframe[title='Page Sandbox']");
+          if(frames.length){
+            frames[0].contentWindow.postMessage({type:"GH_INJECT_FIX",html:out,fixId:item.id},"*");
+            setSaved(false);
+          }
+        }
       }catch(e){
         setFixes(function(p){var n=Object.assign({},p);n[item.id]={html:"",status:"error"};return n;});
       }
