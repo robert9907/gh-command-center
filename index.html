@@ -275,6 +275,20 @@ window.GH_PB_NEPQ=[
       tgt.style.outline="2px solid #4ADE80";tgt.style.background="rgba(74,222,128,0.04)";
       setTimeout(function(){tgt.style.outline="";tgt.style.background="";},2000);
     });
+    // GH_APPEND: no section selected — append block at end of body
+    window.addEventListener("message",function(ev2){
+      if(!ev2.data||ev2.data.type!=="GH_APPEND")return;
+      var wrap3=document.createElement("div");
+      wrap3.className="ghpb-appended";
+      wrap3.style.cssText="border-left:3px solid #0D9488;padding:12px 18px;margin:20px 0;background:rgba(13,148,136,0.04);border-radius:0 8px 8px 0;";
+      if(ev2.data.label){var lbl=document.createElement("div");lbl.style.cssText="font-size:10px;font-weight:700;color:#0D9488;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;";lbl.textContent="NEPQ: "+ev2.data.label;wrap3.appendChild(lbl);}
+      if(ev2.data.q){var qp2=document.createElement("p");qp2.style.cssText="font-style:italic;font-weight:700;color:#0D9488;margin:0 0 10px;font-size:15px;";qp2.textContent="\u201c"+ev2.data.q+"\u201d";wrap3.appendChild(qp2);}
+      (ev2.data.rw||"").split("\n\n").forEach(function(para){if(!para.trim())return;var p2=document.createElement("p");p2.style.margin="0 0 8px";p2.textContent=para.trim();wrap3.appendChild(p2);});
+      document.body.appendChild(wrap3);
+      wrap3.scrollIntoView({behavior:"smooth",block:"center"});
+      wrap3.style.outline="2px solid #4ADE80";
+      setTimeout(function(){wrap3.style.outline="";},2000);
+    });
   }).toString();
 
   window.GH_PageBuilder=function GHPageBuilder(props){
@@ -887,6 +901,16 @@ window.GH_PB_NEPQ=[
                   ce("button",{onClick:function(){navigator.clipboard.writeText(ndA2.rw);},style:{padding:"2px 7px",borderRadius:4,border:"none",background:"rgba(74,222,128,0.12)",color:"#4ADE80",fontSize:8,fontWeight:700,cursor:"pointer"}},"Copy"),
                   activeSec&&typeof activeSec.idx==="number"?ce("button",{
                     onClick:function(){applyToPage(activeSec.idx,ndA2.q||"",ndA2.rw||"");setNepqData(function(p){var n=Object.assign({},p);if(n[aN2.id])n[aN2.id].applied=true;return n;});},
+                    style:{padding:"2px 8px",borderRadius:4,border:"none",background:"linear-gradient(135deg,#0D9488,#2DD4BF)",color:"#FFF",fontSize:8,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}
+                  },"Apply to Page"):
+                  pbHtml?ce("button",{
+                    onClick:function(){
+                      // No active section — append rewrite to end of page in sandbox
+                      var frames=document.querySelectorAll("iframe[title='Page Sandbox']");
+                      if(!frames.length)return;
+                      frames[0].contentWindow.postMessage({type:"GH_APPEND",q:ndA2.q||"",rw:ndA2.rw||"",label:aN2.label||""},"*");
+                      setSaved(false);
+                    },
                     style:{padding:"2px 8px",borderRadius:4,border:"none",background:"linear-gradient(135deg,#0D9488,#2DD4BF)",color:"#FFF",fontSize:8,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}
                   },"Apply to Page"):null
                 )
