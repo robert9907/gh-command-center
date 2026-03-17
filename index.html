@@ -3607,38 +3607,104 @@ function App() {
 
         function copyOutput(){
           if(!pbPage) return;
+          var nepqBlocks = Object.values(pbNepqContent).filter(Boolean);
+          if(nepqBlocks.length===0){
+            alert("Generate NEPQ content first — use the ✨ buttons in the right panel.");
+            return;
+          }
+          var html = pbPage.html||"";
+          if(!html){
+            alert("No saved HTML for this page yet.\nFetch the page in the Optimize tab first.");
+            return;
+          }
+
+          // ── NEPQ injection map ──
+          // Stage groups by where they land in the page
+          var STAGE_ORDER = ["connecting","situation","problem","two-truths","solution",
+            "consequence","qualifying","clarifying","expanded","decision","transition",
+            "committing","resolving"];
+
+          // Build three buckets: top (after hero), mid (before CTA 1), bottom (before FAQ)
+          var topStages   = ["connecting","situation","problem","two-truths"];
+          var midStages   = ["solution","consequence","qualifying","clarifying","expanded"];
+          var bottomStages= ["decision","transition","committing","resolving"];
+
+          function wrapSection(blocks, label){
+            if(!blocks.length) return "";
+            return "\n<!-- ═══ NEPQ: "+label+" ═══ -->\n"+
+              "<section class=\"gh-section\" style=\"padding:40px 0\">"+
+              "<div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px\">\n"+
+              blocks.join("\n")+
+              "\n</div></section>\n";
+          }
+
+          var topBlocks    = topStages.map(function(id){return pbNepqContent[id];}).filter(Boolean);
+          var midBlocks    = midStages.map(function(id){return pbNepqContent[id];}).filter(Boolean);
+          var bottomBlocks = bottomStages.map(function(id){return pbNepqContent[id];}).filter(Boolean);
+
+          var topHTML    = wrapSection(topBlocks, "Connecting + Problem Awareness");
+          var midHTML    = wrapSection(midBlocks, "Consequence + Solution Awareness");
+          var bottomHTML = wrapSection(bottomBlocks, "Decision + Transition + Committing");
+
+          // ── Smart injection points ──
+          var out = html;
+
+          // 1. Top block → after .gh-hero closing tag or after first </section>
+          var heroClose = out.indexOf("</section>");
+          if(topHTML && heroClose>-1){
+            out = out.slice(0,heroClose+10)+topHTML+out.slice(heroClose+10);
+          } else if(topHTML){
+            // fallback: after first </h1>
+            var h1close = out.indexOf("</h1>");
+            var ins = h1close>-1?h1close+5:out.length;
+            out = out.slice(0,ins)+topHTML+out.slice(ins);
+          }
+
+          // 2. Mid block → before first gh-cta-modal OR before second </section>
+          if(midHTML){
+            var ctaIdx = out.indexOf("gh-cta-modal");
+            if(ctaIdx>-1){
+              var secBefore = out.lastIndexOf("<section",ctaIdx);
+              if(secBefore>-1){
+                out = out.slice(0,secBefore)+midHTML+out.slice(secBefore);
+              }
+            } else {
+              // fallback: after second </section>
+              var firstClose = out.indexOf("</section>");
+              var secondClose = firstClose>-1?out.indexOf("</section>",firstClose+10):-1;
+              var ins2 = secondClose>-1?secondClose+10:out.length;
+              out = out.slice(0,ins2)+midHTML+out.slice(ins2);
+            }
+          }
+
+          // 3. Bottom block → before .gh-faq or before </body>
+          if(bottomHTML){
+            var faqIdx = out.indexOf("gh-faq");
+            if(faqIdx>-1){
+              var faqSec = out.lastIndexOf("<section",faqIdx);
+              var ins3 = faqSec>-1?faqSec:faqIdx;
+              out = out.slice(0,ins3)+bottomHTML+out.slice(ins3);
+            } else if(out.indexOf("</body>")>-1){
+              out = out.replace("</body>",bottomHTML+"</body>");
+            } else {
+              out = out+bottomHTML;
+            }
+          }
+
+          // ── Add comment header ──
           var slug = pbPage.slug||"new-page";
-          var titleRaw = (pbPage.name||slug).replace(/\s*\|.*$/,"");
           var today2 = new Date().toISOString().split("T")[0];
-          var nepqBlocks = Object.values(pbNepqContent).filter(Boolean).join("\n");
-          var failedChecks = pbScanResults?pbScanResults.checks.filter(function(c){return !c.pass;}):[];
-          var out = "<!-- GenerationHealth Page Builder Output\n";
-          out += "Page: "+titleRaw+"\n";
-          out += "URL: generationhealth.me/"+slug+"\n";
-          out += "Date: "+today2+"\n";
-          out += "Score: "+(pbScanResults?pbScanResults.score:0)+"/17\n";
-          out += "==================================================== -->\n\n";
-          if(nepqBlocks){
-            out += "<!-- ═══ NEPQ CONTENT BLOCKS — paste after existing hero section ═══ -->\n";
-            out += "<section class=\"gh-section\"><div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:48px 24px\">\n";
-            out += nepqBlocks+"\n";
-            out += "</div></section>\n\n";
-          }
-          if(failedChecks.length>0){
-            out += "<!-- ═══ FIX NOTES — items still needed ═══\n";
-            failedChecks.forEach(function(c){out += "  ❌ "+c.label+" ("+c.cat+") — use ⚡ Fix button in Page Builder\n";});
-            out += "==================================================== -->\n";
-          }
-          if(!nepqBlocks&&failedChecks.length===0){
-            out += "<!-- No NEPQ content generated yet.\nUse the NEPQ Engine on the right to generate content, then copy again. -->";
-          }
+          var header = "<!-- GH Page Builder · "+slug+" · "+today2+" · Score:"+(pbScanResults?pbScanResults.score:0)+"/17 -->\n";
+          out = header + out;
+
+          // ── Copy ──
           navigator.clipboard.writeText(out).then(function(){
-            alert("✅ Copied!\n\nPaste this into your existing WordPress Custom HTML block.\nNEPQ blocks go after your hero section.");
+            alert("✅ Merged & Copied!\n\n"+nepqBlocks.length+" NEPQ sections woven into "+slug+".\n\nOpen WordPress → Custom HTML block → Select All → Paste.");
           }).catch(function(){
             var ta=document.createElement("textarea"); ta.value=out;
             document.body.appendChild(ta); ta.select(); document.execCommand("copy");
             document.body.removeChild(ta);
-            alert("✅ Copied! Paste into your WordPress Custom HTML block.");
+            alert("✅ Merged & Copied! Paste into WordPress Custom HTML block.");
           });
         }
 
@@ -3901,13 +3967,17 @@ function App() {
               ),
               React.createElement("div",{style:{padding:"12px 12px",borderTop:br}},
                 React.createElement("div",{style:{fontSize:10,color:mc,marginBottom:8,textAlign:"center"}},
-                  Object.keys(pbNepqContent).length+" of 13 sections generated"),
-                React.createElement("button",{onClick:copyOutput,disabled:!pbPage,
+                  Object.keys(pbNepqContent).length+" of 13 NEPQ sections ready"),
+                React.createElement("button",{onClick:copyOutput,
+                  disabled:!pbPage||Object.keys(pbNepqContent).length===0,
                   style:{width:"100%",padding:"11px",borderRadius:10,border:"none",
-                    background:pbPage?"linear-gradient(135deg,#0D9488,#14B8A6)":"rgba(255,255,255,0.05)",
-                    color:pbPage?"#fff":"#6B7B8D",fontSize:13,fontWeight:700,cursor:pbPage?"pointer":"not-allowed",
-                    boxShadow:pbPage?"0 4px 16px rgba(13,148,136,0.3)":"none",transition:"all 0.2s"}},
-                  "📋 Copy for WordPress")
+                    background:(pbPage&&Object.keys(pbNepqContent).length>0)?"linear-gradient(135deg,#0D9488,#14B8A6)":"rgba(255,255,255,0.05)",
+                    color:(pbPage&&Object.keys(pbNepqContent).length>0)?"#fff":"#6B7B8D",
+                    fontSize:13,fontWeight:700,
+                    cursor:(pbPage&&Object.keys(pbNepqContent).length>0)?"pointer":"not-allowed",
+                    boxShadow:(pbPage&&Object.keys(pbNepqContent).length>0)?"0 4px 16px rgba(13,148,136,0.3)":"none",
+                    transition:"all 0.2s"}},
+                  Object.keys(pbNepqContent).length>0?"🧬 Merge & Copy for WordPress":"Generate NEPQ content first")
               )
             )
           )
