@@ -2441,11 +2441,21 @@ function App() {
         }
 
         // ── Projection model ──
+        // ── Smart baseline: GSC live data → manual log → zero ──
+        var gscRows2 = (gscData&&gscData.queries&&gscData.queries.rows)||[];
+        var gscTotalImpr = gscRows2.reduce(function(a,r){return a+(r.impressions||0);},0);
+        var gscTotalClicks = gscRows2.reduce(function(a,r){return a+(r.clicks||0);},0);
+        var gscDateRange2 = parseInt((gscData&&gscData.dateRange)||"28")||28;
+        // Convert GSC totals to weekly equivalent
+        var gscWeeklyImpr = gscTotalImpr>0?Math.round(gscTotalImpr/(gscDateRange2/7)):0;
+        var gscWeeklyClicks = gscTotalClicks>0?Math.round(gscTotalClicks/(gscDateRange2/7)):0;
         var latestPerf = perfData.length>0?perfData[perfData.length-1]:{impressions:0,clicks:0,calls:0};
-        var baseImpr = latestPerf.impressions||0;
-        var baseClicks = latestPerf.clicks||0;
-        var baseCalls = latestPerf.calls||0;
+        // Priority: GSC live > manual log > zero
+        var baseImpr = gscWeeklyImpr>0?gscWeeklyImpr:(latestPerf.impressions||0);
+        var baseClicks = gscWeeklyClicks>0?gscWeeklyClicks:(latestPerf.clicks||0);
+        var baseCalls = latestPerf.calls||0; // calls always manual — GSC/GA4 don't track calls
         var baseCTR = baseImpr>0?(baseClicks/baseImpr*100):0;
+        var usingLiveGSC = gscWeeklyImpr>0;
         // Execution boost multipliers
         var pageBoost = 1+(projLevers.pagesPublished||0)*0.04;
         var builderBoost = 1+(projLevers.builderOptimized||0)*0.025;
@@ -2619,7 +2629,7 @@ function App() {
             React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10}},
               React.createElement("div",{style:{width:10,height:10,borderRadius:"50%",background:healthColor,boxShadow:"0 0 8px "+healthColor}}),
               React.createElement("span",{style:{fontSize:14,fontWeight:700,color:healthColor}},healthLabel),
-              React.createElement("span",{style:{fontSize:12,color:mc,marginLeft:4}},weeklyGrowth>0?"+":"")+React.createElement("span",{style:{fontSize:12,color:mc}},weeklyGrowth.toFixed(1)+"% vs last week")
+              React.createElement("span",{style:{fontSize:12,color:mc,marginLeft:4}},(weeklyGrowth>0?"+":"")+weeklyGrowth.toFixed(1)+"% vs last week")
             ),
             React.createElement("div",{style:{fontSize:12,color:mc}},"Performance Hub · "+new Date().toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric",year:"numeric"})),
             /* API Key */
@@ -2856,8 +2866,8 @@ function App() {
 
           /* ── PROJECTIONS ── */
           React.createElement("div",{style:Object.assign({},card,{marginBottom:20})},
-            React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc,fontFamily:"Georgia,serif",marginBottom:4}},"📈 30 / 60 / 90 Day Projections"),
-            React.createElement("div",{style:{fontSize:12,color:mc,marginBottom:20}},"Adjust execution levers to model different scenarios"),
+            React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc,fontFamily:"Georgia,serif",marginBottom:4}},React.createElement(React.Fragment,null,"📈 30 / 60 / 90 Day Projections ",React.createElement("span",{style:{fontSize:11,padding:"2px 8px",borderRadius:6,background:usingLiveGSC?"rgba(74,222,128,0.12)":"rgba(255,199,44,0.12)",color:usingLiveGSC?"#4ADE80":"#FFC72C",fontWeight:700,marginLeft:8}},usingLiveGSC?"● Live GSC":"● Manual Log"))),
+            React.createElement("div",{style:{fontSize:12,color:mc,marginBottom:20}},usingLiveGSC?"Live GSC data connected — projections update automatically as you fetch":"Using manual log data — connect GSC in GA4 Live section for auto-updating projections"),
 
             /* Levers */
             React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,padding:"16px 20px",background:isDark?"rgba(255,255,255,0.02)":"rgba(0,0,0,0.02)",borderRadius:12,border:br,marginBottom:24}},
