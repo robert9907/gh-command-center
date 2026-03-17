@@ -135,9 +135,203 @@ body.light ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
 <div id="root"></div>
 <script>
 // ── Sandbox globals (outside Babel to avoid parse issues) ──
-window.GH_SANDBOX_CSS = '<style>body{max-width:860px;margin:0 auto;padding:20px;font-family:\'DM Sans\',sans-serif;line-height:1.7;color:#2D3748;background:#F8FAFC;}h1,h2,h3{font-family:Georgia,serif;color:#1A2332;}img{max-width:100%;height:auto;}.gh-sb-wrap{position:relative;cursor:pointer;transition:outline 0.15s;border-radius:4px;}.gh-sb-wrap:hover{outline:2px solid rgba(13,148,136,0.45);outline-offset:4px;background:rgba(13,148,136,0.02);}.gh-sb-wrap.gh-sb-active{outline:2px solid #0D9488;outline-offset:4px;background:rgba(13,148,136,0.04);}.gh-sb-label{position:absolute;top:-1px;right:0;background:#0D9488;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;pointer-events:none;z-index:100;opacity:0;transition:opacity 0.15s;}.gh-sb-wrap:hover .gh-sb-label,.gh-sb-wrap.gh-sb-active .gh-sb-label{opacity:1;}.gh-nepq-injected{border-left:4px solid #0D9488;background:linear-gradient(135deg,rgba(13,148,136,0.06),rgba(96,165,250,0.04));border-radius:8px;padding:14px 18px;margin:14px 0;}.gh-nepq-injected .gh-nepq-q{font-style:italic;font-weight:700;color:#0D9488;font-size:15px;margin-bottom:10px;border-left:3px solid #0D9488;padding-left:10px;}.gh-nepq-injected .gh-nepq-a{font-size:14px;line-height:1.75;color:#2D3748;}</style>';
+// Sandbox CSS is now generated dynamically inside buildSandbox (theme-aware) html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="googlebot" content="noindex, nofollow">
+<title>GenerationHealth Command Center</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg-body: linear-gradient(175deg, #0F1A2E 0%, #162033 40%, #1A2840 100%);
+  --bg-card: rgba(255,255,255,0.03);
+  --bg-card-solid: #1A2840;
+  --bg-input: rgba(255,255,255,0.04);
+  --bg-hover: rgba(255,255,255,0.06);
+  --bg-overlay: rgba(0,0,0,0.15);
+  --text-primary: #FFFFFF;
+  --text-body: #E8ECF0;
+  --text-soft: #C4CDD5;
+  --text-muted: #6B7B8D;
+  --text-faint: #4B5C6E;
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.12);
+  --gold: #FFC72C;
+  --gold-bg: rgba(255,199,44,0.04);
+  --gold-border: rgba(255,199,44,0.12);
+  --blue-bg: rgba(75,156,211,0.15);
+  --blue-border: rgba(75,156,211,0.2);
+  --green: #16A34A;
+  --green-bg: rgba(22,163,74,0.12);
+  --red-bg: rgba(239,68,68,0.12);
+}
+body.light {
+  --bg-body: linear-gradient(175deg, #E8EDF3 0%, #EDF1F5 40%, #F2F5F8 100%);
+  --bg-card: rgba(255,255,255,0.7);
+  --bg-card-solid: #FFFFFF;
+  --bg-input: rgba(0,0,0,0.03);
+  --bg-hover: rgba(0,0,0,0.04);
+  --bg-overlay: rgba(0,0,0,0.05);
+  --text-primary: #1A2332;
+  --text-body: #2D3748;
+  --text-soft: #4A5568;
+  --text-muted: #718096;
+  --text-faint: #A0AEC0;
+  --border: rgba(0,0,0,0.1);
+  --border-strong: rgba(0,0,0,0.15);
+  --gold: #D4A017;
+  --gold-bg: rgba(212,160,23,0.06);
+  --gold-border: rgba(212,160,23,0.2);
+  --blue-bg: rgba(75,156,211,0.1);
+  --blue-border: rgba(75,156,211,0.25);
+  --green: #16A34A;
+  --green-bg: rgba(22,163,74,0.08);
+  --red-bg: rgba(239,68,68,0.08);
+}
+body { font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg-body); color: var(--text-body); min-height: 100vh; transition: background 0.3s, color 0.3s; }
+body.light input, body.light textarea, body.light select { color: var(--text-primary) !important; }
+body.light input::placeholder, body.light textarea::placeholder { color: var(--text-muted) !important; }
+body.light h1, body.light h2, body.light h3, body.light h4 { color: var(--text-primary) !important; }
+body.light th { color: var(--text-muted) !important; }
+body.light td { color: var(--text-body) !important; }
+body.light pre { color: var(--text-body) !important; }
+body.light button { transition: background 0.3s, color 0.3s, border 0.3s; }
+
+/* ═══ COMPREHENSIVE LIGHT MODE TEXT OVERRIDES ═══ */
+/* Override dark-mode text colors via style attribute selectors + !important */
+/* These catch ALL inline styles set by React, regardless of which tab/component */
+
+/* Primary white text (#FFF) → dark */
+body.light [style*="color: rgb(255, 255, 255)"] { color: #1A2332 !important; }
+
+/* Body text (#E8ECF0 = rgb(232,236,240)) → dark gray */
+body.light [style*="color: rgb(232, 236, 240)"] { color: #2D3748 !important; }
+
+/* Soft text (#C4CDD5 = rgb(196,205,213)) → medium dark */
+body.light [style*="color: rgb(196, 205, 213)"] { color: #4A5568 !important; }
+
+/* Muted text (#6B7B8D = rgb(107,123,141)) → medium */
+body.light [style*="color: rgb(107, 123, 141)"] { color: #718096 !important; }
+
+/* Faint text (#4B5C6E = rgb(75,92,110)) → light gray */
+body.light [style*="color: rgb(75, 92, 110)"] { color: #A0AEC0 !important; }
+
+/* Gold muted (#A08C5A = rgb(160,140,90)) → darker gold */
+body.light [style*="color: rgb(160, 140, 90)"] { color: #8B7335 !important; }
+
+/* Override dark-mode backgrounds for cards/panels */
+body.light [style*="background: rgba(255, 255, 255, 0.0"] { background: rgba(255,255,255,0.7) !important; box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important; }
+body.light [style*="background: rgba(255, 255, 255, 0.1"] { background: rgba(0,0,0,0.04) !important; }
+
+/* Override dark borders */
+body.light [style*="border: 1px solid rgba(255, 255, 255"] { border-color: rgba(0,0,0,0.1) !important; }
+body.light [style*="border-bottom: 1px solid rgba(255, 255, 255"] { border-bottom-color: rgba(0,0,0,0.1) !important; }
+body.light [style*="border-top: 1px solid rgba(255, 255, 255"] { border-top-color: rgba(0,0,0,0.1) !important; }
+
+/* Override dark solid backgrounds */
+body.light [style*="background: rgb(26, 40, 64)"] { background: #FFFFFF !important; }
+body.light [style*="background: rgb(30, 45, 68)"] { background: #FFFFFF !important; }
+
+/* Override dark overlay backgrounds */
+body.light [style*="background: rgba(0, 0, 0, 0.15)"] { background: rgba(0,0,0,0.03) !important; }
+body.light [style*="background: rgba(0, 0, 0, 0.2)"] { background: rgba(0,0,0,0.04) !important; }
+body.light [style*="background: rgba(0, 0, 0, 0.3)"] { background: rgba(0,0,0,0.05) !important; }
+
+/* Override dark gold backgrounds to lighter version */
+body.light [style*="background: rgba(255, 199, 44, 0.0"] { background: rgba(212,160,23,0.06) !important; }
+body.light [style*="background: rgba(255, 199, 44, 0.1"] { background: rgba(212,160,23,0.08) !important; }
+
+/* Override gold borders in light mode */
+body.light [style*="border: 1px solid rgba(255, 199, 44"] { border-color: rgba(212,160,23,0.2) !important; }
+
+/* Override blue backgrounds */
+body.light [style*="background: rgba(75, 156, 211"] { background: rgba(75,156,211,0.08) !important; }
+
+/* SVG strokes in light mode */
+body.light svg [stroke="rgb(107, 123, 141)"], body.light svg [stroke="#6B7B8D"] { stroke: #718096; }
+
+/* Override scrollbar for light mode */
+body.light ::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); }
+body.light ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+body.light ::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+@keyframes chkDraw { from { stroke-dashoffset: 20; } to { stroke-dashoffset: 0; } }
+@keyframes donePulse { 0% { background: rgba(22,163,74,0.18); } 100% { background: transparent; } }
+@keyframes savePulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+@keyframes dotPulse { 0%,100% { opacity:0.3; transform:scale(0.8); } 50% { opacity:1; transform:scale(1.2); } }
+@keyframes spin { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ── Sandbox globals (outside Babel to avoid parse issues) ──
+window.GH_SANDBOX_CSS = '<style>*{box-sizing:border-box;}body{font-family:\'DM Sans\',sans-serif;background:#0F1923;color:#E8ECF0;line-height:1.7;padding:20px;margin:0;}h1,h2,h3,h4{font-family:\'Fraunces\',Georgia,serif;color:#FFF;margin:0 0 12px;}p{color:#C4CDD5;margin:0 0 12px;}a{color:#4B9CD3;}img{max-width:100%;height:auto;}/* Override Elementor white-text sections - they should stay white */.elementor-widget-container{color:#C4CDD5;}.gh-sb-wrap{position:relative;cursor:pointer;border-radius:4px;transition:outline 0.12s;}.gh-sb-wrap:hover{outline:2px solid rgba(255,199,44,0.5);outline-offset:4px;}.gh-sb-wrap.gh-sb-active{outline:2px solid #FFC72C;outline-offset:4px;background:rgba(255,199,44,0.04);}.gh-sb-label{position:absolute;top:-1px;right:0;background:#FFC72C;color:#1A2332;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;pointer-events:none;z-index:100;opacity:0;transition:opacity 0.15s;}.gh-sb-wrap:hover .gh-sb-label,.gh-sb-wrap.gh-sb-active .gh-sb-label{opacity:1;}.gh-nepq-injected{border-left:4px solid #FFC72C;background:rgba(255,199,44,0.06);border-radius:8px;padding:14px 18px;margin:14px 0;}.gh-nepq-injected .gh-nepq-q{font-style:italic;font-weight:700;color:#FFC72C;font-size:14px;margin-bottom:8px;border-left:3px solid #FFC72C;padding-left:10px;}.gh-nepq-injected .gh-nepq-a{font-size:13px;line-height:1.75;color:#E8ECF0;}</style>'';
 window.GH_SANDBOX_JS_TMPL = function(mapJson) {
-  return '<scr'+'ipt>(function(){var smap='+mapJson+';var allH=Array.from(document.querySelectorAll("h2,h3"));allH=allH.filter(function(h){return h.textContent.trim().length>4;});if(allH.length===0)allH=Array.from(document.querySelectorAll("h2,h3,h4")).filter(function(h){return h.textContent.trim().length>4;});allH.forEach(function(h2,i){var id=smap[h2.textContent.trim()]||("sec-"+i);var wrap=document.createElement("div");wrap.className="gh-sb-wrap";wrap.setAttribute("data-secid",id);var lbl=document.createElement("span");lbl.className="gh-sb-label";lbl.textContent="Click to edit NEPQ";wrap.appendChild(lbl);h2.parentNode.insertBefore(wrap,h2);wrap.appendChild(h2);var next=wrap.nextElementSibling;var limit=0;while(next&&!next.matches("h2,h3,.gh-sb-wrap")&&limit<20){var tmp=next.nextElementSibling;wrap.appendChild(next);next=tmp;limit++;}wrap.addEventListener("click",function(e){e.stopPropagation();document.querySelectorAll(".gh-sb-wrap").forEach(function(w){w.classList.remove("gh-sb-active");});wrap.classList.add("gh-sb-active");window.parent.postMessage({type:"GH_SEC_CLICK",secId:id,heading:h2.textContent.trim()},"*");});});window.addEventListener("message",function(e){if(!e.data||e.data.type!=="GH_INJECT_NEPQ")return;var wrap=document.querySelector("[data-secid=\'"+e.data.secId+"\']");if(!wrap)return;var old=wrap.querySelector(".gh-nepq-injected");if(old)old.remove();var div=document.createElement("div");div.className="gh-nepq-injected";div.innerHTML=\'<div class="gh-nepq-q">\'+e.data.question+\'</div><div class="gh-nepq-a">\'+e.data.rewrite.replace(/\\n/g,"<br>")+\'</div>\';var hd=wrap.querySelector("h2,h3");if(hd&&hd.nextSibling)hd.parentNode.insertBefore(div,hd.nextSibling);else wrap.appendChild(div);wrap.classList.add("gh-sb-active");wrap.scrollIntoView({behavior:"smooth",block:"center"});});})();</'+'script>';
+  return '<scr'+'ipt>(function(){' +
+    'var smap='+mapJson+';' +
+    // Find ALL h2, h3, and elementor heading titles
+    'var allH=Array.from(document.querySelectorAll("h2,h3,[class*=\'elementor-heading-title\']"));' +
+    'allH=allH.filter(function(h){return h.textContent.trim().length>4;});' +
+    // Deduplicate
+    'var seen={};allH=allH.filter(function(h){var t=h.textContent.trim().slice(0,50);if(seen[t])return false;seen[t]=true;return true;});' +
+    'allH.forEach(function(h2,i){' +
+      'var id=smap[h2.textContent.trim()]||("sec-"+i);' +
+      'var wrap=document.createElement("div");' +
+      'wrap.className="gh-sb-wrap";' +
+      'wrap.setAttribute("data-secid",id);' +
+      'var lbl=document.createElement("span");' +
+      'lbl.className="gh-sb-label";' +
+      'lbl.textContent="✏️ Edit NEPQ";' +
+      'wrap.appendChild(lbl);' +
+      // Find the right parent to wrap (walk up from the heading)
+      'var insertTarget=h2;' +
+      'var p=h2.parentElement;' +
+      'var depth=0;' +
+      'while(p&&p.textContent.trim()===h2.textContent.trim()&&depth<6){insertTarget=p;p=p.parentElement;depth++;}' +
+      'if(insertTarget.parentNode){' +
+        'insertTarget.parentNode.insertBefore(wrap,insertTarget);' +
+        'wrap.appendChild(insertTarget);' +
+        // Grab following siblings until next heading
+        'var next=wrap.nextElementSibling;' +
+        'var limit=0;' +
+        'while(next&&!next.matches("h2,h3,.gh-sb-wrap,[class*=\'elementor-section\']")&&limit<15){' +
+          'var tmp=next.nextElementSibling;' +
+          'wrap.appendChild(next);' +
+          'next=tmp;limit++;' +
+        '}' +
+      '}' +
+      'wrap.addEventListener("click",function(e){' +
+        'e.stopPropagation();' +
+        'document.querySelectorAll(".gh-sb-wrap").forEach(function(w){w.classList.remove("gh-sb-active");});' +
+        'wrap.classList.add("gh-sb-active");' +
+        'window.parent.postMessage({type:"GH_SEC_CLICK",secId:id,heading:h2.textContent.trim()},"*");' +
+      '});' +
+    '});' +
+    'window.addEventListener("message",function(e){' +
+      'if(!e.data||e.data.type!=="GH_INJECT_NEPQ")return;' +
+      'var wrap=document.querySelector("[data-secid=\'"+e.data.secId+"\']");' +
+      'if(!wrap)return;' +
+      'var old=wrap.querySelector(".gh-nepq-injected");' +
+      'if(old)old.remove();' +
+      'var div=document.createElement("div");' +
+      'div.className="gh-nepq-injected";' +
+      'div.innerHTML=\'<div class="gh-nepq-q">\'+e.data.question+\'</div><div class="gh-nepq-a">\'+e.data.rewrite.replace(/\\n/g,"<br>")+\'</div>\';' +
+      'var hd=wrap.querySelector("h2,h3,[class*=\'elementor-heading-title\']");' +
+      'if(hd&&hd.nextSibling)hd.parentNode.insertBefore(div,hd.nextSibling);' +
+      'else wrap.appendChild(div);' +
+      'wrap.classList.add("gh-sb-active");' +
+      'wrap.scrollIntoView({behavior:"smooth",block:"center"});' +
+      'var lbl=wrap.querySelector(".gh-sb-label");' +
+      'if(lbl){lbl.textContent="✅ Rewritten";lbl.style.background="#16A34A";}' +
+    '});' +
+  '})();</'+'script>';
 };
 </script>
 <script type="text/babel">
@@ -1443,7 +1637,36 @@ const V52_ITEMS = [
           "</div>";
       }
 
-      var css = window.GH_SANDBOX_CSS || "";
+      // Generate theme-aware CSS
+      var bg = isDark ? "#0F1923" : "#F4F6F8";
+      var text = isDark ? "#E8ECF0" : "#2D3748";
+      var headingColor = isDark ? "#FFFFFF" : "#1A2332";
+      var subText = isDark ? "#C4CDD5" : "#4A5568";
+      var badgeBg = isDark ? "#FFC72C" : "#0D9488";
+      var badgeColor = isDark ? "#1A2332" : "#FFFFFF";
+      var wrapHover = isDark ? "rgba(255,199,44,0.5)" : "rgba(13,148,136,0.5)";
+      var wrapActive = isDark ? "#FFC72C" : "#0D9488";
+      var wrapActiveBg = isDark ? "rgba(255,199,44,0.04)" : "rgba(13,148,136,0.04)";
+      var nepqBorder = isDark ? "#FFC72C" : "#0D9488";
+      var nepqBg = isDark ? "rgba(255,199,44,0.06)" : "rgba(13,148,136,0.06)";
+      var nepqQ = isDark ? "#FFC72C" : "#0D9488";
+      var nepqA = isDark ? "#E8ECF0" : "#2D3748";
+      var css = "<style>" +
+        "*{box-sizing:border-box;}" +
+        "body{font-family:'DM Sans',sans-serif;background:"+bg+";color:"+text+";line-height:1.7;padding:20px 24px;margin:0;}" +
+        "h1,h2,h3,h4{font-family:'Fraunces',Georgia,serif;color:"+headingColor+";margin:0 0 12px;}" +
+        "p{color:"+subText+";margin:0 0 12px;}" +
+        "a{color:#4B9CD3;}" +
+        "img{max-width:100%;height:auto;}" +
+        ".gh-sb-wrap{position:relative;cursor:pointer;border-radius:4px;transition:outline 0.12s;}" +
+        ".gh-sb-wrap:hover{outline:2px solid "+wrapHover+";outline-offset:4px;}" +
+        ".gh-sb-wrap.gh-sb-active{outline:2px solid "+wrapActive+";outline-offset:4px;background:"+wrapActiveBg+";}" +
+        ".gh-sb-label{position:absolute;top:-1px;right:0;background:"+badgeBg+";color:"+badgeColor+";font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;pointer-events:none;z-index:100;opacity:0;transition:opacity 0.15s;font-family:sans-serif;}" +
+        ".gh-sb-wrap:hover .gh-sb-label,.gh-sb-wrap.gh-sb-active .gh-sb-label{opacity:1;}" +
+        ".gh-nepq-injected{border-left:4px solid "+nepqBorder+";background:"+nepqBg+";border-radius:8px;padding:14px 18px;margin:14px 0;}" +
+        ".gh-nepq-injected .gh-nepq-q{font-style:italic;font-weight:700;color:"+nepqQ+";font-size:14px;margin-bottom:8px;border-left:3px solid "+nepqBorder+";padding-left:10px;}" +
+        ".gh-nepq-injected .gh-nepq-a{font-size:13px;line-height:1.75;color:"+nepqA+";}" +
+        "</style>";
       var js = window.GH_SANDBOX_JS_TMPL ? window.GH_SANDBOX_JS_TMPL(mapJson) : "";
       return "<!DOCTYPE html><html lang=\"en\"><head>" +
         "<meta charset=\"UTF-8\">" +
@@ -1476,56 +1699,102 @@ const V52_ITEMS = [
       // container up to the next heading of same/higher level.
       var doc = new DOMParser().parseFromString(html, "text/html");
 
-      // Try h2, h3, Elementor heading widgets, then any heading
-      // Elementor stores heading text in .elementor-heading-title spans
-      var h2s = Array.from(doc.querySelectorAll("h2"));
-      if (h2s.length === 0) h2s = Array.from(doc.querySelectorAll("h3"));
-      if (h2s.length === 0) h2s = Array.from(doc.querySelectorAll("[class*='elementor-heading-title']"));
-      if (h2s.length === 0) h2s = Array.from(doc.querySelectorAll(".gh-section-title, .section-title, [class*='section-head']"));
-      if (h2s.length === 0) h2s = Array.from(doc.querySelectorAll("h2,h3,h4")).slice(0,25);
-
-      // Filter out schema/nav headings (empty text or very short)
-      h2s = h2s.filter(function(h) { return h.textContent.trim().length > 4; });
+      // Extract headings: DOM first, then regex fallback for Elementor
+      // Elementor renders: <h2 class="elementor-heading-title elementor-size-default">TEXT</h2>
       
-      // Deduplicate by text content (Elementor sometimes nests heading in heading)
+      // Method 1: DOM selectors — try broadest first
+      var h2s = Array.from(doc.querySelectorAll("h2, h3, [class*='elementor-heading-title'], .gh-section-title"));
+      
+      // Filter: must have visible text, not in schema/script
+      h2s = h2s.filter(function(h) {
+        var txt = h.textContent.trim();
+        if (txt.length < 5) return false;
+        // Skip if inside a script or style
+        var p = h.parentElement;
+        while(p) { if(p.tagName==='SCRIPT'||p.tagName==='STYLE') return false; p=p.parentElement; }
+        return true;
+      });
+
+      // Method 2: Regex fallback — catches Elementor headings even when DOM fails
+      if (h2s.length === 0) {
+        var headingRegex = /<h[23][^>]*class="[^"]*elementor-heading-title[^"]*"[^>]*>([\s\S]*?)<\/h[23]>/gi;
+        var altRegex = /<h[23][^>]*>([\s\S]{5,200}?)<\/h[23]>/gi;
+        var reHeadings = [];
+        var m;
+        // Try Elementor-specific first
+        while ((m = headingRegex.exec(html)) !== null) {
+          var stripped = m[1].replace(/<[^>]+>/g,'').trim();
+          if (stripped.length > 4) reHeadings.push(stripped);
+        }
+        // If still nothing, try any h2/h3
+        if (reHeadings.length === 0) {
+          while ((m = altRegex.exec(html)) !== null) {
+            var stripped = m[1].replace(/<[^>]+>/g,'').trim();
+            if (stripped.length > 4 && stripped.length < 200) reHeadings.push(stripped);
+          }
+        }
+        // Convert regex results to fake DOM-like objects for consistency
+        if (reHeadings.length > 0) {
+          h2s = reHeadings.map(function(txt) {
+            return {textContent: txt, parentElement: null, nextElementSibling: null, _fake: true};
+          });
+        }
+      }
+
+      // Deduplicate by text content
       var seenTxt = {};
       h2s = h2s.filter(function(h) {
-        var t = h.textContent.trim().slice(0,60);
+        var t = h.textContent.trim().slice(0,60).toLowerCase();
         if (seenTxt[t]) return false;
         seenTxt[t] = true;
         return true;
       });
 
+      // Extract text content between headings using regex (works for both DOM and fake objects)
+      // Build a plain-text version of the HTML for content extraction
+      var plainText = html.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ');
+
       var sections = h2s.slice(0,25).map(function(h2, i) {
         var headingText = h2.textContent.trim();
-        var content = "";
+        var sectionContent = "";
 
-        // Strategy 1: walk siblings after the heading element
-        var sibling = h2.nextElementSibling;
-        var nextH = h2s[i+1];
-        var limit = 0;
-        while (sibling && sibling !== nextH && limit < 15) {
-          var t = sibling.textContent.trim();
-          if (t.length > 0) content += t + " ";
-          sibling = sibling.nextElementSibling;
-          limit++;
+        if (!h2._fake) {
+          // Real DOM element — use DOM traversal
+          var sibling = h2.nextElementSibling;
+          var nextH = h2s[i+1] && !h2s[i+1]._fake ? h2s[i+1] : null;
+          var limit = 0;
+          while (sibling && sibling !== nextH && limit < 15) {
+            var t = sibling.textContent.trim();
+            if (t.length > 0) sectionContent += t + " ";
+            sibling = sibling.nextElementSibling;
+            limit++;
+          }
+          // Fallback: walk parent
+          if (sectionContent.trim().length < 20 && h2.parentElement) {
+            var par = h2.parentElement;
+            var d = 0;
+            while (par && par.textContent.trim().length < headingText.length + 5 && d < 5) {
+              par = par.parentElement; d++;
+            }
+            if (par) sectionContent = par.textContent.replace(headingText,"").trim().slice(0,600);
+          }
+        } else {
+          // Fake object from regex — extract content between this heading and next from plainText
+          var hIdx = plainText.indexOf(headingText);
+          if (hIdx >= 0) {
+            var nextHeading = h2s[i+1] ? h2s[i+1].textContent.trim() : null;
+            var endIdx = nextHeading ? plainText.indexOf(nextHeading, hIdx + headingText.length) : hIdx + 800;
+            if (endIdx < 0) endIdx = hIdx + 800;
+            sectionContent = plainText.slice(hIdx + headingText.length, endIdx).trim().slice(0,600);
+          }
         }
 
-        // Strategy 2: if no sibling content, walk the parent container
-        if (content.trim().length < 20 && h2.parentElement) {
-          var parent = h2.parentElement;
-          // Walk up to find a meaningful container
-          var depth = 0;
-          while (parent && parent.textContent.trim() === headingText && depth < 5) {
-            parent = parent.parentElement;
-            depth++;
-          }
-          if (parent) {
-            content = parent.textContent.replace(headingText,"").trim().slice(0,600);
-          }
-        }
-
-        return {id:"sec-"+i, heading:headingText, content:content.trim().slice(0,700), nepqType:"", question:"", rewrite:"", status:"pending"};
+        return {
+          id: "sec-"+i,
+          heading: headingText,
+          content: sectionContent.trim().slice(0,700),
+          nepqType: "", question: "", rewrite: "", status: "pending"
+        };
       });
 
       // Final filter: remove sections whose heading is basically a duplicate
@@ -2019,7 +2288,7 @@ const V52_ITEMS = [
             React.createElement("div",{style:{flex:1,position:"relative",overflow:"hidden",background:"#F0F2F5"}},
               React.createElement("iframe",{
                 ref:iframeRef,
-                key:pbPage?pbPage.key+"-"+pbSections.length:"sandbox",
+                key:pbPage?pbPage.key+"-"+pbSections.length+"-"+(isDark?"dk":"lt"):"sandbox",
                 srcDoc:buildSandbox(pbHtml, pbSections),
                 sandbox:"allow-scripts allow-same-origin",
                 style:{width:"100%",height:"100%",border:"none",display:"block"},
