@@ -604,18 +604,10 @@ window.GH_NEPQ_FRAMEWORK = [
 window.GH_STRIP_PAGE = function(rawHtml, masterCSS, clickScript, shimmerScript) {
   var doc = new DOMParser().parseFromString(rawHtml, "text/html");
 
-  // Remove all scripts — no WP/Elementor/jQuery
-  doc.querySelectorAll("script").forEach(function(s){ s.remove(); });
+  // Remove all scripts, stylesheets, style tags
+  doc.querySelectorAll("script,link[rel=stylesheet],style").forEach(function(el){ el.remove(); });
 
-  // Remove stylesheets except Google Fonts
-  doc.querySelectorAll("link[rel=stylesheet]").forEach(function(l){
-    if(!l.href || l.href.indexOf("fonts.googleapis") === -1) l.remove();
-  });
-
-  // Remove all style tags
-  doc.querySelectorAll("style").forEach(function(s){ s.remove(); });
-
-  // Strip inline styles from .gh- elements — use getAttribute to handle SVG safely
+  // Strip inline styles from .gh- elements (use getAttribute to handle SVG safely)
   doc.querySelectorAll("[class]").forEach(function(el){
     var cls = el.getAttribute("class") || "";
     if(cls.indexOf("gh-") > -1) el.removeAttribute("style");
@@ -627,20 +619,24 @@ window.GH_STRIP_PAGE = function(rawHtml, masterCSS, clickScript, shimmerScript) 
      "data-id","data-settings","data-widget_type"].forEach(function(a){ el.removeAttribute(a); });
   });
 
-  var bodyHtml = doc.body ? doc.body.innerHTML : "";
+  var bodyHtml = doc.body ? doc.body.innerHTML : rawHtml.slice(0, 50000);
 
-  var out = "<!DOCTYPE html><html lang=en><head>"
-    + "<meta charset=UTF-8>"
-    + "<meta name=viewport content=width=device-width,initial-scale=1>"
-    + "<link rel=preconnect href=https://fonts.googleapis.com>"
-    + "<link rel=preconnect href=https://fonts.gstatic.com crossorigin>"
-    + "<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@300;400;600;700;800&display=swap" rel=stylesheet>"
-    + "<style>" + masterCSS + "</style>"
-    + "</head><body style="margin:0;padding:16px;background:#f9fafb">"
-    + bodyHtml
-    + clickScript
-    + shimmerScript
-    + "</body></html>";
+  // Build clean document — use single quotes around attribute values to avoid escaping issues
+  var out = [
+    "<!DOCTYPE html><html lang=en><head>",
+    "<meta charset=UTF-8>",
+    "<meta name=viewport content='width=device-width,initial-scale=1'>",
+    "<link rel=preconnect href='https://fonts.googleapis.com'>",
+    "<link rel=preconnect href='https://fonts.gstatic.com' crossorigin>",
+    "<link href='https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800&family=Fraunces:wght@300;400;600;700;800&display=swap' rel=stylesheet>",
+    "<style>" + masterCSS + "</style>",
+    "</head>",
+    "<body style='margin:0;padding:16px;background:#f9fafb'>",
+    bodyHtml,
+    "<script>" + (clickScript||"") + "<\/script>",
+    "<script>" + (shimmerScript||"") + "<\/script>",
+    "</body></html>"
+  ].join("");
 
   return out;
 };
@@ -6001,31 +5997,19 @@ Rewrite this section using NEPQ ${sec.nepqType || "connecting"} style. Lead with
                   React.createElement("span", {style:{fontSize:12,color:"#FFC72C",fontWeight:700}}, "✶ Section selected: " + ((pbActiveSec.cls||"").split(" ").find(function(x){return x.startsWith("gh-");})||"")),
                   React.createElement("button", {onClick:function(){setPbActiveSec(null);},style:{marginLeft:"auto",background:"none",border:"none",color:"#6B7B8D",cursor:"pointer",fontSize:14,padding:"0 4px"}}, "✕")
                 ),
-(()=>{
-                  var tmpl=window.GH_NEPQ_TEMPLATE||"";
-                  var sm=tmpl.match(/<style[^>]*>([\s\S]*?)<\/style>/);
-                  var masterCSS=(sm?sm[1]:"")+(window.GH_SANDBOX_CSS||"");
-                  var clickScript=[
-                    "document.addEventListener('click',function(e){",
-                    "var t=e.target;",
-                    "while(t&&t!==document.body){",
-                    "var cls=t.getAttribute?t.getAttribute('class')||'':'';",
-                    "if(cls.match(/gh-[a-z]/)){",
-                    "document.querySelectorAll('.gh-sel').forEach(function(x){x.style.outline='';});",
-                    "t.style.outline='3px solid #FFC72C';",
-                    "var h=t.querySelector('h2,h3,h4');",
-                    "window.parent.postMessage({type:'ghSectionClick',cls:cls,html:t.innerHTML.slice(0,2000),heading:h?h.textContent:cls},'*');",
-                    "e.preventDefault();return;",
-                    "}t=t.parentElement;}},true);"
-                  ].join(" ");
-                  var srcdoc = typeof window.GH_STRIP_PAGE==="function"
-                    ? window.GH_STRIP_PAGE(pbHtml,masterCSS,clickScript,window.GH_SHIMMER_SCRIPT||"")
-                    : "<html><body style='padding:20px;font-family:sans-serif'>"+pbHtml.slice(0,8000)+"</body></html>";
+pbHtml && (()=>{
+                  var tmpl = window.GH_NEPQ_TEMPLATE || "";
+                  var styleMatch = tmpl.match(/<style[^>]*>([\s\S]*?)<\/style>/);
+                  var masterCSS = (styleMatch ? styleMatch[1] : "") + (window.GH_SANDBOX_CSS || "");
+                  var clickScript = "document.addEventListener('click',function(e){var t=e.target;while(t&&t!==document.body){var cls=t.getAttribute?t.getAttribute('class')||'':'';if(cls.match(/gh-[a-z]/)){document.querySelectorAll('.gh-sel').forEach(function(x){x.style.outline='';});t.style.outline='3px solid #FFC72C';var h=t.querySelector('h2,h3,h4');window.parent.postMessage({type:'ghSectionClick',cls:cls,html:t.innerHTML.slice(0,2000),heading:h?h.textContent:cls},'*');e.preventDefault();return;}t=t.parentElement;}},true);";
+                  var html = typeof window.GH_STRIP_PAGE === "function"
+                    ? window.GH_STRIP_PAGE(pbHtml, masterCSS, clickScript, "")
+                    : "<!DOCTYPE html><html><body style='padding:20px;font-family:sans-serif'>" + pbHtml.slice(0, 8000) + "</body></html>";
                   return React.createElement("iframe", {
-                    key: (pbPage&&pbPage.slug)||"preview",
+                    key: (pbPage && pbPage.slug) || "pv",
                     sandbox: "allow-scripts",
-                    srcDoc: srcdoc,
-                    style:{width:"100%",height:620,border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,background:"#fff",display:"block"}
+                    srcDoc: html,
+                    style: {width:"100%",height:620,border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,background:"#fff",display:"block"}
                   });
                 })()
               )
