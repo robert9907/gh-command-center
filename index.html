@@ -254,6 +254,7 @@ window.GH_PB_NEPQ=[
     var s24=R.useState({});    var pbExpandedFix=s24[0];var setPbExpandedFix=s24[1];
     var s25=R.useState(false); var pbSaved=s25[0];   var setPbSaved=s25[1];
     var s26=R.useState(false); var pbSaving=s26[0];  var setPbSaving=s26[1];
+    var s27=R.useState(null);   var pbActiveSec=s27[0];     var setPbActiveSec=s27[1];
     var chatRef=R.useRef(null);
 
     // Computed scores
@@ -356,6 +357,37 @@ window.GH_PB_NEPQ=[
     }
 
     R.useEffect(function(){if(chatRef.current)chatRef.current.scrollTop=chatRef.current.scrollHeight;},[pbAiMsgs,pbAiLoading]);
+
+    // Listen for section clicks from sandbox iframe
+    R.useEffect(function(){
+      function onMsg(e){
+        if(!e.data||e.data.type!=="GH_PB_SECTION_CLICK")return;
+        var msg=e.data;
+        // Auto-switch to NEPQ tab and set type + pre-fill original text
+        setPbTab("nepq");
+        setPbNepqTab(msg.nepqType||"connecting");
+        setPbActiveSec({idx:msg.secIdx,heading:msg.heading,nepqType:msg.nepqType,text:msg.text,total:msg.total});
+        // Pre-fill original textarea with section text
+        setPbNepqData(function(p){
+          var n=Object.assign({},p);
+          var key=msg.nepqType||"connecting";
+          n[key]=Object.assign({},p[key]||{},{original:msg.text||""});
+          return n;
+        });
+      }
+      window.addEventListener("message",onMsg);
+      return function(){window.removeEventListener("message",onMsg);};
+    },[]);
+
+    // Apply rewrite back into iframe
+    var pbIframeRef2=R.useRef(null);
+    var pbApplyRewrite=function(secIdx,question,rewrite){
+      var frames=document.querySelectorAll("iframe[title=\"Page Sandbox\"]");
+      if(!frames.length)return;
+      frames[0].contentWindow.postMessage({type:"GH_PB_APPLY_REWRITE",secIdx:secIdx,question:question,rewrite:rewrite},"*");
+      setPbSaved(false);
+    };
+
 
     async function pbFixItem(item){
       if(!aiApiKey||!pbPage)return;
@@ -511,9 +543,102 @@ window.GH_PB_NEPQ=[
 
     // ── CENTER: Sandbox ───────────────────────────────────────────────
     // Build sandbox doc
-    var sandboxDoc=pbHtml?(function(){
+        var sandboxDoc=pbHtml?(function(){
       var clean=pbHtml.replace(/<script[\s\S]*?<\/script>/gi,"");
-      return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="https://generationhealth.me/"><style>*{box-sizing:border-box}body{font-family:Georgia,serif;max-width:900px;margin:0 auto;padding:20px 28px;line-height:1.75;color:#1A2332;font-size:15px}h1{font-size:2rem;margin:0 0 .5em;line-height:1.2}h2{font-size:1.35rem;margin:1.4em 0 .5em;color:#1A2332}h3{font-size:1.1rem;margin:1.1em 0 .4em}p{margin:.7em 0}img{max-width:100%;height:auto}a{color:#0D9488}.gh-answer{background:linear-gradient(135deg,rgba(13,148,136,0.08),rgba(96,165,250,0.08));border-left:3px solid #0D9488;border-radius:8px;padding:14px 18px;margin:14px 0;font-style:italic;font-size:16px;font-weight:600}.gh-trust-strip{display:flex;gap:10px;padding:10px 0;flex-wrap:wrap}.gh-trust-badge{padding:5px 12px;border-radius:6px;border:1px solid #e2e8f0;font-size:12px;font-weight:600}</style></head><body>'+clean+'</body></html>';
+      // Inject click-to-edit + apply-rewrite script into sandbox
+      var injectScript='<scr'+'ipt>(function(){
+        var active=null;
+        var NEPQ_TYPES=["connecting","situation","problem","solution","consequence","qualifying","committing"];
+        function applyStyles(el,sel){
+          document.querySelectorAll(".gh-pb-section").forEach(function(e){
+            e.style.outline="";
+            e.style.background="";
+          });
+          if(sel){
+            sel.style.outline="2.5px solid #0D9488";
+            sel.style.background="rgba(13,148,136,0.04)";
+          }
+        }
+        // Wrap each H2 and its following content
+        var h2s=Array.from(document.querySelectorAll("h2"));
+        var total=h2s.length;
+        h2s.forEach(function(h2,idx){
+          var wrap=document.createElement("div");
+          wrap.className="gh-pb-section";
+          wrap.style.cursor="pointer";
+          wrap.style.transition="outline 0.15s, background 0.15s";
+          wrap.style.borderRadius="6px";
+          wrap.style.margin="4px -8px";
+          wrap.style.padding="0 8px";
+          // Collect siblings until next H2
+          var siblings=[h2];
+          var next=h2.nextElementSibling;
+          while(next&&next.tagName!=="H2"){
+            siblings.push(next);
+            next=next.nextElementSibling;
+          }
+          h2.parentNode.insertBefore(wrap,h2);
+          siblings.forEach(function(s){wrap.appendChild(s);});
+          // Auto-assign NEPQ type by position
+          var slot=total<=1?0:Math.round((idx/(total-1))*6);
+          var nepqType=NEPQ_TYPES[slot]||"connecting";
+          // Add badge
+          var badge=document.createElement("span");
+          badge.textContent=nepqType;
+          badge.style.cssText="display:inline-block;font-size:9px;font-weight:700;color:#0D9488;background:rgba(13,148,136,0.1);border:1px solid rgba(13,148,136,0.3);border-radius:4px;padding:1px 7px;margin-left:8px;vertical-align:middle;text-transform:capitalize;letter-spacing:0.05em;opacity:0.7;";
+          h2.appendChild(badge);
+          wrap.addEventListener("click",function(e){
+            e.stopPropagation();
+            active=wrap;
+            applyStyles(null,wrap);
+            // Gather section text (H2 + following siblings)
+            var sectionText=Array.from(wrap.querySelectorAll("h2,p,li")).map(function(el){return el.textContent.trim();}).filter(Boolean).join("\\n").substring(0,1200);
+            window.parent.postMessage({
+              type:"GH_PB_SECTION_CLICK",
+              secIdx:idx,
+              heading:h2.firstChild?h2.firstChild.textContent.trim():h2.textContent.trim(),
+              nepqType:nepqType,
+              text:sectionText,
+              total:total
+            },"*");
+          });
+        });
+        // Listen for apply-rewrite from parent
+        window.addEventListener("message",function(e){
+          if(!e.data||e.data.type!=="GH_PB_APPLY_REWRITE")return;
+          var sections=document.querySelectorAll(".gh-pb-section");
+          var target=sections[e.data.secIdx];
+          if(!target)return;
+          // Find H2 and replace following paragraphs
+          var h2=target.querySelector("h2");
+          if(!h2)return;
+          // Remove old paragraphs
+          var old=Array.from(target.querySelectorAll("p"));
+          old.forEach(function(p){p.remove();});
+          // Insert new content after H2
+          var newContent=document.createElement("div");
+          newContent.className="gh-nepq-applied";
+          newContent.style.cssText="border-left:3px solid #0D9488;padding:10px 16px;margin:8px 0;background:rgba(13,148,136,0.04);border-radius:0 6px 6px 0;";
+          if(e.data.question){
+            var qEl=document.createElement("p");
+            qEl.style.cssText="font-style:italic;font-weight:700;color:#0D9488;margin:0 0 10px;font-size:16px;";
+            qEl.textContent="\u201c"+e.data.question+"\u201d";
+            newContent.appendChild(qEl);
+          }
+          e.data.rewrite.split("\\n\\n").forEach(function(para){
+            if(!para.trim())return;
+            var p=document.createElement("p");
+            p.textContent=para.trim();
+            newContent.appendChild(p);
+          });
+          h2.insertAdjacentElement("afterend",newContent);
+          // Flash green
+          target.style.outline="2.5px solid #4ADE80";
+          target.style.background="rgba(74,222,128,0.05)";
+          setTimeout(function(){target.style.outline="";target.style.background="";},2000);
+        });
+      })();<\/scr'+'ipt>';
+      return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="https://generationhealth.me/"><style>*{box-sizing:border-box}body{font-family:Georgia,serif;max-width:900px;margin:0 auto;padding:20px 28px;line-height:1.75;color:#1A2332;font-size:15px}h1{font-size:2rem;margin:0 0 .5em;line-height:1.2}h2{font-size:1.35rem;margin:1.4em 0 .5em;color:#1A2332}h3{font-size:1.1rem;margin:1.1em 0 .4em}p{margin:.7em 0}img{max-width:100%;height:auto}a{color:#0D9488}.gh-answer{background:linear-gradient(135deg,rgba(13,148,136,0.08),rgba(96,165,250,0.08));border-left:3px solid #0D9488;border-radius:8px;padding:14px 18px;margin:14px 0;font-style:italic;font-size:16px;font-weight:600}</style></head><body>'+clean+injectScript+'</body></html>';
     })():"";
 
     // Scan widget — compact horizontal bar showing all scores
@@ -677,6 +802,15 @@ window.GH_PB_NEPQ=[
     function renderNepq(){
       if(!activeNepq.id)return null;
       return ce("div",{style:{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}},
+        // Active section indicator (from sandbox click)
+        pbActiveSec?ce("div",{style:{padding:"5px 12px",background:"rgba(13,148,136,0.06)",borderBottom:"1px solid rgba(13,148,136,0.2)",display:"flex",alignItems:"center",gap:7,flexShrink:0}},
+          ce("div",{style:{width:6,height:6,borderRadius:"50%",background:"#0D9488",flexShrink:0,animation:"pbPulse 1.5s ease-in-out infinite"}}),
+          ce("div",{style:{flex:1,minWidth:0}},
+            ce("div",{style:{fontSize:10,fontWeight:700,color:"#2DD4BF",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}},"Section "+(pbActiveSec.idx+1)+"/"+pbActiveSec.total+": "+pbActiveSec.heading),
+            ce("div",{style:{fontSize:8,color:"rgba(45,212,191,0.6)"}},pbActiveSec.nepqType+" · click section in sandbox to change")
+          ),
+          ce("button",{onClick:function(){setPbActiveSec(null);},style:{padding:"1px 6px",borderRadius:4,border:"none",background:"rgba(255,255,255,0.06)",color:"#6B7B8D",fontSize:9,cursor:"pointer",flexShrink:0}},"×")
+        ):null,
         // Page context strip
         pbPage?ce("div",{style:{padding:"6px 12px",background:"rgba(255,199,44,0.03)",borderBottom:"1px solid rgba(255,199,44,0.08)",display:"flex",alignItems:"center",gap:7,flexShrink:0}},
           ce("div",{style:{width:5,height:5,borderRadius:"50%",background:"#FFC72C",flexShrink:0}}),
@@ -719,16 +853,33 @@ window.GH_PB_NEPQ=[
           ce("div",{style:{padding:"10px 12px"}},
             ce("div",{style:{fontSize:8,fontWeight:700,color:"#4B5C6E",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:4}},"Paste section or leave blank for fresh write"),
             ce("textarea",{value:ndNepq.original||"",onChange:function(e){setPbNepqData(function(p){var n=Object.assign({},p);n[activeNepq.id]=Object.assign({},p[activeNepq.id]||{},{original:e.target.value});return n;});},placeholder:"Paste existing "+activeNepq.label+" section \u2014 or leave blank, Claude reads the page and writes fresh\u2026",rows:3,style:{width:"100%",padding:"7px 9px",borderRadius:7,border:"1px solid rgba(255,255,255,0.09)",background:"rgba(255,255,255,0.03)",color:"#E8ECF0",fontSize:10,fontFamily:"inherit",outline:"none",resize:"vertical",lineHeight:1.6,boxSizing:"border-box"}}),
-            aiApiKey?ce("button",{onClick:function(){pbNepqRewrite(activeNepq);},disabled:!!pbRewriting[activeNepq.id]||!pbPage,style:{width:"100%",margin:"7px 0 10px",padding:"9px",borderRadius:8,border:"none",background:pbRewriting[activeNepq.id]||!pbPage?"rgba(255,255,255,0.05)":"linear-gradient(135deg,"+activeNepq.col+","+activeNepq.col+"BB)",color:pbRewriting[activeNepq.id]||!pbPage?"#2A3A4A":"rgba(0,0,0,0.85)",fontSize:11,fontWeight:800,cursor:pbRewriting[activeNepq.id]||!pbPage?"not-allowed":"pointer"}},pbRewriting[activeNepq.id]?"\u2728 Writing\u2026":"\u2728 Rewrite as "+activeNepq.label):
+            aiApiKey?ce("div",{style:{marginBottom:8}},
+            ce("button",{onClick:function(){pbNepqRewrite(activeNepq);},disabled:!!pbRewriting[activeNepq.id]||!pbPage,
+              style:{width:"100%",padding:"9px",borderRadius:8,border:"none",
+              background:pbRewriting[activeNepq.id]||!pbPage?"rgba(255,255,255,0.05)":"linear-gradient(135deg,"+activeNepq.col+","+activeNepq.col+"BB)",
+              color:pbRewriting[activeNepq.id]||!pbPage?"#2A3A4A":"rgba(0,0,0,0.85)",fontSize:11,fontWeight:800,
+              cursor:pbRewriting[activeNepq.id]||!pbPage?"not-allowed":"pointer"}},
+            pbRewriting[activeNepq.id]?"\u2728 Writing\u2026":"\u2728 Rewrite as "+activeNepq.label)
+          ):
             ce("div",{style:{margin:"7px 0 10px",padding:"7px 9px",background:"rgba(239,68,68,0.06)",border:"1px solid rgba(239,68,68,0.12)",borderRadius:7,fontSize:9,color:"#EF4444"}},"Add Anthropic API key (Performance tab) to enable rewrites"),
             ndNepq.q?ce("div",{style:{marginBottom:8,padding:"8px 11px",background:activeNepq.col+"0E",border:"1px solid "+activeNepq.col+"25",borderRadius:7}},
               ce("div",{style:{fontSize:7,fontWeight:700,color:activeNepq.col,textTransform:"uppercase",marginBottom:3}},"Unspoken Question Surfaced"),
               ce("div",{style:{fontSize:11,fontStyle:"italic",fontWeight:700,color:activeNepq.col}},"\u201c"+ndNepq.q+"\u201d")
             ):null,
             ndNepq.rw?ce("div",null,
-              ce("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}},
+              ce("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,gap:5}},
                 ce("div",{style:{fontSize:7,fontWeight:700,color:"#4ADE80",textTransform:"uppercase"}},"Rewritten Content"),
-                ce("button",{onClick:function(){navigator.clipboard.writeText(ndNepq.rw);},style:{padding:"2px 7px",borderRadius:4,border:"none",background:"rgba(74,222,128,0.12)",color:"#4ADE80",fontSize:8,fontWeight:700,cursor:"pointer"}},"Copy")
+                ce("div",{style:{display:"flex",gap:4}},
+                  ce("button",{onClick:function(){navigator.clipboard.writeText(ndNepq.rw);},style:{padding:"2px 7px",borderRadius:4,border:"none",background:"rgba(74,222,128,0.12)",color:"#4ADE80",fontSize:8,fontWeight:700,cursor:"pointer"}},"Copy"),
+                  pbActiveSec&&typeof pbActiveSec.idx==="number"?ce("button",{
+                    onClick:function(){
+                      pbApplyRewrite(pbActiveSec.idx,ndNepq.q||"",ndNepq.rw||"");
+                      // Mark section as done in NEPQ data
+                      setPbNepqData(function(p){var n=Object.assign({},p);if(n[activeNepq.id])n[activeNepq.id].applied=true;return n;});
+                    },
+                    style:{padding:"2px 9px",borderRadius:4,border:"none",background:"linear-gradient(135deg,#0D9488,#2DD4BF)",color:"#FFF",fontSize:8,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}
+                  },"Apply to Page"):null
+                )
               ),
               ce("div",{style:{padding:"9px 11px",background:"rgba(74,222,128,0.03)",border:"1px solid rgba(74,222,128,0.1)",borderRadius:7,fontSize:10,color:"#E8ECF0",lineHeight:1.8,whiteSpace:"pre-wrap",maxHeight:180,overflow:"auto"}},ndNepq.rw)
             ):null
