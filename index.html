@@ -1152,21 +1152,36 @@ article li::before{content:'';position:absolute;left:0;top:10px;width:8px;height
       window.parent.postMessage({type:"GH_CONTENT_CHANGED",fixId:ev4.data.fixId},"*");
     });
 
-    // Report gh- element counts and visually mark elements touched
+    // rAF glow — writes background/border-color/box-shadow as inline styles
+    // Inline styles beat !important in any stylesheet. No exceptions.
+    function startGlow(el,r,g,b,delayMs){
+      var period=5000;
+      var start=performance.now()-delayMs;
+      function tick(now){
+        var t=((now-start)%period)/period;
+        var glow=0;
+        if(t>=0.35&&t<0.65){
+          var m=(t-0.35)/0.30;
+          glow=m<0.5?m/0.5:(1-(m-0.5)/0.5);
+        }
+        var a1=(glow*0.40).toFixed(3);
+        var a2=(glow*0.95).toFixed(3);
+        var s1=(glow*22).toFixed(1);
+        var s2=(glow*40).toFixed(1);
+        var a3=(glow*0.18).toFixed(3);
+        el.style.background="rgba("+r+","+g+","+b+","+a1+")";
+        el.style.borderColor="rgba("+r+","+g+","+b+","+a2+")";
+        el.style.boxShadow=glow>0?"0 0 "+s1+"px rgba("+r+","+g+","+b+","+a1+"),0 0 "+s2+"px rgba("+r+","+g+","+b+","+a3+")":""
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
     setTimeout(function(){
-      var report={};
-      ["gh-ghost--call","gh-ghost--text","gh-ghost--sched","gh-ghost--compare","gh-hero-btn--call","gh-cta-card"].forEach(function(cls){
-        var els=document.querySelectorAll("."+cls);
-        var cs=els.length?window.getComputedStyle(els[0]):null;
-        report[cls]={count:els.length,anim:cs?cs.animationName:"n/a"};
-      });
-      // Visual test: briefly flash each gh-ghost element so we can see if script ran
-      document.querySelectorAll(".gh-ghost").forEach(function(el,i){
-        el.style.outline="3px solid red";
-        setTimeout(function(){el.style.outline="";},3000);
-      });
-      window.parent.postMessage({type:"GH_DEBUG",msg:JSON.stringify(report)},"*");
-    },500);
+      document.querySelectorAll(".gh-ghost--compare,.gh-ghost--primary").forEach(function(el){startGlow(el,75,156,211,800);});
+      document.querySelectorAll(".gh-ghost--call").forEach(function(el){startGlow(el,22,163,74,0);});
+      document.querySelectorAll(".gh-ghost--text").forEach(function(el){startGlow(el,139,92,246,200);});
+      document.querySelectorAll(".gh-ghost--sched").forEach(function(el){startGlow(el,245,158,11,400);});
+    },300);
   }).toString();
 
   window.GH_PageBuilder=function GHPageBuilder(props){
