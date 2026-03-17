@@ -245,6 +245,12 @@ window.GH_SEED_PERF = [
     {weekOf:"2026-02-16",users:77,organic:20,chatgpt:27,direct:36,social:3,impressions:1869,clicks:23,calls:0,bookings:0,gbpViews:0,keywords:{},aiCited:0,aiMentioned:0,aiNotFound:0},
   ];
 
+// ── Sandbox globals (outside Babel to avoid template literal parse issues) ──
+window.GH_SANDBOX_CSS = '<style>body{max-width:860px;margin:0 auto;padding:20px;font-family:\'DM Sans\',sans-serif;}.gh-sb-sec{position:relative;cursor:pointer;transition:outline 0.15s;}.gh-sb-sec:hover{outline:2px solid rgba(13,148,136,0.5);outline-offset:3px;}.gh-sb-sec.gh-sb-active{outline:2px solid #0D9488;outline-offset:3px;background:rgba(13,148,136,0.03);}.gh-sb-badge{position:absolute;top:0;right:0;background:#0D9488;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;font-family:sans-serif;z-index:9;}.gh-nepq-injected{border-left:3px solid #0D9488;background:rgba(13,148,136,0.06);border-radius:6px;padding:12px 16px;margin:12px 0;}.gh-nepq-injected .gh-q{font-style:italic;font-weight:700;color:#0D9488;font-size:14px;margin-bottom:8px;}.gh-nepq-injected .gh-a{font-size:13px;line-height:1.7;color:#1A2332;}</style>';
+window.GH_SANDBOX_JS_TMPL = function(mapJson) {
+  return '<scr'+'ipt>(function(){var smap='+mapJson+';document.querySelectorAll("h2").forEach(function(h2,i){var wrap=document.createElement("div");wrap.className="gh-sb-sec";var id=smap[h2.textContent.trim()]||("sec-"+i);wrap.setAttribute("data-secid",id);var badge=document.createElement("span");badge.className="gh-sb-badge";badge.textContent="Click to edit";var next=h2.nextElementSibling;h2.parentNode.insertBefore(wrap,h2);wrap.appendChild(badge);wrap.appendChild(h2);while(next&&next.tagName!=="H2"&&!next.classList.contains("gh-sb-sec")){var tmp=next.nextElementSibling;wrap.appendChild(next);next=tmp;}wrap.addEventListener("click",function(){document.querySelectorAll(".gh-sb-sec").forEach(function(el){el.classList.remove("gh-sb-active");});wrap.classList.add("gh-sb-active");window.parent.postMessage({type:"GH_SEC_CLICK",secId:id,heading:h2.textContent.trim()},"*");});});window.addEventListener("message",function(e){if(!e.data||e.data.type!=="GH_INJECT_NEPQ") return;var wrap=document.querySelector("[data-secid=\'"+e.data.secId+"\']");if(!wrap) return;var old=wrap.querySelector(".gh-nepq-injected");if(old) old.remove();var div=document.createElement("div");div.className="gh-nepq-injected";div.innerHTML=\'<div class="gh-q">&ldquo;\'+e.data.question+\'&rdquo;</div><div class="gh-a">\'+e.data.rewrite.replace(/\\n/g,"<br>")+\'</div>\';var h2=wrap.querySelector("h2");if(h2&&h2.nextSibling) h2.parentNode.insertBefore(div,h2.nextSibling);else wrap.appendChild(div);wrap.classList.add("gh-sb-active");wrap.scrollIntoView({behavior:"smooth",block:"center"});});})();</'+'script>';
+};
+
 </script>
 <script type="text/babel">
 const { useState, useMemo, useEffect, useCallback, useRef } = React;
@@ -4268,56 +4274,9 @@ Rewrite this section using NEPQ ${sec.nepqType || "connecting"} style. Lead with
           const clean = html.replace(/<script[\s\S]*?<\/script>/gi,"");
           const secMap = {};
           pbSections.forEach(s=>{ secMap[s.heading]=s.id; });
-          const mapJson = JSON.stringify(secMap).replace(/<\/script>/gi,"<\\/script>");
-          const css = `<style>body{max-width:860px;margin:0 auto;padding:20px;font-family:'DM Sans',sans-serif;}
-          .gh-sb-sec{position:relative;cursor:pointer;transition:outline 0.15s;}
-          .gh-sb-sec:hover{outline:2px solid rgba(13,148,136,0.5);outline-offset:3px;}
-          .gh-sb-sec.gh-sb-active{outline:2px solid #0D9488;outline-offset:3px;background:rgba(13,148,136,0.03);}
-          .gh-sb-badge{position:absolute;top:0;right:0;background:#0D9488;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;font-family:sans-serif;z-index:9;}
-          .gh-nepq-injected{border-left:3px solid #0D9488;background:rgba(13,148,136,0.06);border-radius:6px;padding:12px 16px;margin:12px 0;}
-          .gh-nepq-injected .gh-q{font-style:italic;font-weight:700;color:#0D9488;font-size:14px;margin-bottom:8px;}
-          .gh-nepq-injected .gh-a{font-size:13px;line-height:1.7;color:#1A2332;}</style>`;
-          const js = `<scr`+`ipt>(function(){
-            var smap=${mapJson};
-            document.querySelectorAll("h2").forEach(function(h2,i){
-              var wrap=document.createElement("div");
-              wrap.className="gh-sb-sec";
-              var id=smap[h2.textContent.trim()]||("sec-"+i);
-              wrap.setAttribute("data-secid",id);
-              var badge=document.createElement("span");
-              badge.className="gh-sb-badge";
-              badge.textContent="Click to edit";
-              var next=h2.nextElementSibling;
-              h2.parentNode.insertBefore(wrap,h2);
-              wrap.appendChild(badge);
-              wrap.appendChild(h2);
-              while(next&&next.tagName!=="H2"&&!next.classList.contains("gh-sb-sec")){
-                var tmp=next.nextElementSibling;
-                wrap.appendChild(next);
-                next=tmp;
-              }
-              wrap.addEventListener("click",function(){
-                document.querySelectorAll(".gh-sb-sec").forEach(function(el){el.classList.remove("gh-sb-active");});
-                wrap.classList.add("gh-sb-active");
-                window.parent.postMessage({type:"GH_SEC_CLICK",secId:id,heading:h2.textContent.trim()},"*");
-              });
-            });
-            window.addEventListener("message",function(e){
-              if(!e.data||e.data.type!=="GH_INJECT_NEPQ") return;
-              var wrap=document.querySelector("[data-secid='"+e.data.secId+"']");
-              if(!wrap) return;
-              var old=wrap.querySelector(".gh-nepq-injected");
-              if(old) old.remove();
-              var div=document.createElement("div");
-              div.className="gh-nepq-injected";
-              div.innerHTML='<div class="gh-q">&ldquo;'+e.data.question+'&rdquo;</div><div class="gh-a">'+e.data.rewrite.replace(/\n/g,"<br>")+'</div>';
-              var h2=wrap.querySelector("h2");
-              if(h2&&h2.nextSibling) h2.parentNode.insertBefore(div,h2.nextSibling);
-              else wrap.appendChild(div);
-              wrap.classList.add("gh-sb-active");
-              wrap.scrollIntoView({behavior:"smooth",block:"center"});
-            });
-          })();<\/scr`+`ipt>`;
+          const mapJson = JSON.stringify(secMap).replace(/<\/script>/gi,"<\/script>");
+          const css = window.GH_SANDBOX_CSS;
+          const js = window.GH_SANDBOX_JS_TMPL(mapJson);
           return "<!DOCTYPE html><html><head><meta charset='utf-8'>"+css+"</head><body>"+clean+js+"</body></html>";
         };
 
