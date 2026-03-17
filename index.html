@@ -3957,12 +3957,27 @@ function App() {
                 }),
                 donePages.length>0&&React.createElement("div",{style:{marginTop:10}},
                   React.createElement("div",{style:{fontSize:10,fontWeight:700,color:mc,textTransform:"uppercase",letterSpacing:"0.08em",padding:"4px 4px"}},"\u2705 Done ("+donePages.length+")"),
-                  donePages.slice(0,5).map(function(p){
-                    return React.createElement("div",{key:p.key,style:{padding:"6px 10px",marginBottom:2,borderRadius:8,background:"rgba(74,222,128,0.05)",border:"1px solid rgba(74,222,128,0.12)"}},
-                      React.createElement("span",{style:{fontSize:11,color:"#4ADE80",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block"}},(p.name||p.slug||"").replace(/\s*\|.*$/,""))
+                  donePages.map(function(p){
+                    return React.createElement("div",{key:p.key,
+                      style:{padding:"6px 10px",marginBottom:2,borderRadius:8,
+                        background:pbPage&&pbPage.key===p.key?"rgba(74,222,128,0.15)":"rgba(74,222,128,0.05)",
+                        border:"1px solid rgba(74,222,128,0.2)",cursor:"pointer",
+                        display:"flex",alignItems:"center",justifyContent:"space-between",gap:6},
+                      onClick:function(){selectPage(p);}},
+                      React.createElement("span",{style:{fontSize:11,color:"#4ADE80",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}},
+                        (p.name||p.slug||"").replace(/\s*\|.*$/,"")),
+                      React.createElement("button",{
+                        onClick:function(e){
+                          e.stopPropagation();
+                          setPbCompleted(function(prev){return prev.filter(function(k){return k!==p.key;});});
+                          setPbPage(null);setPbScanResults(null);setPbNepqContent({});
+                        },
+                        title:"Move back to active",
+                        style:{fontSize:9,padding:"1px 6px",borderRadius:5,border:"1px solid rgba(74,222,128,0.3)",
+                          background:"transparent",color:mc,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}
+                      },"↩")
                     );
-                  }),
-                  donePages.length>5&&React.createElement("div",{style:{fontSize:10,color:mc,padding:"3px 10px"}},"+"+( donePages.length-5)+" more")
+                  })
                 )
               )
             ),
