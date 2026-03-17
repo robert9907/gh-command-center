@@ -498,6 +498,17 @@ window.GH_PB_NEPQ=[
       }
       window.parent.postMessage({type:"GH_CONTENT_CHANGED",fixId:ev4.data.fixId},"*");
     });
+
+    // Report gh- element counts and computed animation back to parent
+    setTimeout(function(){
+      var report={};
+      ["gh-ghost--call","gh-ghost--text","gh-ghost--sched","gh-ghost--compare","gh-hero-btn--call","gh-cta-card"].forEach(function(cls){
+        var els=document.querySelectorAll("."+cls);
+        var cs=els.length?window.getComputedStyle(els[0]):null;
+        report[cls]={count:els.length,anim:cs?cs.animationName:"n/a"};
+      });
+      window.parent.postMessage({type:"GH_DEBUG",msg:JSON.stringify(report)},"*");
+    },500);
   }).toString();
 
   window.GH_PageBuilder=function GHPageBuilder(props){
