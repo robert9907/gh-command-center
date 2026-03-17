@@ -7393,7 +7393,7 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
 
 
       {/* ═══ AI AGENT TAB ═══ */}
-      {view==="pagebuilder"&&typeof window.GH_PageBuilder==="function"&&React.createElement("div",{style:{margin:"0 -24px",width:"calc(100% + 48px)"}},React.createElement(window.GH_PageBuilder,{clusters:pbClusters,aiApiKey:pbApiKey,savedHTML:pbSavedHTML}))}
+      {view==="pagebuilder"&&(console.log("[PB CHECK] GH_PageBuilder type:",typeof window.GH_PageBuilder)||true)&&typeof window.GH_PageBuilder==="function"&&React.createElement("div",{style:{margin:"0 -24px",width:"calc(100% + 48px)"}},React.createElement(window.GH_PageBuilder,{clusters:pbClusters,aiApiKey:pbApiKey,savedHTML:pbSavedHTML}))}
 
       {view==="aiAgent"&&<div>
         {/* Header */}
