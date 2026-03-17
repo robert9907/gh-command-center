@@ -282,11 +282,92 @@ window.GH_PB_NEPQ=[
           }
         }
       });
-      // Classes are already in the CSS — just ensure elements have position/overflow set
-      document.querySelectorAll(".gh-ghost,.gh-hero-btn,.gh-cta-card,.gh-cta-modal,.gh-header-cta").forEach(function(el){
-        var cs=window.getComputedStyle(el);
-        if(cs.position==="static")el.style.position="relative";
-        if(cs.overflow!=="hidden")el.style.overflow="hidden";
+      // Web Animations API — bypasses CSS entirely, cannot be overridden by any stylesheet
+      var ease="ease-in-out";
+      // Ghost compare/primary — carolina blue glow
+      document.querySelectorAll(".gh-ghost--compare,.gh-ghost--primary").forEach(function(el){
+        el.style.position="relative";el.style.overflow="hidden";
+        el.animate([
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0},
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0.35},
+          {background:"rgba(75,156,211,.38)",borderColor:"rgba(75,156,211,.95)",boxShadow:"0 0 22px rgba(75,156,211,.5),0 0 40px rgba(75,156,211,.18)",offset:0.5},
+          {background:"rgba(75,156,211,.07)",borderColor:"rgba(75,156,211,.25)",boxShadow:"none",offset:0.65},
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:1}
+        ],{duration:5000,delay:-800,iterations:Infinity,easing:ease,fill:"both"});
+        // Sweep span
+        var sw=document.createElement("span");
+        sw.style.cssText="position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
+        el.insertBefore(sw,el.firstChild);
+        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3500,delay:200,iterations:Infinity,easing:ease});
+      });
+      // Ghost call — green glow
+      document.querySelectorAll(".gh-ghost--call").forEach(function(el){
+        el.style.position="relative";el.style.overflow="hidden";
+        el.animate([
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0},
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0.35},
+          {background:"rgba(22,163,74,.40)",borderColor:"rgba(22,163,74,.95)",boxShadow:"0 0 22px rgba(22,163,74,.52),0 0 40px rgba(22,163,74,.18)",offset:0.5},
+          {background:"rgba(22,163,74,.07)",borderColor:"rgba(22,163,74,.25)",boxShadow:"none",offset:0.65},
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:1}
+        ],{duration:5000,delay:1800,iterations:Infinity,easing:ease,fill:"both"});
+        var sw=document.createElement("span");
+        sw.style.cssText="position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(74,222,128,.45),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
+        el.insertBefore(sw,el.firstChild);
+        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3500,delay:500,iterations:Infinity,easing:ease});
+      });
+      // Ghost text — purple glow
+      document.querySelectorAll(".gh-ghost--text").forEach(function(el){
+        el.style.position="relative";el.style.overflow="hidden";
+        el.animate([
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0},
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0.35},
+          {background:"rgba(139,92,246,.38)",borderColor:"rgba(139,92,246,.95)",boxShadow:"0 0 22px rgba(139,92,246,.5),0 0 40px rgba(139,92,246,.16)",offset:0.5},
+          {background:"rgba(139,92,246,.07)",borderColor:"rgba(139,92,246,.25)",boxShadow:"none",offset:0.65},
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:1}
+        ],{duration:5000,delay:2000,iterations:Infinity,easing:ease,fill:"both"});
+        var sw=document.createElement("span");
+        sw.style.cssText="position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(167,139,250,.45),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
+        el.insertBefore(sw,el.firstChild);
+        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3500,delay:1000,iterations:Infinity,easing:ease});
+      });
+      // Ghost sched — amber glow
+      document.querySelectorAll(".gh-ghost--sched").forEach(function(el){
+        el.style.position="relative";el.style.overflow="hidden";
+        el.animate([
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0},
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:0.35},
+          {background:"rgba(245,158,11,.38)",borderColor:"rgba(245,158,11,.95)",boxShadow:"0 0 22px rgba(245,158,11,.5),0 0 40px rgba(245,158,11,.16)",offset:0.5},
+          {background:"rgba(245,158,11,.07)",borderColor:"rgba(245,158,11,.25)",boxShadow:"none",offset:0.65},
+          {background:"transparent",borderColor:"rgba(255,255,255,.32)",boxShadow:"none",offset:1}
+        ],{duration:5000,delay:2200,iterations:Infinity,easing:ease,fill:"both"});
+        var sw=document.createElement("span");
+        sw.style.cssText="position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(120deg,transparent,rgba(251,191,36,.45),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
+        el.insertBefore(sw,el.firstChild);
+        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3500,delay:1500,iterations:Infinity,easing:ease});
+      });
+      // Hero btn -- call (white bg, bright blue shimmer wave)
+      document.querySelectorAll(".gh-hero-btn--call").forEach(function(el){
+        el.style.position="relative";el.style.overflow="hidden";
+        var sw=document.createElement("span");
+        sw.style.cssText="position:absolute;top:0;left:-100%;width:70%;height:100%;background:linear-gradient(120deg,transparent 10%,rgba(96,165,250,.65) 50%,transparent 90%);transform:skewX(-15deg);pointer-events:none;z-index:1;";
+        el.insertBefore(sw,el.firstChild);
+        sw.animate([{left:"-100%"},{left:"200%"}],{duration:2800,iterations:Infinity,easing:"linear"});
+      });
+      // Hero btn -- compare (blue bg, bright white shimmer wave)
+      document.querySelectorAll(".gh-hero-btn--compare").forEach(function(el){
+        el.style.position="relative";el.style.overflow="hidden";
+        var sw=document.createElement("span");
+        sw.style.cssText="position:absolute;top:0;left:-100%;width:70%;height:100%;background:linear-gradient(120deg,transparent 10%,rgba(255,255,255,.55) 50%,transparent 90%);transform:skewX(-15deg);pointer-events:none;z-index:1;";
+        el.insertBefore(sw,el.firstChild);
+        sw.animate([{left:"-100%"},{left:"200%"}],{duration:3200,iterations:Infinity,easing:"linear"});
+      });
+      // CTA cards — white sweep synchronized
+      document.querySelectorAll(".gh-cta-card").forEach(function(el,i){
+        el.style.position="relative";el.style.overflow="hidden";
+        var sw=document.createElement("span");
+        sw.style.cssText="position:absolute;top:0;left:-150%;width:80%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.15),transparent);transform:skewX(-15deg);pointer-events:none;z-index:1;";
+        el.insertBefore(sw,el.firstChild);
+        sw.animate([{left:"-150%"},{left:"200%"}],{duration:5000,delay:i*2500,iterations:Infinity,easing:ease});
       });
     })();
 
