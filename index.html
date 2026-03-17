@@ -2430,120 +2430,144 @@ const V52_ITEMS = [
         // ── NEPQ TAB ──
         pbRightTab==="nepq"&&React.createElement("div",{style:{flex:1,overflowY:"auto",padding:"12px 13px"}},
 
-          !pbHtml&&React.createElement("div",{style:{textAlign:"center",padding:"30px 16px",color:"#4B5C6E",fontSize:12}},"Load a page to start NEPQ editing"),
+          // ── No page loaded ──
+          !pbHtml&&React.createElement("div",{style:{textAlign:"center",padding:"30px 16px",color:"#4B5C6E",fontSize:12}},
+            "Load a page to start NEPQ editing"
+          ),
 
           pbHtml&&React.createElement(React.Fragment,null,
 
-            // ── Header bar ──────────────────────────────────
-            React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,paddingBottom:8,borderBottom:"1px solid rgba(255,255,255,0.07)"}},
-              React.createElement("div",null,
-                React.createElement("div",{style:{fontSize:12,fontWeight:700,color:"#FFF"}},
-                  pbSections.length > 0 ? pbSections.length+" sections" : "Manual mode"
+            // ── API key + Rewrite All bar ──────────────────────
+            React.createElement("div",{style:{marginBottom:12,padding:"9px 12px",borderRadius:9,
+              background:aiApiKey?"rgba(13,148,136,0.06)":"rgba(239,68,68,0.06)",
+              border:"1px solid "+(aiApiKey?"rgba(13,148,136,0.2)":"rgba(239,68,68,0.2)")}},
+              React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8}},
+                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:7}},
+                  React.createElement("div",{style:{width:7,height:7,borderRadius:"50%",background:aiApiKey?"#0D9488":"#EF4444",flexShrink:0}}),
+                  aiApiKey
+                    ? React.createElement("span",{style:{fontSize:10,fontWeight:700,color:"#2DD4BF"}},"Claude API ready — AI Write enabled")
+                    : React.createElement("span",{style:{fontSize:10,fontWeight:700,color:"#F87171"}},"No API key — AI Agent tab → save key first")
                 ),
-                React.createElement("div",{style:{fontSize:10,color:"#6B7B8D"}},
-                  pbSections.length > 0
-                    ? secsDone+" rewritten · "+pbSections.filter(function(s){return s.nepqType&&s.status==="pending";}).length+" ready"
-                    : "No headings detected — add sections manually below"
-                )
+                aiApiKey&&pbSections.length>0&&React.createElement("button",{
+                  onClick:function(){
+                    var pending=pbSections.filter(function(s){return s.nepqType&&s.status!=="done"&&s.status!=="rewriting";});
+                    pending.forEach(function(s,i){
+                      setTimeout(function(){nepqRewrite(s);},i*3500);
+                    });
+                  },
+                  style:{padding:"5px 14px",borderRadius:8,border:"none",
+                    background:"linear-gradient(135deg,#FFC72C,#FFD54F)",
+                    color:"#1A2332",fontSize:10,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}
+                },(function(){
+                  var inProg=pbSections.filter(function(s){return s.status==="rewriting";}).length;
+                  var done2=pbSections.filter(function(s){return s.status==="done";}).length;
+                  var pending=pbSections.filter(function(s){return s.nepqType&&s.status!=="done";}).length;
+                  if(inProg>0) return "⏳ "+inProg+" writing...";
+                  if(done2>0&&pending===0) return "✅ All done! Copy in Output";
+                  return "⚡ Rewrite All ("+pending+")";
+                })())
+              )
+            ),
+
+            // ── Section count header ────────────────────────────
+            React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8,paddingBottom:6,borderBottom:"1px solid rgba(255,199,44,0.2)"}},
+              React.createElement("div",{style:{fontSize:10,fontWeight:800,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.08em"}},
+                "NEPQ Sections"
               ),
-              React.createElement("div",{style:{display:"flex",gap:6}},
-                // Add manual section button
+              React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},
+                React.createElement("span",{style:{fontSize:13,fontWeight:700,
+                  color:pbSections.filter(function(s){return s.status==="done";}).length===pbSections.length&&pbSections.length>0?"#4ADE80":"#EF4444"}},
+                  pbSections.filter(function(s){return s.status==="done";}).length+"/"+pbSections.length
+                ),
                 React.createElement("button",{
                   onClick:function(){
-                    var heading = prompt("Section heading:");
+                    var heading=prompt("Section heading:");
                     if(!heading||!heading.trim()) return;
-                    var newSec = {id:"sec-manual-"+Date.now(),heading:heading.trim(),content:"",nepqType:"connecting",question:"",rewrite:"",status:"pending"};
-                    setPbSections(function(prev){return prev.concat([newSec]);});
+                    setPbSections(function(prev){return prev.concat([{id:"sec-manual-"+Date.now(),heading:heading.trim(),content:"",nepqType:"connecting",question:"",rewrite:"",status:"pending"}]);});
                   },
-                  style:{padding:"5px 10px",borderRadius:7,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.04)",color:"#C4CDD5",fontSize:10,fontWeight:700,cursor:"pointer"}
-                },"+ Add Section"),
-                // Rewrite all assigned
-                pbSections.filter(function(s){return s.nepqType&&s.status!=="done";}).length > 0 &&
-                React.createElement("button",{
-                  onClick:function(){
-                    var pending=pbSections.filter(function(s){return s.nepqType&&(s.status==="pending"||s.status==="error");});
-                    pending.reduce(function(p,sec){return p.then(function(){return new Promise(function(res){
-                      nepqRewrite(sec);
-                      setTimeout(res,600);
-                    });});},Promise.resolve());
-                  },
-                  style:{padding:"5px 12px",borderRadius:7,border:"none",background:"linear-gradient(135deg,#FFC72C,#FFD54F)",color:"#1A2332",fontSize:10,fontWeight:800,cursor:"pointer"}
-                },"⚡ Rewrite All ("+(pbSections.filter(function(s){return s.nepqType&&s.status!=="done";}).length)+")")
+                  style:{padding:"3px 9px",borderRadius:6,border:"1px solid rgba(255,255,255,0.12)",background:"rgba(255,255,255,0.04)",color:"#C4CDD5",fontSize:10,fontWeight:700,cursor:"pointer"}
+                },"+ Add")
               )
             ),
 
-            // ── No sections message ──────────────────────────
-            pbSections.length===0&&React.createElement("div",{style:{padding:"16px 14px",borderRadius:10,background:"rgba(255,199,44,0.05)",border:"1px solid rgba(255,199,44,0.15)",marginBottom:12}},
-              React.createElement("div",{style:{fontSize:11,fontWeight:700,color:"#FFC72C",marginBottom:6}},"No headings auto-detected"),
-              React.createElement("div",{style:{fontSize:11,color:"#C4CDD5",lineHeight:1.6,marginBottom:8}},"This can happen with Elementor pages that wrap headings in widget containers. You can:"),
-              React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:4}},
-                React.createElement("div",{style:{fontSize:11,color:"#C4CDD5"}},'• Click \"+ Add Section\" above and type the heading manually'),
-                React.createElement("div",{style:{fontSize:11,color:"#C4CDD5"}},"• Use AI Chat tab — ask it to list and rewrite all sections"),
-                React.createElement("div",{style:{fontSize:11,color:"#C4CDD5"}},"• Re-paste the full page source (not just WP REST excerpt)")
+            // ── No sections message ─────────────────────────────
+            pbSections.length===0&&React.createElement("div",{style:{padding:"12px",borderRadius:8,background:"rgba(255,199,44,0.04)",border:"1px solid rgba(255,199,44,0.12)",marginBottom:8}},
+              React.createElement("div",{style:{fontSize:10,fontWeight:700,color:"#FFC72C",marginBottom:4}},"No sections detected"),
+              React.createElement("div",{style:{fontSize:10,color:"#C4CDD5",lineHeight:1.6}},
+                "Click \"+ Add\" to add sections manually, or re-paste the full page source HTML."
               )
             ),
 
-            // ── Section cards ────────────────────────────────
+            // ── Section cards — mirrored from CheckItem layout ──
             pbSections.map(function(sec) {
-              var isActive = pbActiveSec===sec.id;
+              var isDone2  = sec.status==="done";
+              var isWriting = sec.status==="rewriting";
               var nt = NEPQ_TYPES.find(function(t){return t.id===sec.nepqType;});
+              var isActive = pbActiveSec===sec.id;
 
-              return React.createElement("div",{key:sec.id,
-                style:{marginBottom:8,borderRadius:10,overflow:"hidden",
-                  border:"1px solid "+(sec.status==="done"?"rgba(74,222,128,0.3)":isActive?"rgba(255,199,44,0.4)":"rgba(255,255,255,0.08)"),
-                  background:sec.status==="done"?"rgba(74,222,128,0.03)":isActive?"rgba(255,199,44,0.04)":"rgba(255,255,255,0.02)",
-                  transition:"all 0.15s"}
-                },
+              return React.createElement("div",{key:sec.id,style:{marginBottom:5}},
 
-                // ── Section header row ──
+                // ── Main row (matches CheckItem row exactly) ──
                 React.createElement("div",{
                   onClick:function(){setPbActiveSec(isActive?null:sec.id);},
-                  style:{padding:"9px 12px",cursor:"pointer",display:"flex",alignItems:"center",gap:8}},
+                  style:{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,cursor:"pointer",
+                    background:isDone2?"rgba(74,222,128,0.05)":isActive?"rgba(255,199,44,0.05)":"rgba(248,113,113,0.04)",
+                    border:"1px solid "+(isDone2?"rgba(74,222,128,0.18)":isActive?"rgba(255,199,44,0.25)":"rgba(248,113,113,0.1)")}
+                  },
                   // Status icon
                   React.createElement("div",{style:{fontSize:13,flexShrink:0,width:18,textAlign:"center"}},
-                    sec.status==="done"?"✅":sec.status==="rewriting"?"⏳":"○"
+                    isDone2?"✅":isWriting?"⏳":"❌"
                   ),
-                  // Heading + type badge
+                  // Heading + NEPQ type badge
                   React.createElement("div",{style:{flex:1,minWidth:0}},
-                    React.createElement("div",{style:{fontSize:11,fontWeight:600,
-                      color:sec.status==="done"?"#4ADE80":isActive?"#FFC72C":"#C4CDD5",
-                      overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:1}},
-                      sec.heading.slice(0,40)+(sec.heading.length>40?"...":"")
+                    React.createElement("div",{style:{fontSize:11,fontWeight:600,color:"#E8ECF0",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},
+                      sec.heading
                     ),
-                    nt&&React.createElement("div",{style:{fontSize:9,fontWeight:700,color:nt.color}},nt.label)
+                    React.createElement("div",{style:{fontSize:9,fontWeight:700,color:nt?nt.color:"#4B5C6E",opacity:0.85,marginTop:1}},
+                      nt?nt.label:"click to assign type"
+                    )
                   ),
-                  // Quick Write button when type is set
-                  sec.status!=="rewriting"&&sec.nepqType&&sec.status!=="done"&&
-                  React.createElement("button",{
-                    onClick:function(e){e.stopPropagation();nepqRewrite(sec);},
-                    style:{flexShrink:0,padding:"4px 12px",borderRadius:6,border:"none",
-                      background:"#0D9488",color:"#FFF",fontSize:10,fontWeight:700,cursor:"pointer",
-                      boxShadow:"0 1px 6px rgba(13,148,136,0.35)"}
-                  },"✍️ Write"),
+                  // Write button (mirrors AI Fix button)
+                  !isDone2&&!isWriting&&React.createElement("button",{
+                    onClick:function(e){
+                      e.stopPropagation();
+                      if(sec.nepqType) nepqRewrite(sec);
+                      else setPbActiveSec(sec.id);
+                    },
+                    style:{flexShrink:0,padding:"4px 11px",borderRadius:6,border:"none",whiteSpace:"nowrap",
+                      background:sec.nepqType?"linear-gradient(135deg,#FFC72C,#FFD54F)":"rgba(255,255,255,0.06)",
+                      color:sec.nepqType?"#1A2332":"#4B5C6E",fontSize:10,fontWeight:700,
+                      cursor:sec.nepqType?"pointer":"default",minWidth:58,textAlign:"center",
+                      boxShadow:sec.nepqType?"0 1px 6px rgba(255,199,44,0.3)":"none"}
+                  }, sec.nepqType?"✍️ Write":"Set type"),
                   // Re-run if done
-                  sec.status==="done"&&
-                  React.createElement("button",{
+                  isDone2&&React.createElement("button",{
                     onClick:function(e){e.stopPropagation();nepqRewrite(sec);},
-                    style:{flexShrink:0,padding:"4px 10px",borderRadius:6,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#6B7B8D",fontSize:10,cursor:"pointer"}
-                  },"↺"),
-                  // Delete button
+                    style:{flexShrink:0,padding:"4px 10px",borderRadius:6,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#6B7B8D",fontSize:10,cursor:"pointer",whiteSpace:"nowrap"}
+                  },"↺ Re-run"),
+                  // Delete
                   React.createElement("button",{
                     onClick:function(e){e.stopPropagation();setPbSections(function(prev){return prev.filter(function(s){return s.id!==sec.id;});});},
-                    style:{flexShrink:0,width:20,height:20,borderRadius:4,border:"none",background:"transparent",color:"#4B5C6E",fontSize:11,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}
+                    style:{flexShrink:0,width:20,height:20,borderRadius:4,border:"none",background:"transparent",color:"#4B5C6E",fontSize:12,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",marginLeft:2}
                   },"✕")
                 ),
 
-                // ── Expanded editor ──
-                isActive&&React.createElement("div",{style:{padding:"10px 12px",borderTop:"1px solid rgba(255,255,255,0.07)"}},
+                // ── Expanded panel (mirrors AI Fix snippet panel) ──
+                isActive&&React.createElement("div",{
+                  style:{margin:"4px 0 6px 0",borderRadius:9,border:"1px solid rgba(255,199,44,0.2)",overflow:"hidden"}
+                },
 
-                  // NEPQ type selector
-                  React.createElement("div",{style:{marginBottom:10}},
-                    React.createElement("div",{style:{fontSize:9,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:6}},"NEPQ Type"),
+                  // Type selector header
+                  React.createElement("div",{style:{padding:"8px 10px",background:"rgba(255,199,44,0.04)",borderBottom:"1px solid rgba(255,199,44,0.1)"}},
+                    React.createElement("div",{style:{fontSize:9,fontWeight:700,color:"#FFC72C",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:6}},"NEPQ Type"),
                     React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:4}},
                       NEPQ_TYPES.map(function(t){
                         var sel=sec.nepqType===t.id;
                         return React.createElement("button",{key:t.id,
-                          onClick:function(){setPbSections(function(prev){return prev.map(function(s){return s.id===sec.id?Object.assign({},s,{nepqType:t.id}):s;});});},
+                          onClick:function(e){
+                            e.stopPropagation();
+                            setPbSections(function(prev){return prev.map(function(s){return s.id===sec.id?Object.assign({},s,{nepqType:t.id}):s;});});
+                          },
                           title:t.desc,
                           style:{padding:"4px 9px",borderRadius:6,fontSize:10,fontWeight:sel?700:500,cursor:"pointer",
                             border:sel?"1.5px solid "+t.color:"1px solid rgba(255,255,255,0.08)",
@@ -2552,58 +2576,57 @@ const V52_ITEMS = [
                           },t.label);
                       })
                     ),
-                    // Type description
-                    nt&&React.createElement("div",{style:{fontSize:9,color:"#6B7B8D",fontStyle:"italic",marginTop:5,padding:"5px 8px",background:"rgba(255,255,255,0.02)",borderRadius:5,lineHeight:1.5}},
-                      nt.desc
-                    )
-                  ),
-
-                  // Original content preview
-                  sec.content&&React.createElement("div",{style:{marginBottom:10}},
-                    React.createElement("div",{style:{fontSize:9,color:"#4B5C6E",marginBottom:3,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.06em"}},"Original Content"),
-                    React.createElement("div",{style:{fontSize:10,color:"#6B7B8D",maxHeight:60,overflow:"hidden",lineHeight:1.6,padding:"6px 8px",background:"rgba(0,0,0,0.15)",borderRadius:6}},sec.content.slice(0,300))
+                    nt&&React.createElement("div",{style:{fontSize:9,color:"#6B7B8D",fontStyle:"italic",marginTop:6,lineHeight:1.5}},nt.desc)
                   ),
 
                   // Writing spinner
-                  sec.status==="rewriting"&&React.createElement("div",{style:{textAlign:"center",padding:"16px",color:"#FFC72C",fontSize:12}},
-                    React.createElement("div",{style:{display:"inline-flex",alignItems:"center",gap:8}},
-                      React.createElement("div",{style:{width:14,height:14,borderRadius:"50%",border:"2px solid rgba(255,199,44,0.3)",borderTop:"2px solid #FFC72C",animation:"spin 1s linear infinite"}}),
-                      "Rewriting with NEPQ..."
+                  isWriting&&React.createElement("div",{style:{padding:"14px",textAlign:"center",background:"rgba(0,0,0,0.2)"}},
+                    React.createElement("div",{style:{display:"inline-flex",alignItems:"center",gap:8,color:"#FFC72C",fontSize:12}},
+                      React.createElement("div",{style:{width:12,height:12,borderRadius:"50%",border:"2px solid rgba(255,199,44,0.3)",borderTop:"2px solid #FFC72C",animation:"spin 1s linear infinite"}}),
+                      "Writing NEPQ rewrite..."
                     )
                   ),
 
-                  // Result block
-                  sec.status==="done"&&sec.question&&React.createElement("div",{style:{background:"rgba(13,148,136,0.06)",border:"1px solid rgba(13,148,136,0.2)",borderRadius:8,padding:"10px 12px",marginBottom:8}},
-                    // Unspoken question
-                    React.createElement("div",{style:{fontStyle:"italic",fontWeight:700,color:"#0D9488",fontSize:11,marginBottom:6,lineHeight:1.5,borderLeft:"3px solid #0D9488",paddingLeft:8}},
-                      "“"+sec.question+"”"
+                  // Result (mirrors snippet panel)
+                  isDone2&&sec.question&&React.createElement(React.Fragment,null,
+                    // Result header row
+                    React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"7px 10px",background:"rgba(74,222,128,0.06)",borderBottom:"1px solid rgba(74,222,128,0.12)"}},
+                      React.createElement("div",{style:{display:"flex",alignItems:"center",gap:7}},
+                        React.createElement("span",{style:{fontSize:10,color:"#4ADE80",fontWeight:700}},"✅ NEPQ rewrite ready")
+                      ),
+                      React.createElement("div",{style:{display:"flex",gap:5}},
+                        React.createElement("button",{
+                          onClick:function(e){
+                            e.stopPropagation();
+                            var txt='<h2>'+sec.heading+'</h2>\n<div class="gh-nepq-q" style="font-style:italic;font-weight:700;color:#0D9488;border-left:3px solid #0D9488;padding-left:12px">“'+sec.question+'”</div>\n<div class="gh-nepq-a">'+sec.rewrite+'</div>';
+                            navigator.clipboard.writeText(txt);
+                          },
+                          style:{padding:"4px 14px",borderRadius:6,border:"none",background:"rgba(74,222,128,0.18)",color:"#4ADE80",fontSize:10,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}
+                        },"📋 Copy HTML")
+                      )
                     ),
-                    // Rewrite preview
-                    React.createElement("div",{style:{fontSize:11,color:"#E8ECF0",lineHeight:1.7,marginBottom:8,maxHeight:100,overflow:"hidden"}},
-                      sec.rewrite.slice(0,400)+(sec.rewrite.length>400?"...":"")
-                    ),
-                    // Copy button
-                    React.createElement("button",{
-                      onClick:function(){
-                        var txt = '<h2>'+sec.heading+'</h2>\n<div class="gh-nepq-q" style="font-style:italic;font-weight:700;color:#0D9488;border-left:3px solid #0D9488;padding-left:12px;margin-bottom:10px">“'+sec.question+'”</div>\n<div class="gh-nepq-a">'+sec.rewrite+'</div>';
-                        navigator.clipboard.writeText(txt);
-                      },
-                      style:{width:"100%",padding:"7px 12px",borderRadius:7,border:"1px solid rgba(13,148,136,0.3)",background:"rgba(13,148,136,0.1)",color:"#2DD4BF",fontSize:11,fontWeight:700,cursor:"pointer"}
-                    },"📋 Copy Section HTML")
+                    // Question + rewrite preview (mirrors snippet pre block)
+                    React.createElement("div",{style:{padding:"9px 11px",background:"rgba(0,0,0,0.2)"}},
+                      React.createElement("div",{style:{fontStyle:"italic",fontWeight:700,color:"#FFC72C",fontSize:11,marginBottom:6,lineHeight:1.5,borderLeft:"3px solid #FFC72C",paddingLeft:8}},
+                        "“"+sec.question+"”"
+                      ),
+                      React.createElement("div",{style:{fontSize:10,color:"#C4CDD5",lineHeight:1.6,maxHeight:100,overflow:"hidden"}},
+                        sec.rewrite.length>300?sec.rewrite.slice(0,300)+"...":sec.rewrite
+                      )
+                    )
                   ),
 
-                  // Write button (shown when type selected, not yet written)
-                  sec.nepqType&&sec.status!=="done"&&sec.status!=="rewriting"&&
-                  React.createElement("button",{
-                    onClick:function(){nepqRewrite(sec);},
-                    style:{width:"100%",padding:"9px 12px",borderRadius:8,border:"none",
-                      background:"linear-gradient(135deg,#0D9488,#0F766E)",
-                      color:"#FFF",fontSize:12,fontWeight:700,cursor:"pointer",
-                      boxShadow:"0 2px 10px rgba(13,148,136,0.3)"}
-                  },"✍️ Write NEPQ Rewrite"),
-
-                  // Prompt to set type
-                  !sec.nepqType&&React.createElement("div",{style:{textAlign:"center",padding:"8px",fontSize:11,color:"#4B5C6E"}},"↑ Select a NEPQ type above, then click Write")
+                  // Write button in expanded panel (when type set, not yet written)
+                  !isDone2&&!isWriting&&React.createElement("div",{style:{padding:"8px 10px",background:"rgba(0,0,0,0.15)"}},
+                    sec.nepqType
+                      ? React.createElement("button",{
+                          onClick:function(e){e.stopPropagation();nepqRewrite(sec);},
+                          style:{width:"100%",padding:"9px 12px",borderRadius:8,border:"none",
+                            background:"linear-gradient(135deg,#FFC72C,#FFD54F)",
+                            color:"#1A2332",fontSize:12,fontWeight:800,cursor:"pointer"}
+                        },"✍️ Write NEPQ Rewrite")
+                      : React.createElement("div",{style:{textAlign:"center",fontSize:10,color:"#4B5C6E"}},"↑ Select a NEPQ type above, then click Write")
+                  )
                 )
               );
             })
