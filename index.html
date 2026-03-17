@@ -275,9 +275,37 @@ window.GH_PB_NEPQ=[
       tgt.style.outline="2px solid #4ADE80";tgt.style.background="rgba(74,222,128,0.04)";
       setTimeout(function(){tgt.style.outline="";tgt.style.background="";},2000);
     });
-    // GH_APPEND: no section selected — append block at end of body
+    // GH_APPEND: find matching NEPQ-type section and replace it; fallback append
     window.addEventListener("message",function(ev2){
       if(!ev2.data||ev2.data.type!=="GH_APPEND")return;
+      var nepqId=ev2.data.nepqId||"";
+      // Try to find a section whose badge matches the NEPQ type
+      var secs=Array.from(document.querySelectorAll(".ghpb-sec"));
+      var tgt=null;
+      if(nepqId){
+        tgt=secs.find(function(s){
+          var badge=s.querySelector("span");
+          return badge&&badge.textContent.trim().toLowerCase()===nepqId.toLowerCase();
+        })||null;
+      }
+      if(tgt){
+        // Replace section content like GH_APPLY
+        var h2=tgt.querySelector("h2");
+        if(h2){
+          Array.from(tgt.querySelectorAll("p,ul,ol,.gh-answer,.ghpb-applied,.ghpb-appended")).forEach(function(el){el.remove();});
+          var wrapR=document.createElement("div");
+          wrapR.className="ghpb-applied";
+          wrapR.style.cssText="border-left:3px solid #0D9488;padding:10px 16px;margin:8px 0;background:rgba(13,148,136,0.04);border-radius:0 6px 6px 0;";
+          if(ev2.data.q){var qpR=document.createElement("p");qpR.style.cssText="font-style:italic;font-weight:700;color:#0D9488;margin:0 0 8px;font-size:15px;";qpR.textContent="\u201c"+ev2.data.q+"\u201d";wrapR.appendChild(qpR);}
+          (ev2.data.rw||"").split("\n\n").forEach(function(para){if(!para.trim())return;var pR=document.createElement("p");pR.style.margin="0 0 8px";pR.textContent=para.trim();wrapR.appendChild(pR);});
+          h2.insertAdjacentElement("afterend",wrapR);
+          tgt.style.outline="2px solid #4ADE80";tgt.style.background="rgba(74,222,128,0.04)";
+          setTimeout(function(){tgt.style.outline="";tgt.style.background="";},2000);
+          tgt.scrollIntoView({behavior:"smooth",block:"center"});
+          return;
+        }
+      }
+      // Fallback: append at end of body
       var wrap3=document.createElement("div");
       wrap3.className="ghpb-appended";
       wrap3.style.cssText="border-left:3px solid #0D9488;padding:12px 18px;margin:20px 0;background:rgba(13,148,136,0.04);border-radius:0 8px 8px 0;";
@@ -908,7 +936,7 @@ window.GH_PB_NEPQ=[
                       // No active section — append rewrite to end of page in sandbox
                       var frames=document.querySelectorAll("iframe[title='Page Sandbox']");
                       if(!frames.length)return;
-                      frames[0].contentWindow.postMessage({type:"GH_APPEND",q:ndA2.q||"",rw:ndA2.rw||"",label:aN2.label||""},"*");
+                      frames[0].contentWindow.postMessage({type:"GH_APPEND",q:ndA2.q||"",rw:ndA2.rw||"",label:aN2.label||"",nepqId:aN2.id||""},"*");
                       setSaved(false);
                     },
                     style:{padding:"2px 8px",borderRadius:4,border:"none",background:"linear-gradient(135deg,#0D9488,#2DD4BF)",color:"#FFF",fontSize:8,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}
