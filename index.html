@@ -304,6 +304,9 @@ window.GH_PB_NEPQ=[
     var r25=_s(null);  var activeSec=r25[0];   var setActiveSec=r25[1];
     var r26=_s({});    var expandFix=r26[0];   var setExpandFix=r26[1];
     var r27=_s(false);  var editMode=r27[0];    var setEditMode=r27[1];
+    var r28=_s(false);  var secRewriting=r28[0];var setSecRewriting=r28[1];
+    var r29=_s(null);   var secResult=r29[0];   var setSecResult=r29[1];
+    var r30=_s(false);  var secOverride=r30[0]; var setSecOverride=r30[1];
     var chatRef=R.useRef(null);
 
     // ── Computed ───────────────────────────────────────────────────────
@@ -372,6 +375,7 @@ window.GH_PB_NEPQ=[
         var m=ev.data;
         setActiveSec({idx:m.idx,heading:m.heading,ntype:m.ntype,txt:m.txt,total:m.total});
         setNepqTab(m.ntype||"connecting");
+        setSecResult(null);setSecOverride(false);
         setPbTab("nepq");
         setNepqData(function(prev){
           var n=Object.assign({},prev);
@@ -450,6 +454,46 @@ window.GH_PB_NEPQ=[
       }catch(e){console.error(e);}
       setRewriting(function(p){var n=Object.assign({},p);n[type.id]=false;return n;});
     }
+
+    // Smart section rewrite: auto-picks best NEPQ type, returns result
+    async function rewriteSection(sec){
+      if(!aiApiKey||!pbPage||!sec)return;
+      setSecRewriting(true);setSecResult(null);setSecOverride(false);
+      try{
+        var NEPQ_IDS=["connecting","situation","problem","solution","consequence","qualifying","committing"];
+        var slot=sec.total<=1?0:Math.min(6,Math.round((sec.idx/(sec.total-1))*6));
+        var suggestedId=NEPQ_IDS[slot]||"connecting";
+        var suggestedType=NEPQ_TYPES.find(function(n){return n.id===suggestedId;})||NEPQ_TYPES[0];
+        var resp=await fetch("https://api.anthropic.com/v1/messages",{
+          method:"POST",
+          headers:{"Content-Type":"application/json","x-api-key":aiApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+          body:JSON.stringify({
+            model:"claude-sonnet-4-20250514",max_tokens:1800,
+            system:"You are a Medicare content specialist applying NEPQ (Neuro-Emotional Persuasion Questioning) for GenerationHealth.me.\nRob Simm | License #10447418 | (828) 761-3326 | Durham/Wake NC | Independent local broker.\n\nYou are rewriting a specific section of a page. The section is number "+(sec.idx+1)+" of "+sec.total+" on this page.\n\nNEPQ type assigned: "+suggestedType.label+"\nNEPQ goal: "+suggestedType.goal+"\nNEPQ approach: "+suggestedType.prompt+"\n\nPage: "+pbPage.name+" /"+pbPage.slug+"/\nPage excerpt (first 1500 chars):\n"+pbHtml.substring(0,1500)+"\n\nRules:\n- Never open with Rob name or company name\n- Lead with the reader world — their fear confusion or hope\n- Sound like a knowledgeable neighbor, not a sales page\n- Short paragraphs 2-3 sentences max\n- Reference the specific section topic naturally\n\nOutput ONLY this format, nothing else:\nNEPQ_TYPE: [the NEPQ type you used]\nQUESTION: [the reader unspoken question — their inner voice, 1 sentence]\nREWRITE: [2-4 paragraphs in the assigned NEPQ style]",
+            messages:[{role:"user",content:"Rewrite this section:\n\nHeading: "+sec.heading+"\n\nOriginal content:\n"+sec.txt}]
+          })
+        });
+        var d=await resp.json();
+        var raw=(d.content||[]).map(function(b){return b.text||"";}).join("");
+        var tm=raw.match(/NEPQ_TYPE:\s*(.+?)\n/);
+        var qm=raw.match(/QUESTION:\s*(.+?)(?:\n|REWRITE:)/s);
+        var rm=raw.match(/REWRITE:\s*([\s\S]+)/);
+        var usedId=suggestedId;
+        if(tm){var tl=tm[1].trim().toLowerCase();var found=NEPQ_TYPES.find(function(n){return n.label.toLowerCase()===tl||n.id===tl;});if(found)usedId=found.id;}
+        var usedType=NEPQ_TYPES.find(function(n){return n.id===usedId;})||suggestedType;
+        setSecResult({
+          q:qm?qm[1].trim():"",
+          rw:rm?rm[1].trim():raw,
+          type:usedType,
+          original:sec.txt,
+          secIdx:sec.idx
+        });
+        setNepqTab(usedId);
+        setNepqData(function(p){var n=Object.assign({},p);n[usedId]=Object.assign({},p[usedId]||{},{q:qm?qm[1].trim():"",rw:rm?rm[1].trim():raw});return n;});
+      }catch(e){console.error(e);}
+      setSecRewriting(false);
+    }
+
 
     async function sendAi(){
       if(!aiApiKey||!aiInput.trim())return;
@@ -703,72 +747,139 @@ window.GH_PB_NEPQ=[
     }
 
     function renderNepq(){
-      return ce("div",{style:{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}},
-        activeSec?ce("div",{style:{padding:"5px 12px",background:"rgba(13,148,136,0.06)",borderBottom:"1px solid rgba(13,148,136,0.2)",display:"flex",alignItems:"center",gap:7,flexShrink:0}},
-          ce("div",{style:{width:5,height:5,borderRadius:"50%",background:"#0D9488",flexShrink:0,animation:"pbPulse 1.5s ease-in-out infinite"}}),
-          ce("div",{style:{flex:1,minWidth:0}},
-            ce("div",{style:{fontSize:10,fontWeight:700,color:"#2DD4BF",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}},"Sec "+(activeSec.idx+1)+"/"+activeSec.total+": "+activeSec.heading),
-            ce("div",{style:{fontSize:7,color:"rgba(45,212,191,0.55)"}},activeSec.ntype+" \xb7 click another section to switch")
+      // ── SECTION FOCUSED EDITOR (when a section is active) ──────────
+      if(activeSec&&!secOverride){
+        var aNT=NEPQ_TYPES.find(function(n){return n.id===nepqTab;})||NEPQ_TYPES[0]||{};
+        return ce("div",{style:{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}},
+          // Section header
+          ce("div",{style:{padding:"10px 14px",borderBottom:"1px solid rgba(255,255,255,0.07)",background:"rgba(13,148,136,0.05)",flexShrink:0}},
+            ce("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:3}},
+              ce("div",{style:{width:6,height:6,borderRadius:"50%",background:"#0D9488",flexShrink:0,animation:secRewriting?"pbPulse 1s ease-in-out infinite":"none"}}),
+              ce("div",{style:{fontSize:10,fontWeight:700,color:"#2DD4BF",flex:1,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}},"Sec "+(activeSec.idx+1)+"/"+activeSec.total+": "+activeSec.heading),
+              ce("button",{onClick:function(){setActiveSec(null);setSecResult(null);setSecOverride(false);},style:{padding:"1px 7px",borderRadius:4,border:"none",background:"rgba(255,255,255,0.06)",color:"#6B7B8D",fontSize:9,cursor:"pointer",flexShrink:0}},"×")
+            ),
+            secResult?ce("div",{style:{fontSize:8,color:aNT.col||"#FFC72C",fontWeight:700}},"✨ Rewritten as "+aNT.label):
+            ce("div",{style:{fontSize:8,color:"rgba(45,212,191,0.5)"}},pbPage?pbPage.name:"")
           ),
-          ce("button",{onClick:function(){setActiveSec(null);},style:{padding:"1px 6px",borderRadius:4,border:"none",background:"rgba(255,255,255,0.06)",color:"#6B7B8D",fontSize:9,cursor:"pointer",flexShrink:0}},"\xd7")
+          ce("div",{style:{flex:1,overflowY:"auto",display:"flex",flexDirection:"column"}},
+            // No result yet — show original + big rewrite button
+            !secResult&&!secRewriting?ce("div",{style:{padding:"12px 14px",display:"flex",flexDirection:"column",gap:10,flex:1}},
+              ce("div",{style:{fontSize:9,fontWeight:700,color:"#6B7B8D",textTransform:"uppercase",marginBottom:2}},"Original Section"),
+              ce("div",{style:{padding:"10px 12px",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8,fontSize:10,color:"#B4C0CC",lineHeight:1.75,maxHeight:180,overflow:"auto",whiteSpace:"pre-wrap"}},activeSec.txt||"(no text extracted)"),
+              aiApiKey?ce("button",{
+                onClick:function(){rewriteSection(activeSec);},
+                style:{width:"100%",padding:"14px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#0D9488,#2DD4BF)",color:"#FFF",fontSize:13,fontWeight:800,cursor:"pointer",marginTop:"auto",letterSpacing:"0.01em"}
+              },"✨ Rewrite This Section"):
+              ce("div",{style:{padding:"10px 12px",background:"rgba(239,68,68,0.06)",border:"1px solid rgba(239,68,68,0.12)",borderRadius:8,fontSize:10,color:"#EF4444"}},"Add Anthropic API key in Performance tab"),
+              ce("div",{style:{display:"flex",gap:6,flexWrap:"wrap"}},
+                NEPQ_TYPES.map(function(n){
+                  var act=nepqTab===n.id;
+                  return ce("button",{key:n.id,onClick:function(){setNepqTab(n.id);},style:{padding:"3px 8px",borderRadius:5,border:"1px solid "+(act?n.col:"rgba(255,255,255,0.07)"),background:act?n.col+"15":"transparent",color:act?n.col:"#6B7B8D",fontSize:8,fontWeight:act?700:500,cursor:"pointer"}},n.emoji+" "+n.label);
+                })
+              ),
+              ce("div",{style:{fontSize:8,color:"#2A3A4A",textAlign:"center"}},"Claude auto-selects the best type — or choose above to override")
+            ):null,
+            // Loading state
+            secRewriting?ce("div",{style:{flex:1,display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:10,padding:24}},
+              ce("div",{style:{width:32,height:32,border:"3px solid rgba(45,212,191,0.15)",borderTop:"3px solid #2DD4BF",borderRadius:"50%",animation:"spin .8s linear infinite"}}),
+              ce("div",{style:{fontSize:12,fontWeight:600,color:"#FFF"}},"Rewriting…"),
+              ce("div",{style:{fontSize:9,color:"#2A3A4A"}},"Claude is reading the page and writing")
+            ):null,
+            // Result — before/after
+            secResult&&!secRewriting?ce("div",{style:{padding:"12px 14px",display:"flex",flexDirection:"column",gap:10,flex:1}},
+              // Surfaced question
+              secResult.q?ce("div",{style:{padding:"8px 12px",background:(aNT.col||"#0D9488")+"0E",border:"1px solid "+(aNT.col||"#0D9488")+"25",borderRadius:8}},
+                ce("div",{style:{fontSize:7,fontWeight:700,color:aNT.col||"#2DD4BF",textTransform:"uppercase",marginBottom:2}},"Reader’s Unspoken Question"),
+                ce("div",{style:{fontSize:11,fontStyle:"italic",fontWeight:700,color:aNT.col||"#2DD4BF"}},"“"+secResult.q+"”")
+              ):null,
+              // New content
+              ce("div",{style:{fontSize:9,fontWeight:700,color:"#4ADE80",textTransform:"uppercase",marginBottom:2}},"Rewritten Content"),
+              ce("div",{style:{padding:"10px 12px",background:"rgba(74,222,128,0.03)",border:"1px solid rgba(74,222,128,0.12)",borderRadius:8,fontSize:10,color:"#E8ECF0",lineHeight:1.8,whiteSpace:"pre-wrap",maxHeight:200,overflow:"auto",flex:1}},secResult.rw),
+              // Action buttons
+              ce("div",{style:{display:"flex",gap:6}},
+                ce("button",{
+                  onClick:function(){
+                    applyToPage(secResult.secIdx,secResult.q,secResult.rw);
+                    setSecResult(null);setActiveSec(null);setSecOverride(false);setEditMode(false);
+                  },
+                  style:{flex:1,padding:"10px",borderRadius:9,border:"none",background:"linear-gradient(135deg,#16A34A,#22C55E)",color:"#FFF",fontSize:12,fontWeight:800,cursor:"pointer"}
+                },"✓ Accept & Apply"),
+                ce("button",{
+                  onClick:function(){rewriteSection(activeSec);},
+                  style:{padding:"10px 12px",borderRadius:9,border:"1px solid rgba(255,255,255,0.1)",background:"transparent",color:"#C4CDD5",fontSize:10,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}
+                },"↺ Retry"),
+                ce("button",{
+                  onClick:function(){setSecOverride(true);},
+                  style:{padding:"10px 12px",borderRadius:9,border:"1px solid rgba(255,199,44,0.25)",background:"rgba(255,199,44,0.06)",color:"#FFC72C",fontSize:10,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}
+                },"Style…")
+              )
+            ):null
+          )
+        );
+      }
+
+      // ── STYLE OVERRIDE / STANDARD NEPQ VIEW ─────────────────────────
+      var aN2=NEPQ_TYPES.find(function(n){return n.id===nepqTab;})||NEPQ_TYPES[0]||{};
+      var ndA2=nepqData[aN2.id||""]||{};
+      return ce("div",{style:{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}},
+        secOverride?ce("div",{style:{padding:"7px 12px",background:"rgba(255,199,44,0.05)",borderBottom:"1px solid rgba(255,199,44,0.1)",display:"flex",alignItems:"center",gap:8,flexShrink:0}},
+          ce("div",{style:{flex:1,fontSize:10,color:"#FFC72C",fontWeight:600}},"Choose a different NEPQ style"),
+          ce("button",{onClick:function(){setSecOverride(false);},style:{padding:"2px 8px",borderRadius:4,border:"none",background:"rgba(255,255,255,0.06)",color:"#6B7B8D",fontSize:9,cursor:"pointer"}},"× Cancel")
         ):null,
-        pbPage?ce("div",{style:{padding:"5px 12px",background:"rgba(255,199,44,0.03)",borderBottom:"1px solid rgba(255,199,44,0.07)",display:"flex",alignItems:"center",gap:7,flexShrink:0}},
+        activeSec?ce("div",{style:{padding:"5px 12px",background:"rgba(255,199,44,0.03)",borderBottom:"1px solid rgba(255,199,44,0.07)",display:"flex",alignItems:"center",gap:7,flexShrink:0}},
           ce("div",{style:{flex:1,minWidth:0}},
             ce("div",{style:{fontSize:9,fontWeight:700,color:"#FFC72C",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}},(pbPage?pbPage.name:"")),
-            ce("div",{style:{fontSize:7,color:"#2A3A4A"}},"/"+pbPage.slug+(pbScan?" \xb7 "+grade.g+" \xb7 "+Math.round(passed/27*100)+"%":""))
+            ce("div",{style:{fontSize:7,color:"#2A3A4A"}},"/"+pbPage.slug+(pbScan?" · "+grade.g+" · "+Math.round(passed/27*100)+"%":""))
           )
         ):null,
         ce("div",{style:{padding:"5px 7px",borderBottom:"1px solid rgba(255,255,255,0.06)",display:"flex",gap:2,flexWrap:"wrap",flexShrink:0}},
           NEPQ_TYPES.map(function(n){
             var act=nepqTab===n.id;
-            return ce("button",{key:n.id,onClick:function(){setNepqTab(n.id);},style:{padding:"3px 7px",borderRadius:5,border:"1px solid "+(act?n.col:"rgba(255,255,255,0.06)"),background:act?n.col+"15":"transparent",color:act?n.col:"#6B7B8D",fontSize:9,fontWeight:act?700:500,cursor:"pointer",whiteSpace:"nowrap"}},n.emoji+" "+n.label);
+            return ce("button",{key:n.id,onClick:function(){setNepqTab(n.id);if(secOverride){rewriteSection(Object.assign({},activeSec,{ntype:n.id}));setSecOverride(false);}},style:{padding:"3px 7px",borderRadius:5,border:"1px solid "+(act?n.col:"rgba(255,255,255,0.06)"),background:act?n.col+"15":"transparent",color:act?n.col:"#6B7B8D",fontSize:9,fontWeight:act?700:500,cursor:"pointer",whiteSpace:"nowrap"}},n.emoji+" "+n.label);
           })
         ),
         ce("div",{style:{flex:1,overflowY:"auto"}},
-          ce("div",{style:{background:aNepq.cordBg,borderBottom:"3px solid "+aNepq.col,padding:"12px 14px"}},
+          ce("div",{style:{background:aN2.cordBg,borderBottom:"3px solid "+aN2.col,padding:"12px 14px"}},
             ce("div",{style:{display:"flex",alignItems:"center",gap:8,marginBottom:7}},
-              ce("span",{style:{fontSize:20}},aNepq.emoji),
+              ce("span",{style:{fontSize:20}},aN2.emoji),
               ce("div",null,
-                ce("div",{style:{fontSize:13,fontWeight:800,color:aNepq.col,fontFamily:"Georgia,serif"}},aNepq.label),
-                ce("div",{style:{fontSize:8,fontStyle:"italic",color:"rgba(255,255,255,0.4)",marginTop:2}},"\u201c"+aNepq.goal+"\u201d")
+                ce("div",{style:{fontSize:13,fontWeight:800,color:aN2.col,fontFamily:"Georgia,serif"}},aN2.label),
+                ce("div",{style:{fontSize:8,fontStyle:"italic",color:"rgba(255,255,255,0.4)",marginTop:2}},"“"+aN2.goal+"”")
               )
             ),
-            ce("div",{style:{background:aNepq.col+"18",border:"1.5px solid "+aNepq.col+"40",borderRadius:8,padding:"8px 12px"}},
-              ce("div",{style:{fontSize:7,fontWeight:800,color:aNepq.col,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:3}},"Core Question"),
-              ce("div",{style:{fontSize:12,fontWeight:700,color:"#FFF",lineHeight:1.5}},aNepq.cord)
+            ce("div",{style:{background:aN2.col+"18",border:"1.5px solid "+aN2.col+"40",borderRadius:8,padding:"8px 12px"}},
+              ce("div",{style:{fontSize:7,fontWeight:800,color:aN2.col,textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:3}},"Core Question"),
+              ce("div",{style:{fontSize:12,fontWeight:700,color:"#FFF",lineHeight:1.5}},aN2.cord)
             )
           ),
           ce("div",{style:{padding:"10px 12px",borderBottom:"1px solid rgba(255,255,255,0.06)"}},
-            ce("div",{style:{fontSize:10,color:"#C4CDD5",lineHeight:1.8,marginBottom:7}},aNepq.why),
-            ce("div",{style:{padding:"6px 10px",background:"rgba(255,255,255,0.02)",borderLeft:"2px solid "+aNepq.col+"40",borderRadius:"0 5px 5px 0"}},
-              ce("div",{style:{fontSize:7,color:aNepq.col,fontWeight:700,textTransform:"uppercase",marginBottom:2}},"Example"),
-              ce("div",{style:{fontSize:10,fontStyle:"italic",color:"#B4C0CC",lineHeight:1.6}},"\u201c"+aNepq.ex+"\u201d")
+            ce("div",{style:{fontSize:10,color:"#C4CDD5",lineHeight:1.8,marginBottom:7}},aN2.why),
+            ce("div",{style:{padding:"6px 10px",background:"rgba(255,255,255,0.02)",borderLeft:"2px solid "+aN2.col+"40",borderRadius:"0 5px 5px 0"}},
+              ce("div",{style:{fontSize:7,color:aN2.col,fontWeight:700,textTransform:"uppercase",marginBottom:2}},"Example"),
+              ce("div",{style:{fontSize:10,fontStyle:"italic",color:"#B4C0CC",lineHeight:1.6}},"“"+aN2.ex+"”")
             )
           ),
           ce("div",{style:{padding:"10px 12px"}},
             ce("div",{style:{fontSize:8,fontWeight:700,color:"#4B5C6E",textTransform:"uppercase",marginBottom:4}},"Paste section or leave blank"),
-            ce("textarea",{value:ndA.original||"",onChange:function(e){setNepqData(function(p){var n=Object.assign({},p);n[aNepq.id]=Object.assign({},p[aNepq.id]||{},{original:e.target.value});return n;});},placeholder:"Paste existing content or leave blank \u2014 Claude reads the page\u2026",rows:3,style:{width:"100%",padding:"7px 9px",borderRadius:7,border:"1px solid rgba(255,255,255,0.09)",background:"rgba(255,255,255,0.03)",color:"#E8ECF0",fontSize:10,fontFamily:"inherit",outline:"none",resize:"vertical",lineHeight:1.6,boxSizing:"border-box"}}),
-            aiApiKey?ce("button",{onClick:function(){nepqRewrite(aNepq);},disabled:!!rewriting[aNepq.id]||!pbPage,style:{width:"100%",margin:"6px 0 8px",padding:"9px",borderRadius:8,border:"none",background:rewriting[aNepq.id]||!pbPage?"rgba(255,255,255,0.05)":"linear-gradient(135deg,"+aNepq.col+","+aNepq.col+"BB)",color:rewriting[aNepq.id]||!pbPage?"#2A3A4A":"rgba(0,0,0,0.85)",fontSize:11,fontWeight:800,cursor:rewriting[aNepq.id]||!pbPage?"not-allowed":"pointer"}},rewriting[aNepq.id]?"\u2728 Writing\u2026":"\u2728 Rewrite as "+aNepq.label):
+            ce("textarea",{value:ndA2.original||"",onChange:function(e){setNepqData(function(p){var n=Object.assign({},p);n[aN2.id]=Object.assign({},p[aN2.id]||{},{original:e.target.value});return n;});},placeholder:"Paste existing content or leave blank…",rows:3,style:{width:"100%",padding:"7px 9px",borderRadius:7,border:"1px solid rgba(255,255,255,0.09)",background:"rgba(255,255,255,0.03)",color:"#E8ECF0",fontSize:10,fontFamily:"inherit",outline:"none",resize:"vertical",lineHeight:1.6,boxSizing:"border-box"}}),
+            aiApiKey?ce("button",{onClick:function(){nepqRewrite(aN2);},disabled:!!rewriting[aN2.id]||!pbPage,style:{width:"100%",margin:"6px 0 8px",padding:"9px",borderRadius:8,border:"none",background:rewriting[aN2.id]||!pbPage?"rgba(255,255,255,0.05)":"linear-gradient(135deg,"+aN2.col+","+aN2.col+"BB)",color:rewriting[aN2.id]||!pbPage?"#2A3A4A":"rgba(0,0,0,0.85)",fontSize:11,fontWeight:800,cursor:rewriting[aN2.id]||!pbPage?"not-allowed":"pointer"}},rewriting[aN2.id]?"✨ Writing…":"✨ Rewrite as "+aN2.label):
             ce("div",{style:{margin:"6px 0 8px",padding:"7px 9px",background:"rgba(239,68,68,0.06)",border:"1px solid rgba(239,68,68,0.12)",borderRadius:7,fontSize:9,color:"#EF4444"}},"Add Anthropic API key in Performance tab"),
-            ndA.q?ce("div",{style:{marginBottom:7,padding:"7px 10px",background:aNepq.col+"0E",border:"1px solid "+aNepq.col+"22",borderRadius:7}},
-              ce("div",{style:{fontSize:7,fontWeight:700,color:aNepq.col,textTransform:"uppercase",marginBottom:2}},"Unspoken Question"),
-              ce("div",{style:{fontSize:11,fontStyle:"italic",fontWeight:700,color:aNepq.col}},"\u201c"+ndA.q+"\u201d")
+            ndA2.q?ce("div",{style:{marginBottom:7,padding:"7px 10px",background:aN2.col+"0E",border:"1px solid "+aN2.col+"22",borderRadius:7}},
+              ce("div",{style:{fontSize:7,fontWeight:700,color:aN2.col,textTransform:"uppercase",marginBottom:2}},"Unspoken Question"),
+              ce("div",{style:{fontSize:11,fontStyle:"italic",fontWeight:700,color:aN2.col}},"“"+ndA2.q+"”")
             ):null,
-            ndA.rw?ce("div",null,
+            ndA2.rw?ce("div",null,
               ce("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,gap:5}},
                 ce("div",{style:{fontSize:7,fontWeight:700,color:"#4ADE80",textTransform:"uppercase"}},"Rewritten Content"),
                 ce("div",{style:{display:"flex",gap:4}},
-                  ce("button",{onClick:function(){navigator.clipboard.writeText(ndA.rw);},style:{padding:"2px 7px",borderRadius:4,border:"none",background:"rgba(74,222,128,0.12)",color:"#4ADE80",fontSize:8,fontWeight:700,cursor:"pointer"}},"Copy"),
+                  ce("button",{onClick:function(){navigator.clipboard.writeText(ndA2.rw);},style:{padding:"2px 7px",borderRadius:4,border:"none",background:"rgba(74,222,128,0.12)",color:"#4ADE80",fontSize:8,fontWeight:700,cursor:"pointer"}},"Copy"),
                   activeSec&&typeof activeSec.idx==="number"?ce("button",{
-                    onClick:function(){
-                      applyToPage(activeSec.idx,ndA.q||"",ndA.rw||"");
-                      setNepqData(function(p){var n=Object.assign({},p);if(n[aNepq.id])n[aNepq.id].applied=true;return n;});
-                    },
+                    onClick:function(){applyToPage(activeSec.idx,ndA2.q||"",ndA2.rw||"");setNepqData(function(p){var n=Object.assign({},p);if(n[aN2.id])n[aN2.id].applied=true;return n;});},
                     style:{padding:"2px 8px",borderRadius:4,border:"none",background:"linear-gradient(135deg,#0D9488,#2DD4BF)",color:"#FFF",fontSize:8,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}
                   },"Apply to Page"):null
                 )
               ),
-              ce("div",{style:{padding:"8px 11px",background:"rgba(74,222,128,0.03)",border:"1px solid rgba(74,222,128,0.1)",borderRadius:7,fontSize:10,color:"#E8ECF0",lineHeight:1.8,whiteSpace:"pre-wrap",maxHeight:180,overflow:"auto"}},ndA.rw)
+              ce("div",{style:{padding:"8px 11px",background:"rgba(74,222,128,0.03)",border:"1px solid rgba(74,222,128,0.1)",borderRadius:7,fontSize:10,color:"#E8ECF0",lineHeight:1.8,whiteSpace:"pre-wrap",maxHeight:180,overflow:"auto"}},ndA2.rw)
             ):null
           )
         )
