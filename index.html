@@ -4035,36 +4035,6 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
       </div>
 
 
-      {/* ═══ OPERATIONS TAB ═══ */}
-
-      {view==="performance"&&<PerformanceView
-        perfData={perfData} setPerfData={setPerfData}
-        perfEntry={perfEntry} setPerfEntry={setPerfEntry}
-        perfEditing={perfEditing} setPerfEditing={setPerfEditing}
-        perfShowForm={perfShowForm} setPerfShowForm={setPerfShowForm}
-        blankPerfEntry={blankPerfEntry} PERF_KEYWORDS={PERF_KEYWORDS}
-        isDark={isDark}
-        dailyKPI={dailyKPI} setDailyKPI={setDailyKPI}
-        prevDailyKPI={prevDailyKPI} setPrevDailyKPI={setPrevDailyKPI}
-        dailyKPIHistory={dailyKPIHistory} setDailyKPIHistory={setDailyKPIHistory}
-        kpiSaved2={kpiSaved2} setKPISaved2={setKPISaved2}
-        gscData={gscData} gscLoading={gscLoading} gscError={gscError}
-        gscFetch={gscFetch} gscDateRange={gscDateRange} setGscDateRange={setGscDateRange}
-        gscSiteUrl={gscSiteUrl} setGscSiteUrl={setGscSiteUrl}
-        gscTrackedKW={gscTrackedKW} setGscTrackedKW={setGscTrackedKW}
-        ga4Connected={ga4Connected}
-        ga4ClientId={ga4ClientId} setGa4ClientId={setGa4ClientId}
-        ga4PropertyId={ga4PropertyId} setGa4PropertyId={setGa4PropertyId}
-        ga4StartAuth={ga4StartAuth} ga4Fetch={ga4Fetch}
-        ga4Loading={ga4Loading} ga4Error={ga4Error} ga4LastFetch={ga4LastFetch}
-        setGa4Token={setGa4Token} setGa4Connected={setGa4Connected} ga4Data={ga4Data}
-        opsChecks={opsChecks} setOpsChecks={setOpsChecks}
-        opsWeekly={opsWeekly} setOpsWeekly={setOpsWeekly}
-        opsMonthly={opsMonthly} setOpsMonthly={setOpsMonthly}
-        aiApiKey={aiApiKey} setAiApiKey={setAiApiKey}
-      />}
-
-
       {/* ═══ PAGE BUILDER ═══ */}
       {view==="pagebuilder"&&(()=>{
 
