@@ -3459,7 +3459,8 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
     if (aiApiKey) try { localStorage.setItem("gh-cc-ai-key", aiApiKey); } catch(e) {}
   }, [aiApiKey]);
 
-  return <div style={{minHeight:"100vh"}}>
+  return (
+    <div style={{minHeight:"100vh"}}>
     {/* Header */}
     <div style={{background:"rgba(255,255,255,0.03)",borderBottom:"1px solid rgba(255,255,255,0.08)",padding:"20px 24px",boxShadow:"none"}}>
       <div style={{maxWidth:1100,margin:"0 auto"}}>
