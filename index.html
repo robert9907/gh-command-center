@@ -1246,6 +1246,13 @@ function App() {
   const [pbFixing, setPbFixing] = useState(false);
   const [pbFixProgress, setPbFixProgress] = useState(null);
   const [pbRegenning, setPbRegenning] = useState(false);
+  const [pbMode, setPbMode] = useState("fix");
+  const [focusClusterId, setFocusClusterId] = useState(function(){return safeLSGet("gh-cc-focus-cluster")||null;});
+  const [pbNewKeyword, setPbNewKeyword] = useState("");
+  const [pbNewSlug, setPbNewSlug] = useState("");
+  const [pbNewGenerating, setPbNewGenerating] = useState(false);
+  const [pbNewHTML, setPbNewHTML] = useState("");
+  const [pbPendingPublish, setPbPendingPublish] = useState(function(){return safeLSGet("gh-cc-pb-pending")||[];});
 
 
   const [expandedCluster, setExpandedCluster] = useState(null);
@@ -1441,6 +1448,8 @@ function App() {
   useEffect(function(){safeLSSet("gh-cc-studio-completed",studioCompleted);},[studioCompleted]);
   useEffect(function(){try{localStorage.setItem("gh-cc-dalle-key",studioDalleKey);}catch{};},[studioDalleKey]);
   useEffect(function(){try{localStorage.setItem("gh-cc-pb-apikey",pbApiKey);}catch{};},[pbApiKey]);
+  useEffect(function(){safeLSSet("gh-cc-focus-cluster",focusClusterId);},[focusClusterId]);
+  useEffect(function(){safeLSSet("gh-cc-pb-pending",pbPendingPublish);},[pbPendingPublish]);
   useEffect(() => { localStorage.setItem("gh-cc-ga4-property-id", ga4PropertyId); }, [ga4PropertyId]);
   useEffect(() => { try { localStorage.setItem("gh-cc-ga4-data", JSON.stringify(ga4Data)); } catch {} }, [ga4Data]);
   useEffect(() => { localStorage.setItem("gh-cc-ga4-last-fetch", ga4LastFetch); }, [ga4LastFetch]);
@@ -1626,11 +1635,6 @@ function App() {
 
       // 1. Top queries — rowLimit 1000 to capture full query set
       const qResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["query"],rowLimit:1000,dataState:"all"})});
-      if(qResp.status===401||qResp.status===403){
-        localStorage.removeItem("gh-cc-ga4-token");
-        setGa4Token(""); setGa4Connected(false);
-        throw new Error("401 Token expired — please reconnect Google");
-      }
       if(!qResp.ok) throw new Error(`GSC API error: ${qResp.status} — ${(await qResp.text()).slice(0,200)}`);
       const qData = await qResp.json();
 
@@ -1849,6 +1853,27 @@ function App() {
 
     <div style={{maxWidth:1100,margin:"0 auto",padding:"24px 24px 80px"}}>
 
+      {focusClusterId&&(()=>{
+        var fc=clusters.find(function(c){return c.id===focusClusterId;});
+        if(!fc) return null;
+        var built=pbCompleted.filter(function(k){return k.startsWith(fc.id+"-");}).length;
+        var pending=pbPendingPublish.filter(function(k){return k.startsWith(fc.id+"-");}).length;
+        var nextPost=fc.posts.find(function(p,i){return !pbCompleted.includes(fc.id+"-"+i);});
+        return <div style={{background:"linear-gradient(135deg,rgba(255,199,44,0.12),rgba(255,199,44,0.06))",border:"2px solid rgba(255,199,44,0.35)",borderRadius:14,padding:"14px 20px",marginBottom:20,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+          <div style={{display:"flex",alignItems:"center",gap:12,flex:1}}>
+            <span style={{fontSize:20}}>🎯</span>
+            <div>
+              <div style={{fontSize:13,fontWeight:800,color:"#FFC72C"}}>Focus Mode: {fc.name}</div>
+              <div style={{fontSize:11,color:"#A08C5A",marginTop:2}}>{built}/{fc.posts.length} built · {pending} pending publish{nextPost?" · Next: "+nextPost.name:""}</div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            {nextPost&&<button onClick={function(){setView("pageBuilder");}} style={{padding:"7px 16px",borderRadius:9,border:"none",background:"#FFC72C",color:"#1A2332",fontSize:12,fontWeight:800,cursor:"pointer"}}>▶ Resume</button>}
+            <button onClick={function(){setFocusClusterId(null);}} style={{padding:"7px 14px",borderRadius:9,border:"1px solid rgba(255,199,44,0.3)",background:"transparent",color:"#FFC72C",fontSize:12,fontWeight:600,cursor:"pointer"}}>✕ Exit Focus</button>
+          </div>
+        </div>;
+      })()}
+
       {/* ARCHITECTURE */}
       {view==="tree" && <>
         <div style={{display:"flex",gap:8,marginBottom:24,flexWrap:"wrap"}}>
@@ -1875,6 +1900,11 @@ function App() {
                 </div>
               </div>
               {isExp&&<div style={{padding:"0 24px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
+                {<div style={{display:"flex",gap:8,margin:"16px 0 8px"}}>
+                  <button onClick={function(){setFocusClusterId(focusClusterId===cluster.id?null:cluster.id);}} style={{padding:"6px 16px",borderRadius:8,border:"1.5px solid rgba(255,199,44,0.5)",background:focusClusterId===cluster.id?"rgba(255,199,44,0.15)":"transparent",color:"#FFC72C",fontSize:12,fontWeight:700,cursor:"pointer"}}>
+                    {focusClusterId===cluster.id?"🎯 In Focus":"🎯 Set as Focus Cluster"}
+                  </button>
+                </div>
                 {cluster.gameplanNote&&<div style={{margin:"16px 0",padding:"12px 16px",background:"#FFFBEB",borderLeft:"3px solid #D97706",borderRadius:"0 8px 8px 0",fontSize:13,color:"#92400E"}}><strong>Note:</strong> {cluster.gameplanNote}</div>}
                 {cluster.templateUsed&&<div style={{margin:"16px 0",padding:"12px 16px",background:"#EFF6FF",borderLeft:"3px solid #2563EB",borderRadius:"0 8px 8px 0",fontSize:13,color:"#1E40AF"}}><strong>Master Template v3.0</strong></div>}
 
@@ -1907,6 +1937,7 @@ function App() {
                         </div>
                         {post.slug&&<div style={{fontSize:11,color:"#6B7B8D",marginTop:2}}>/{post.slug}</div>}
                         {post.publishDate&&<div style={{fontSize:10,fontWeight:700,color:"#2563EB",marginTop:3}}>Publish: {post.publishDate}</div>}
+                        {post.status==="planned"&&post.slug&&<button onClick={function(e){e.stopPropagation();setPbMode("new");setPbNewKeyword((post.slug||"").replace(/-/g," "));setPbNewSlug(post.slug||"");setView("pageBuilder");}} style={{marginTop:6,padding:"4px 12px",borderRadius:7,border:"none",background:"linear-gradient(135deg,#0D9488,#14B8A6)",color:"#FFF",fontSize:11,fontWeight:700,cursor:"pointer"}}>📄 Build Page</button>}
                       </div>
                       <div style={{display:"flex",gap:16,alignItems:"center",flexShrink:0}}>
                         <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
@@ -2136,7 +2167,7 @@ function App() {
                         <span style={{fontSize:12,fontWeight:700,color:pgPct===100?"#4ADE80":"#6B7B8D"}}>{pgDone}/{OPT_ITEMS.length}</span>
                       </div>
                     </div>
-                    {post.slug&&<div style={{fontSize:11,color:"#4B5C6E",marginBottom:8,marginTop:-6}}>/{post.slug}</div>}
+                    {post.slug&&<div style={{fontSize:11,color:"#4B5C6E",marginBottom:8,marginTop:-6}}>/{post.slug}&nbsp;<button onClick={function(e){e.stopPropagation();setPbMode("fix");var mp={name:post.name,slug:post.slug,status:post.status,clusterId:cluster.id,clusterName:cluster.name,idx:post.idx,key:cluster.id+"-"+post.idx,html:savedHTML[cluster.id+"-"+post.idx]||null};setPbPage(mp);setPbNepqContent({});setPbScanResults(null);setView("pageBuilder");}} style={{padding:"2px 8px",borderRadius:5,border:"1px solid rgba(13,148,136,0.4)",background:"rgba(13,148,136,0.08)",color:"#0D9488",fontSize:9,fontWeight:700,cursor:"pointer",verticalAlign:"middle"}}>🔧 Fix</button></div>}
 
                     {/* Optimization items */}
                     <div style={{background:"rgba(255,255,255,0.03)",borderRadius:12,padding:"8px 14px",border:"1px solid rgba(255,255,255,0.04)"}}>
@@ -2766,10 +2797,6 @@ function App() {
                       background:"#4285F4",color:"#fff",fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}
                   },"🔗 Connect")
                 )
-              ),
-              gscError&&React.createElement("div",{style:{padding:"8px 12px",borderRadius:8,background:"rgba(248,113,113,0.1)",border:"1px solid rgba(248,113,113,0.3)",marginBottom:10,fontSize:12,color:"#F87171",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}},
-                React.createElement("span",null,"⚠️ "+(gscError.includes("401")||gscError.includes("403")||gscError.includes("expired")?"Token expired — click Reconnect":gscError)),
-                (gscError.includes("401")||gscError.includes("403")||gscError.includes("expired"))&&React.createElement("button",{onClick:function(){localStorage.removeItem("gh-cc-ga4-token");setGa4Token("");setGa4Connected(false);setTimeout(function(){ga4StartAuth();},200);},style:{padding:"3px 10px",borderRadius:6,border:"none",background:"#4285F4",color:"#fff",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},"🔗 Reconnect")
               ),
               React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}},
                 [{l:"Impressions",v:(gscData&&gscData.totals?gscData.totals.impressions:gscRows.reduce(function(a,r){return a+(r.impressions||0);},0)).toLocaleString(),c:"#60A5FA"},
@@ -3545,6 +3572,9 @@ function App() {
 
         function markComplete(){
           if(!pbPage) return;
+          var ok=window.confirm("Before marking complete, confirm:\n\n1. HTML copied?\n2. Pasted into WordPress?\n3. Page published?\n\nClick OK to mark complete.");
+          if(!ok) return;
+          setPbPendingPublish(function(prev){return prev.filter(function(k){return k!==pbPage.key;});});
           setPbCompleted(function(prev){return prev.includes(pbPage.key)?prev:[...prev,pbPage.key];});
           setPbPage(null); setPbScanResults(null); setPbNepqContent({});
         }
@@ -3931,6 +3961,14 @@ function App() {
                 React.createElement("div",{style:{height:"100%",width:pct+"%",background:"linear-gradient(90deg,#0D9488,#4ADE80)",borderRadius:100,transition:"width 0.7s ease"}})
               )
             ),
+            React.createElement("div",{style:{display:"flex",gap:3,background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)",borderRadius:10,padding:3}},
+              [["fix","🔧 Fix"],["expand","➕ Expand"],["new","✨ New"]].map(function(m){
+                return React.createElement("button",{key:m[0],onClick:function(){setPbMode(m[0]);},
+                  style:{padding:"6px 14px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,
+                    background:pbMode===m[0]?(isDark?"rgba(255,255,255,0.12)":"rgba(0,0,0,0.1)"):"transparent",
+                    color:pbMode===m[0]?"#FFF":"#6B7B8D",transition:"all 0.2s"}},m[1]);
+              })
+            ),
             /* API key gear */
             React.createElement("div",{style:{position:"relative"}},
               React.createElement("button",{onClick:function(){setPbShowApiKey(function(p){return !p;});},
@@ -3963,6 +4001,7 @@ function App() {
                   var s=scan17(p.html);
                   var isSel=pbPage&&pbPage.key===p.key;
                   var sc=s.score>=14?"#4ADE80":s.score>=8?"#FFC72C":"#F87171";
+                  var isPending=pbPendingPublish.includes(p.key);
                   return React.createElement("div",{key:p.key,className:"pb-item"+(isSel?" sel":""),
                     onClick:function(){selectPage(p);},
                     style:{padding:"9px 10px",marginBottom:3,borderRadius:10,border:"1px solid "+(isSel?"rgba(75,156,211,0.45)":"transparent"),transition:"all 0.15s"}},
@@ -3971,7 +4010,7 @@ function App() {
                         React.createElement("div",{style:{fontSize:12,fontWeight:600,color:isSel?"#4B9CD3":tc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},(p.name||p.slug||"").replace(/\s*\|.*$/,"")),
                         React.createElement("div",{style:{fontSize:10,color:mc,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},"/"+p.slug)
                       ),
-                      React.createElement("span",{style:{fontSize:11,fontWeight:800,color:sc,flexShrink:0,padding:"2px 6px",borderRadius:6,background:sc+"18"}},p.html?s.score+"/17":"—")
+                      React.createElement("span",{style:{fontSize:11,fontWeight:800,color:sc,flexShrink:0,padding:"2px 6px",borderRadius:6,background:sc+"18"}},p.html?s.score+"/17":"—"),isPending&&React.createElement("span",{style:{fontSize:9,fontWeight:800,color:"#FFC72C",background:"rgba(255,199,44,0.15)",padding:"1px 5px",borderRadius:4,flexShrink:0}},"⏳")
                     )
                   );
                 }),
@@ -4021,7 +4060,51 @@ function App() {
                   "\u2705 Mark Complete")
               ),
               React.createElement("div",{style:{flex:1,background:bg,border:br,borderRadius:14,overflow:"hidden",position:"relative",minHeight:300}},
-                !pbPage&&React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:12,padding:40}},
+                pbMode==="new"&&React.createElement("div",{style:{padding:32,display:"flex",flexDirection:"column",gap:20,height:"100%",overflowY:"auto"}},
+                  React.createElement("div",null,
+                    React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc,fontFamily:"Georgia,serif",marginBottom:4}},"✨ New Page Generator"),
+                    React.createElement("div",{style:{fontSize:12,color:mc}},pbNewKeyword?"Generating from: "+pbNewKeyword:"Enter keyword + slug to generate a full v5.2 NEPQ page")
+                  ),
+                  React.createElement("div",{style:{display:"flex",gap:10,flexWrap:"wrap"}},
+                    React.createElement("div",{style:{flex:2,minWidth:220}},
+                      React.createElement("div",{style:{fontSize:11,fontWeight:700,color:mc,textTransform:"uppercase",marginBottom:4}},"Target Keyword"),
+                      React.createElement("input",{value:pbNewKeyword,onChange:function(e){setPbNewKeyword(e.target.value);},placeholder:"e.g. medicare advantage plans durham nc",style:{width:"100%",padding:"9px 12px",borderRadius:9,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)",color:tc,fontSize:13,outline:"none",boxSizing:"border-box"}})
+                    ),
+                    React.createElement("div",{style:{flex:1,minWidth:160}},
+                      React.createElement("div",{style:{fontSize:11,fontWeight:700,color:mc,textTransform:"uppercase",marginBottom:4}},"URL Slug"),
+                      React.createElement("input",{value:pbNewSlug,onChange:function(e){setPbNewSlug(e.target.value.replace(/\s+/g,"-").toLowerCase());},placeholder:"medicare-advantage-durham-nc",style:{width:"100%",padding:"9px 12px",borderRadius:9,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)",color:tc,fontSize:13,outline:"none",boxSizing:"border-box"}})
+                    )
+                  ),
+                  React.createElement("button",{
+                    onClick:async function(){
+                      var apiKey=pbApiKey||"";
+                      if(!apiKey){alert("Add Claude API key — click gear above.");return;}
+                      if(!pbNewKeyword.trim()||!pbNewSlug.trim()){alert("Enter keyword and slug.");return;}
+                      setPbNewGenerating(true);setPbNewHTML("");
+                      try{
+                        var sys="You are Rob Simm, independent Medicare broker in Durham NC. Generate a complete v5.2 NEPQ page for the keyword '"+pbNewKeyword+"'. Include: H1 (pain/consequence formula), hero subtitle under 22 words, instant answer block (.gh-answer), 3 NEPQ question+answer sections, comparison table, FAQ with 3 gh-faq-item entries, author block (.gh-author), CTA with phone (828) 761-3326. Use 2026 figures: Part B $202.90/mo. Return clean HTML only — no DOCTYPE, no html/head/body tags.";
+                        var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:sys,messages:[{role:"user",content:"Generate the full page for: '"+pbNewKeyword+"'
+Slug: "+pbNewSlug}]})});
+                        var data=await resp.json();
+                        if(data.error)throw new Error(data.error.message);
+                        var txt=(data.content&&data.content[0]&&data.content[0].text)||"";
+                        setPbNewHTML(txt);setPbScanResults(scan17(txt));
+                      }catch(e){alert("Error: "+e.message);}
+                      finally{setPbNewGenerating(false);}
+                    },
+                    disabled:pbNewGenerating||!pbNewKeyword.trim()||!pbNewSlug.trim(),
+                    style:{padding:"11px 28px",borderRadius:10,border:"none",
+                      background:(pbNewGenerating||!pbNewKeyword.trim()||!pbNewSlug.trim())?"rgba(255,255,255,0.06)":"linear-gradient(135deg,#0D9488,#14B8A6)",
+                      color:(pbNewGenerating||!pbNewKeyword.trim()||!pbNewSlug.trim())?"#6B7B8D":"#FFF",
+                      fontSize:14,fontWeight:700,cursor:(pbNewGenerating||!pbNewKeyword.trim()||!pbNewSlug.trim())?"not-allowed":"pointer",alignSelf:"flex-start"}
+                  },pbNewGenerating?"⏳ Generating...":"✨ Generate Page"),
+                  pbNewHTML&&React.createElement("div",{style:{display:"flex",gap:10,flexWrap:"wrap"}},
+                    React.createElement("button",{onClick:function(){navigator.clipboard.writeText(pbNewHTML).then(function(){alert("✅ Copied! Paste into WordPress → New Page → Custom HTML block.");}).catch(function(){var ta=document.createElement("textarea");ta.value=pbNewHTML;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("✅ Copied!");});},style:{padding:"9px 20px",borderRadius:9,border:"none",background:"#2563EB",color:"#FFF",fontSize:13,fontWeight:700,cursor:"pointer"}},"📋 Copy for WordPress"),
+                    React.createElement("button",{onClick:function(){setPbPendingPublish(function(prev){var k="new-"+pbNewSlug;return prev.includes(k)?prev:[...prev,k];});alert("⏳ Marked pending publish — paste into WordPress then mark live in Architecture.");},style:{padding:"9px 20px",borderRadius:9,border:"1px solid rgba(255,199,44,0.4)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",fontSize:13,fontWeight:700,cursor:"pointer"}},"⏳ Mark Pending Publish")
+                  ),
+                  pbNewHTML&&React.createElement("iframe",{srcDoc:pbNewHTML,style:{width:"100%",flex:1,minHeight:400,border:"1px solid rgba(255,255,255,0.08)",borderRadius:12},sandbox:"allow-same-origin allow-scripts",title:"New Page Preview"})
+                ),
+                !pbPage&&pbMode!=="new"&&React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:12,padding:40}},
                   React.createElement("div",{style:{fontSize:52,lineHeight:1}},"\uD83D\uDCC4"),
                   React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc}},"\u2190 Select a page to begin"),
                   React.createElement("div",{style:{fontSize:13,color:mc,textAlign:"center",maxWidth:300}},
