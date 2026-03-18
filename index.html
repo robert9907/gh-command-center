@@ -3525,7 +3525,13 @@ function App() {
 
         function computeDropZones(html){
           if(!html) return [];
-          var total=html.length;
+          // Use body content length for accurate visual pct (not full file with head)
+          var bodyStart = html.indexOf("<body");
+          var bodyOffset = bodyStart > -1 ? bodyStart : 0;
+          var bodyEnd = html.lastIndexOf("</body>");
+          var total = bodyEnd > bodyOffset ? bodyEnd - bodyOffset : html.length - bodyOffset;
+          if(total < 100) total = html.length;
+          bodyOffset = total < html.length ? bodyOffset : 0;
           var defs=[
             {id:"after-hero",    label:"After Hero",        color:"#2DD4BF", find:["gh-hero","gh-answer-label","gh-answer"], after:false},
             {id:"after-answer",  label:"After Answer Block", color:"#4B9CD3", find:["gh-answer","gh-stats","gh-trust-strip"], after:true},
@@ -3549,7 +3555,7 @@ function App() {
               }
             }
             if(pos===-1&&def.id==="before-end"){var bi=html.lastIndexOf("</body>");pos=bi>-1?bi:html.length-1;}
-            if(pos>-1) result.push({id:def.id,label:def.label,color:def.color,pct:Math.round((pos/total)*100)/100,htmlPos:pos});
+            if(pos>-1) result.push({id:def.id,label:def.label,color:def.color,pct:Math.min(0.92,Math.max(0.05,Math.round(((pos-bodyOffset)/total)*100)/100)),htmlPos:pos});
           });
           var seen={};
           return result.filter(function(z){var b=Math.round(z.pct*20);if(seen[b])return false;seen[b]=true;return true;});
