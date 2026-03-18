@@ -3523,6 +3523,38 @@ function App() {
 
         var VOICE_PROFILE = "You are Rob Simm, independent Medicare and ACA broker in Durham, NC. NC License #10447418, AHIP Certified. YOUR VOICE: You simplify Medicare by making people picture real situations — sitting in a hospital bed, standing at the pharmacy counter, getting a cancer diagnosis. You talk like a knowledgeable neighbor, not a 1-800 call center. You are straight, compliant, and local. Common truth: neighbors give bad Medicare advice, one plan does not fit everyone, health insurance is financial protection for your worst day. WRITING STYLE: Conversational, warm, direct. Short sentences. Real scenarios. Never start with 'Medicare is...' or 'In North Carolina...'. Start with the person's reality.";
 
+        function computeDropZones(html){
+          if(!html) return [];
+          var total=html.length;
+          var defs=[
+            {id:"after-hero",    label:"After Hero",        color:"#2DD4BF", find:["gh-hero","gh-answer-label","gh-answer"], after:false},
+            {id:"after-answer",  label:"After Answer Block", color:"#4B9CD3", find:["gh-answer","gh-stats","gh-trust-strip"], after:true},
+            {id:"before-cta1",   label:"Before CTA 1",      color:"#FFC72C", find:["gh-cta-modal","gh-cta-strip","gh-cta-block"], after:false},
+            {id:"after-compare", label:"After Comparison",   color:"#A78BFA", find:["gh-comparison","gh-compare","gh-costs"], after:true},
+            {id:"before-faq",    label:"Before FAQ",         color:"#FB923C", find:["gh-faq","gh-faq-list","gh-accordion"], after:false},
+            {id:"before-end",    label:"End of Page",        color:"#F472B6", find:["gh-author","gh-author-header"], after:false}
+          ];
+          var result=[];
+          defs.forEach(function(def){
+            var pos=-1;
+            for(var fi=0;fi<def.find.length;fi++){
+              var idx=html.indexOf(def.find[fi]);
+              if(idx>-1){
+                if(def.after){
+                  var se=html.indexOf("</section>",idx); pos=se>-1?se+10:idx;
+                } else {
+                  var ss=html.lastIndexOf("<section",idx); pos=ss>-1?ss:idx;
+                }
+                break;
+              }
+            }
+            if(pos===-1&&def.id==="before-end"){var bi=html.lastIndexOf("</body>");pos=bi>-1?bi:html.length-1;}
+            if(pos>-1) result.push({id:def.id,label:def.label,color:def.color,pct:Math.round((pos/total)*100)/100,htmlPos:pos});
+          });
+          var seen={};
+          return result.filter(function(z){var b=Math.round(z.pct*20);if(seen[b])return false;seen[b]=true;return true;});
+        }
+
         function scan17(html){
           if(!html) return {score:0,total:17,checks:[]};
           var txt = html.replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/\s+/g," ");
@@ -4202,37 +4234,64 @@ function App() {
                   });
                 })(),
                 /* Overlay: direct child of positioned container, reliable click capture */
-                pbPlacementMode&&pbSelectedBlock&&React.createElement("div",{
-                  style:{position:"absolute",top:0,left:0,right:0,bottom:0,
-                    cursor:"crosshair",zIndex:20,
-                    background:"rgba(255,199,44,0.05)",
-                    border:"3px dashed #FFC72C",
-                    borderRadius:14,
-                    boxSizing:"border-box"},
-                  onClick:function(e){
-                    var rect=e.currentTarget.getBoundingClientRect();
-                    var pct=Math.round(((e.clientY-rect.top)/rect.height)*100)/100;
-                    var bid=pbSelectedBlock;
-                    setPbPlacedMarkers(function(prev){
-                      var n=Object.assign({},prev);
-                      n[bid]={pct:pct,id:bid};
-                      return n;
-                    });
-                    setPbSelectedBlock(null);
-                  }
-                },
-                  React.createElement("div",{
-                    style:{position:"absolute",top:16,left:"50%",
-                      transform:"translateX(-50%)",
-                      background:"#FFC72C",color:"#1A2332",
-                      padding:"8px 24px",borderRadius:8,
-                      fontSize:13,fontWeight:800,whiteSpace:"nowrap",
-                      pointerEvents:"none",
-                      boxShadow:"0 4px 16px rgba(0,0,0,0.4)",
-                      letterSpacing:"0.04em"}
-                  },"Click anywhere to drop: "+
-                    (pbSelectedBlock||"").replace("swh-","").replace("nepq-","").toUpperCase())
-                ),
+                pbPlacementMode&&(function(){
+                  var zones=computeDropZones(pbPage&&pbPage.html||"");
+                  if(!zones||zones.length===0) return null;
+                  var bLabel=(pbSelectedBlock||"").replace("swh-","").replace("nepq-","").toUpperCase();
+                  return React.createElement("div",{
+                    style:{position:"absolute",top:0,left:0,right:0,bottom:0,
+                      zIndex:20,pointerEvents:"none",borderRadius:14}
+                  },
+                    zones.map(function(zone){
+                      var isOccupied=Object.values(pbPlacedMarkers).some(function(m){return m.zoneId===zone.id;});
+                      var isActive=!!pbSelectedBlock&&!isOccupied;
+                      var pctTop=Math.round(zone.pct*100);
+                      return React.createElement("div",{
+                        key:zone.id,
+                        onClick:function(e){
+                          if(!pbSelectedBlock||isOccupied) return;
+                          e.stopPropagation();
+                          var bid=pbSelectedBlock;
+                          setPbPlacedMarkers(function(prev){
+                            var n=Object.assign({},prev);
+                            n[bid]={zoneId:zone.id,htmlPos:zone.htmlPos,id:bid,label:zone.label};
+                            return n;
+                          });
+                          setPbSelectedBlock(null);
+                        },
+                        style:{position:"absolute",top:pctTop+"%",left:4,right:4,
+                          transform:"translateY(-50%)",
+                          pointerEvents:isActive?"auto":"none",
+                          cursor:isActive?"pointer":"default",
+                          zIndex:22,padding:"5px 12px",
+                          background:isOccupied?"rgba(74,222,128,0.18)":isActive?zone.color+"20":zone.color+"0a",
+                          borderTop:"2px dashed "+(isOccupied?"#4ADE80":isActive?zone.color:zone.color+"66"),
+                          borderBottom:"2px dashed "+(isOccupied?"#4ADE80":isActive?zone.color:zone.color+"66"),
+                          display:"flex",alignItems:"center",justifyContent:"space-between",
+                          boxShadow:isActive?"0 0 0 1px "+zone.color+"44":"none"}
+                      },
+                        React.createElement("div",{style:{display:"flex",alignItems:"center",gap:7}},
+                          React.createElement("div",{style:{width:8,height:8,borderRadius:"50%",
+                            background:isOccupied?"#4ADE80":zone.color,flexShrink:0}}),
+                          React.createElement("span",{style:{fontSize:11,fontWeight:800,
+                            color:isOccupied?"#4ADE80":zone.color,letterSpacing:"0.05em",
+                            textTransform:"uppercase",
+                            textShadow:"0 1px 4px rgba(0,0,0,0.9)"}},zone.label),
+                          React.createElement("span",{style:{fontSize:10,
+                            color:"rgba(255,255,255,0.6)",
+                            textShadow:"0 1px 3px rgba(0,0,0,0.9)"}},
+                            isOccupied?"(taken)":isActive?" -- drop "+bLabel+" here":"")
+                        ),
+                        isActive&&React.createElement("div",{style:{
+                          background:zone.color,color:"#1A2332",
+                          fontSize:10,fontWeight:800,
+                          padding:"3px 10px",borderRadius:5,
+                          pointerEvents:"none"}},
+                          "DROP")
+                      );
+                    })
+                  );
+                })(),
                 pbPage&&pbEditMode&&React.createElement("div",{style:{display:"flex",flexDirection:"column",height:"100%",padding:12,gap:8}},
                   React.createElement("textarea",{
                     value:pbEditHTML,
@@ -4490,24 +4549,23 @@ function App() {
                       var placed=pbPlacedMarkers[bid];
                       allBlocks.push({id:bid,label:"NEPQ: "+id,color:"#4B9CD3",pct:placed?placed.pct:null,html:txt});
                     });
-                    var placed2=allBlocks.filter(function(b){return b.pct!==null&&b.pct!==undefined;}).sort(function(a,b){return a.pct-b.pct;});
-                    var unplaced=allBlocks.filter(function(b){return b.pct===null||b.pct===undefined;});
+                    var placed2=allBlocks.filter(function(b){return b.htmlPos!=null;}).sort(function(a,b){return a.htmlPos-b.htmlPos;});
+                    var unplaced=allBlocks.filter(function(b){return b.htmlPos==null;});
                     var sorted=placed2.concat(unplaced);
                     if(sorted.length===0){alert("No content to merge.");return;}
-                    var out=srcHtml;
-                    function insAfterSec2(str,n,ins){
-                      var c=0,p=0;
-                      while(true){var i=str.indexOf("</section>",p);if(i===-1)break;c++;if(c===n)return str.slice(0,i+10)+ins+str.slice(i+10);p=i+10;}
-                      return str+ins;
-                    }
                     function wrapBlock(blk){
                       return "\n<section class=\"gh-section\" style=\"padding:40px 0;display:block\"><div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block\">"+blk.html+"</div></section>\n";
                     }
-                    var sectionCount=(srcHtml.match(/<\/section>/g)||[]).length;
-                    var totalSecs=Math.max(sectionCount,3);
-                    sorted.forEach(function(blk,i){
-                      var secN=(blk.pct!==null&&blk.pct!==undefined)?Math.max(1,Math.min(totalSecs,Math.round(blk.pct*totalSecs)+1)):totalSecs;
-                      out=insAfterSec2(out,secN,wrapBlock(blk));
+                    var out=srcHtml;
+                    var rev=sorted.slice().reverse();
+                    rev.forEach(function(blk){
+                      if(blk.htmlPos!=null){
+                        out=out.slice(0,blk.htmlPos)+wrapBlock(blk)+out.slice(blk.htmlPos);
+                      } else {
+                        var bi=out.lastIndexOf("</body>");
+                        if(bi>-1) out=out.slice(0,bi)+wrapBlock(blk)+out.slice(bi);
+                        else out+=wrapBlock(blk);
+                      }
                     });
                     var banner="<div style=\"position:sticky;top:0;z-index:999;background:#0D9488;color:#fff;padding:8px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;\"><span>Preview Merge -- "+sorted.length+" blocks woven in -- scroll to review</span></div>";
                     setPbMergedPreview(banner+out);
