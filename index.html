@@ -1613,29 +1613,39 @@ function App() {
       const headers = {"Authorization":`Bearer ${ga4Token}`,"Content-Type":"application/json"};
       const baseUrl = `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site)}/searchAnalytics/query`;
 
-      // 1. Top queries
-      const qResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["query"],rowLimit:50,dataState:"final"})});
+      // 0. TRUE TOTALS — no dimensions, gives accurate site-wide aggregate
+      const tResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dataState:"all"})});
+      const tData = tResp.ok ? await tResp.json() : {};
+      const totals = tData.rows && tData.rows[0] ? {
+        clicks: tData.rows[0].clicks||0,
+        impressions: tData.rows[0].impressions||0,
+        ctr: tData.rows[0].ctr||0,
+        position: tData.rows[0].position||0
+      } : null;
+
+      // 1. Top queries — rowLimit 1000 to capture full query set
+      const qResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["query"],rowLimit:1000,dataState:"all"})});
       if(!qResp.ok) throw new Error(`GSC API error: ${qResp.status} — ${(await qResp.text()).slice(0,200)}`);
       const qData = await qResp.json();
 
       // 2. Top pages
-      const pResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["page"],rowLimit:30,dataState:"final"})});
+      const pResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["page"],rowLimit:100,dataState:"all"})});
       const pData = pResp.ok ? await pResp.json() : {};
 
       // 3. Daily totals
-      const dResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["date"],dataState:"final"})});
+      const dResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["date"],dataState:"all"})});
       const dData = dResp.ok ? await dResp.json() : {};
 
       // 4. Tracked keyword positions (individual queries)
       const kwResults = {};
       for(const kw of gscTrackedKW) {
         try {
-          const kwResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["date"],dimensionFilterGroups:[{filters:[{dimension:"query",operator:"contains",expression:kw}]}],dataState:"final"})});
+          const kwResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["date"],dimensionFilterGroups:[{filters:[{dimension:"query",operator:"contains",expression:kw}]}],dataState:"all"})});
           if(kwResp.ok) kwResults[kw] = await kwResp.json();
         } catch(e) { console.warn("GSC tracked KW error:",kw,e); }
       }
 
-      const result = {queries:qData,pages:pData,daily:dData,tracked:kwResults,fetchedAt:new Date().toISOString(),dateRange:gscDateRange};
+      const result = {queries:qData,pages:pData,daily:dData,tracked:kwResults,totals,fetchedAt:new Date().toISOString(),dateRange:gscDateRange};
       setGscData(result);
       setHasChanges(true);
     } catch(e) {
@@ -2494,8 +2504,8 @@ function App() {
         // ── Projection model ──
         // ── Smart baseline: GSC live data → manual log → zero ──
         var gscRows2 = (gscData&&gscData.queries&&gscData.queries.rows)||[];
-        var gscTotalImpr = gscRows2.reduce(function(a,r){return a+(r.impressions||0);},0);
-        var gscTotalClicks = gscRows2.reduce(function(a,r){return a+(r.clicks||0);},0);
+        var gscTotalImpr = (gscData&&gscData.totals)?gscData.totals.impressions:gscRows2.reduce(function(a,r){return a+(r.impressions||0);},0);
+        var gscTotalClicks = (gscData&&gscData.totals)?gscData.totals.clicks:gscRows2.reduce(function(a,r){return a+(r.clicks||0);},0);
         var gscDateRange2 = parseInt((gscData&&gscData.dateRange)||"28")||28;
         // Convert GSC totals to weekly equivalent
         var gscWeeklyImpr = gscTotalImpr>0?Math.round(gscTotalImpr/(gscDateRange2/7)):0;
@@ -2752,10 +2762,10 @@ function App() {
                 )
               ),
               React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8,marginBottom:14}},
-                [{l:"Impressions",v:gscRows.reduce(function(a,r){return a+(r.impressions||0);},0).toLocaleString(),c:"#60A5FA"},
-                 {l:"Clicks",v:gscRows.reduce(function(a,r){return a+(r.clicks||0);},0).toLocaleString(),c:"#4ADE80"},
-                 {l:"Avg CTR",v:gscRows.length>0?(gscRows.reduce(function(a,r){return a+r.ctr;},0)/gscRows.length*100).toFixed(1)+"%":"—",c:"#FFC72C"},
-                 {l:"Avg Pos",v:gscRows.length>0?(gscRows.reduce(function(a,r){return a+r.position;},0)/gscRows.length).toFixed(1):"—",c:"#A78BFA"}
+                [{l:"Impressions",v:(gscData&&gscData.totals?gscData.totals.impressions:gscRows.reduce(function(a,r){return a+(r.impressions||0);},0)).toLocaleString(),c:"#60A5FA"},
+                 {l:"Clicks",v:(gscData&&gscData.totals?gscData.totals.clicks:gscRows.reduce(function(a,r){return a+(r.clicks||0);},0)).toLocaleString(),c:"#4ADE80"},
+                 {l:"Avg CTR",v:gscData&&gscData.totals?(gscData.totals.ctr*100).toFixed(1)+"%":gscRows.length>0?(gscRows.reduce(function(a,r){return a+r.ctr;},0)/gscRows.length*100).toFixed(1)+"%":"—",c:"#FFC72C"},
+                 {l:"Avg Pos",v:gscData&&gscData.totals?gscData.totals.position.toFixed(1):gscRows.length>0?(gscRows.reduce(function(a,r){return a+r.position;},0)/gscRows.length).toFixed(1):"—",c:"#A78BFA"}
                 ].map(function(m,i){
                   return React.createElement("div",{key:i,className:"perf-metric",style:{background:isDark?"rgba(255,255,255,0.03)":"rgba(0,0,0,0.03)",border:"1px solid transparent",borderRadius:10,padding:"10px 8px",textAlign:"center",transition:"border-color 0.2s"}},
                     React.createElement("div",{style:{fontSize:11,color:mc,marginBottom:4}},(m.l)),
