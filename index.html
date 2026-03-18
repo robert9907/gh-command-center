@@ -1259,6 +1259,8 @@ function App() {
   const [pbPlacedMarkers, setPbPlacedMarkers] = useState({});
   const [pbSelectedBlock, setPbSelectedBlock] = useState(null);
   const [pbMergedPreview, setPbMergedPreview] = useState(null);
+  const pbSelectedBlockRef = useRef(null);
+  useEffect(function(){pbSelectedBlockRef.current=pbSelectedBlock;},[pbSelectedBlock]);
 
 
   const [expandedCluster, setExpandedCluster] = useState(null);
@@ -3523,6 +3525,135 @@ function App() {
 
         var VOICE_PROFILE = "You are Rob Simm, independent Medicare and ACA broker in Durham, NC. NC License #10447418, AHIP Certified. YOUR VOICE: You simplify Medicare by making people picture real situations — sitting in a hospital bed, standing at the pharmacy counter, getting a cancer diagnosis. You talk like a knowledgeable neighbor, not a 1-800 call center. You are straight, compliant, and local. Common truth: neighbors give bad Medicare advice, one plan does not fit everyone, health insurance is financial protection for your worst day. WRITING STYLE: Conversational, warm, direct. Short sentences. Real scenarios. Never start with 'Medicare is...' or 'In North Carolina...'. Start with the person's reality.";
 
+        var ZONE_DEFS = [
+          {id:"z1",label:"After Hero",          color:"#2DD4BF", find:["gh-hero","gh-answer-label"], after:false, n:1},
+          {id:"z2",label:"After Instant Answer", color:"#4B9CD3", find:["gh-answer","gh-stats"],      after:true,  n:2},
+          {id:"z3",label:"Before CTA 1",         color:"#FFC72C", find:["gh-cta-modal","gh-cta-strip"], after:false, n:3},
+          {id:"z4",label:"After Comparison",     color:"#A78BFA", find:["gh-comparison","gh-compare","gh-costs"], after:true, n:4},
+          {id:"z5",label:"Before CTA 2",         color:"#F59E0B", find:["gh-cta-modal","gh-cta-strip"], after:false, n:5, skip:1},
+          {id:"z6",label:"Before FAQ",           color:"#FB923C", find:["gh-faq","gh-faq-list"],       after:false, n:6},
+          {id:"z7",label:"After FAQ",            color:"#4ADE80", find:["gh-faq","gh-faq-list"],       after:true,  n:7},
+          {id:"z8",label:"End of Page",          color:"#F472B6", find:["gh-author","</body>"],        after:false, n:8}
+        ];
+
+        function computeDropZones(html){
+          if(!html) return [];
+          var bodyStart=html.indexOf("<body"); var bodyOffset=bodyStart>-1?bodyStart:0;
+          var bodyEnd=html.lastIndexOf("</body>"); var total=bodyEnd>bodyOffset?bodyEnd-bodyOffset:html.length-bodyOffset;
+          if(total<100){total=html.length;bodyOffset=0;}
+          var result=[];
+          var ctaCount=0;
+          ZONE_DEFS.forEach(function(def){
+            var pos=-1;
+            for(var fi=0;fi<def.find.length;fi++){
+              var searchFrom = 0;
+              if(def.skip) { // skip N occurrences
+                for(var si=0;si<def.skip;si++){
+                  var t=html.indexOf(def.find[fi],searchFrom);
+                  if(t>-1) searchFrom=t+1; else {searchFrom=-1;break;}
+                }
+                if(searchFrom<0) continue;
+              }
+              var idx=html.indexOf(def.find[fi],searchFrom);
+              if(idx>-1){
+                if(def.after){var se=html.indexOf("</section>",idx);pos=se>-1?se+10:idx;}
+                else{var ss=html.lastIndexOf("<section",idx);pos=ss>-1?ss:idx;}
+                break;
+              }
+            }
+            if(pos===-1&&def.id==="z8"){var bi=html.lastIndexOf("</body>");pos=bi>-1?bi:html.length-50;}
+            if(pos>-1){
+              result.push({id:def.id,label:def.label,color:def.color,n:def.n,
+                pct:Math.min(0.93,Math.max(0.03,Math.round(((pos-bodyOffset)/total)*100)/100)),
+                htmlPos:pos});
+            }
+          });
+          // Remove duplicates within 4% of each other
+          var seen={};
+          return result.filter(function(z){var b=Math.round(z.pct*25);if(seen[b])return false;seen[b]=true;return true;});
+        }
+
+        // buildPlacementPreview: injects clickable placeholder divs into page HTML
+        // When a block is placed, replaces placeholder with actual rendered content
+        function buildPlacementPreview(html, zones, markers, nepqContent, planAnalysis, selectedBlock){
+          if(!html||!zones||zones.length===0) return html;
+          var out = html;
+          // Inject placeholder script + styles
+          var style = "<style>"
+            +".gh-drop-zone{font-family:-apple-system,sans-serif;display:block;width:100%;margin:0;padding:0;cursor:pointer;transition:all 0.2s;}"
+            +".gh-drop-zone:hover .gh-dz-inner{opacity:0.9;transform:scaleY(1.05);}"
+            +".gh-dz-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-radius:0;}"
+            +".gh-dz-label{font-size:11px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;}"
+            +".gh-dz-pill{font-size:10px;font-weight:800;padding:3px 10px;border-radius:5px;background:rgba(0,0,0,0.2);}"
+            +".gh-placed-block{margin:0;padding:28px 24px;display:block;}"
+            +".gh-placed-block p{font-size:15px;line-height:1.8;margin:0;}"
+            +"</style>";
+          var script = "<script>"
+            +"document.addEventListener('click',function(e){"
+            +"  var el=e.target.closest('.gh-drop-zone');"
+            +"  if(!el) return;"
+            +"  var zid=el.getAttribute('data-zone');"
+            +"  if(!zid) return;"
+            +"  window.parent.postMessage({type:'gh-zone-click',zoneId:zid},'*');"
+            +"});
+"
+            +"<\/script>";
+          // Build placeholder HTML for each zone
+          // Work in reverse so positions stay valid
+          var zonesRev = zones.slice().sort(function(a,b){return b.htmlPos-a.htmlPos;});
+          zonesRev.forEach(function(zone){
+            // Check if block already placed here
+            var placedBlock = null;
+            var placedKey = null;
+            Object.keys(markers).forEach(function(k){
+              if(markers[k].zoneId===zone.id){placedBlock=k;placedKey=k;}
+            });
+            var isSelected = selectedBlock && !placedBlock; // available for drop
+            var zoneHtml;
+            if(placedBlock){
+              // Render actual content
+              var content = "";
+              if(placedBlock.indexOf("swh-")===0){
+                var k=placedBlock.replace("swh-","");
+                content = planAnalysis&&planAnalysis[k]||"";
+              } else if(placedBlock.indexOf("nepq-")===0){
+                var sid=placedBlock.replace("nepq-","");
+                content = nepqContent&&nepqContent[sid]||"";
+              }
+              var blockName=placedBlock.replace("swh-","").replace("nepq-","").toUpperCase();
+              zoneHtml = "<div class=\"gh-placed-block\" style=\"background:"+zone.color+"10;border-left:4px solid "+zone.color+";margin:0;\">"
+                +"<div style=\"font-size:10px;font-weight:800;color:"+zone.color+";letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;\">"
+                +zone.label+" — "+blockName
+                +"</div>"
+                +(content.indexOf("<")>-1?content:"<p style=\"font-size:15px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+content+"</p>")
+                +"</div>";
+            } else {
+              // Empty placeholder
+              var activeStyle = isSelected
+                ? "background:"+zone.color+"25;border:2px dashed "+zone.color+";"
+                : "background:"+zone.color+"0d;border:2px dashed "+zone.color+"50;";
+              var pill = isSelected ? "DROP HERE" : "available";
+              zoneHtml = "<div class=\"gh-drop-zone\" data-zone=\""+zone.id+"\" style=\""+activeStyle+"margin:0;\">"
+                +"<div class=\"gh-dz-inner\">"
+                +"<div style=\"display:flex;align-items:center;gap:8px;\">"
+                +"<div style=\"width:9px;height:9px;border-radius:50%;background:"+zone.color+";\"></div>"
+                +"<span class=\"gh-dz-label\" style=\"color:"+zone.color+"\">"+zone.label+"</span>"
+                +"</div>"
+                +(isSelected?"<div style=\"background:"+zone.color+";color:#1A2332;font-size:10px;font-weight:800;padding:4px 12px;border-radius:5px;\">DROP HERE</div>":"<span style=\"font-size:10px;color:rgba(255,255,255,0.4);\">click to place</span>")
+                +"</div></div>";
+            }
+            out = out.slice(0,zone.htmlPos)+zoneHtml+out.slice(zone.htmlPos);
+          });
+          // Inject styles and script into <head> or top
+          var hIdx=out.indexOf("</head>");
+          if(hIdx>-1) out=out.slice(0,hIdx)+style+out.slice(hIdx);
+          else out=style+out;
+          var bIdx=out.indexOf("</body>");
+          if(bIdx>-1) out=out.slice(0,bIdx)+script+out.slice(bIdx);
+          else out=out+script;
+          return out;
+        }
+
         function computeDropZones(html){
           if(!html) return [];
           // Use body content length for accurate visual pct (not full file with head)
@@ -4232,72 +4363,44 @@ function App() {
                       previewHtml=previewHtml.replace("</body>",wrapP(["committing","resolving"],"Committing + Resolving")+"</body>");
                     }
                   }
+                  // In placement mode: use buildPlacementPreview to inject zones into page
+                  var zones2 = pbPlacementMode ? computeDropZones(previewHtml) : [];
+                  var iframeSrc = pbMergedPreview
+                    ? pbMergedPreview
+                    : pbPlacementMode
+                      ? buildPlacementPreview(previewHtml, zones2, pbPlacedMarkers, pbNepqContent, pbPlanAnalysis, pbSelectedBlock)
+                      : previewHtml;
                   return React.createElement("iframe",{
-                    srcDoc:pbMergedPreview||previewHtml,
+                    srcDoc:iframeSrc,
                     style:{width:"100%",height:"100%",border:"none"},
                     sandbox:"allow-same-origin allow-scripts",
-                    title:"Page Preview"
+                    title:"Page Preview",
+                    onLoad:function(){
+                      // Listen for zone clicks from iframe
+                      if(window.__ghZoneHandler) window.removeEventListener("message",window.__ghZoneHandler);
+                      window.__ghZoneHandler = function(ev){
+                        if(!ev.data||ev.data.type!=="gh-zone-click") return;
+                        var zoneId = ev.data.zoneId;
+                        var currentBlock = pbSelectedBlockRef.current;
+                        if(!currentBlock) return;
+                        // Find zone htmlPos
+                        var zones3 = computeDropZones(pbPage&&pbPage.html||"");
+                        var zone3 = zones3.find(function(z){return z.id===zoneId;});
+                        if(!zone3) return;
+                        setPbPlacedMarkers(function(prev){
+                          var n=Object.assign({},prev);
+                          n[currentBlock]={zoneId:zone3.id,htmlPos:zone3.htmlPos,
+                            id:currentBlock,label:zone3.label};
+                          return n;
+                        });
+                        setPbSelectedBlock(null);
+                      };
+                      window.addEventListener("message",window.__ghZoneHandler);
+                    }
                   });
                 })(),
                 /* Overlay: direct child of positioned container, reliable click capture */
-                pbPlacementMode&&(function(){
-                  var zones=computeDropZones(pbPage&&pbPage.html||"");
-                  if(!zones||zones.length===0) return null;
-                  var bLabel=(pbSelectedBlock||"").replace("swh-","").replace("nepq-","").toUpperCase();
-                  return React.createElement("div",{
-                    style:{position:"absolute",top:0,left:0,right:0,bottom:0,
-                      zIndex:20,pointerEvents:"none",borderRadius:14}
-                  },
-                    zones.map(function(zone){
-                      var isOccupied=Object.values(pbPlacedMarkers).some(function(m){return m.zoneId===zone.id;});
-                      var isActive=!!pbSelectedBlock&&!isOccupied;
-                      var pctTop=Math.round(zone.pct*100);
-                      return React.createElement("div",{
-                        key:zone.id,
-                        onClick:function(e){
-                          if(!pbSelectedBlock||isOccupied) return;
-                          e.stopPropagation();
-                          var bid=pbSelectedBlock;
-                          setPbPlacedMarkers(function(prev){
-                            var n=Object.assign({},prev);
-                            n[bid]={zoneId:zone.id,htmlPos:zone.htmlPos,id:bid,label:zone.label};
-                            return n;
-                          });
-                          setPbSelectedBlock(null);
-                        },
-                        style:{position:"absolute",top:pctTop+"%",left:4,right:4,
-                          transform:"translateY(-50%)",
-                          pointerEvents:isActive?"auto":"none",
-                          cursor:isActive?"pointer":"default",
-                          zIndex:22,padding:"5px 12px",
-                          background:isOccupied?"rgba(74,222,128,0.18)":isActive?zone.color+"20":zone.color+"0a",
-                          borderTop:"2px dashed "+(isOccupied?"#4ADE80":isActive?zone.color:zone.color+"66"),
-                          borderBottom:"2px dashed "+(isOccupied?"#4ADE80":isActive?zone.color:zone.color+"66"),
-                          display:"flex",alignItems:"center",justifyContent:"space-between",
-                          boxShadow:isActive?"0 0 0 1px "+zone.color+"44":"none"}
-                      },
-                        React.createElement("div",{style:{display:"flex",alignItems:"center",gap:7}},
-                          React.createElement("div",{style:{width:8,height:8,borderRadius:"50%",
-                            background:isOccupied?"#4ADE80":zone.color,flexShrink:0}}),
-                          React.createElement("span",{style:{fontSize:11,fontWeight:800,
-                            color:isOccupied?"#4ADE80":zone.color,letterSpacing:"0.05em",
-                            textTransform:"uppercase",
-                            textShadow:"0 1px 4px rgba(0,0,0,0.9)"}},zone.label),
-                          React.createElement("span",{style:{fontSize:10,
-                            color:"rgba(255,255,255,0.6)",
-                            textShadow:"0 1px 3px rgba(0,0,0,0.9)"}},
-                            isOccupied?"(taken)":isActive?" -- drop "+bLabel+" here":"")
-                        ),
-                        isActive&&React.createElement("div",{style:{
-                          background:zone.color,color:"#1A2332",
-                          fontSize:10,fontWeight:800,
-                          padding:"3px 10px",borderRadius:5,
-                          pointerEvents:"none"}},
-                          "DROP")
-                      );
-                    })
-                  );
-                })(),
+                
                 pbPage&&pbEditMode&&React.createElement("div",{style:{display:"flex",flexDirection:"column",height:"100%",padding:12,gap:8}},
                   React.createElement("textarea",{
                     value:pbEditHTML,
