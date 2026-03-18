@@ -4176,7 +4176,35 @@ function App() {
                     }
                   }
                   return React.createElement("iframe",{
-                    srcDoc:previewHtml,
+                    srcDoc:(function(){
+                      if(!pbPlacementMode&&!pbMergedPreview) return previewHtml;
+                      if(pbMergedPreview) return pbMergedPreview;
+                      var markerCSS="<style>body{cursor:crosshair!important;}.gh-drop-zone:hover{outline:2px dashed #FFC72C!important;background:rgba(255,199,44,0.04)!important;}</style>";
+                      var markerScript="<script>(function(){"  
+                        +"var sel="+JSON.stringify(pbSelectedBlock||"")+";"  
+                        +"document.addEventListener('click',function(e){"  
+                        +"if(!sel)return;"  
+                        +"e.preventDefault();e.stopPropagation();"  
+                        +"window.parent.postMessage({type:'gh-place',blockId:sel,y:e.clientY+window.scrollY,text:(e.target.textContent||'').slice(0,60)},'*');"  
+                        +"});"  
+                        +"})()</scr"+"ipt>";
+                      return markerCSS+markerScript+previewHtml;
+                    })(),
+                    onLoad:function(){
+                      if(!window.__ghMsgBound){
+                        window.__ghMsgBound=true;
+                        window.addEventListener("message",function(ev){
+                          if(!ev.data||ev.data.type!=="gh-place") return;
+                          var blockId=ev.data.blockId;
+                          setPbPlacedMarkers(function(prev){
+                            var n=Object.assign({},prev);
+                            n[blockId]={y:ev.data.y,text:ev.data.text,id:blockId};
+                            return n;
+                          });
+                          setPbSelectedBlock(null);
+                        });
+                      }
+                    },
                     style:{width:"100%",height:"100%",border:"none"},
                     sandbox:"allow-same-origin allow-scripts",
                     title:"Page Preview"
@@ -4338,6 +4366,19 @@ function App() {
                 )
               ),
               React.createElement("div",{style:{flex:1,overflowY:"auto",padding:"6px 8px"}},
+                pbPlacementMode&&React.createElement("div",{style:{margin:"6px 0 10px",padding:"8px 12px",borderRadius:10,background:"rgba(255,199,44,0.12)",border:"1px solid rgba(255,199,44,0.35)"}},
+                  React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}},
+                    React.createElement("div",null,
+                      React.createElement("div",{style:{fontSize:11,fontWeight:800,color:"#FFC72C",marginBottom:2}},"Placement Mode Active"),
+                      React.createElement("div",{style:{fontSize:10,color:mc}},
+                        pbSelectedBlock?"Click anywhere in the page preview to drop it":"Select a block below, then click in the page")
+                    ),
+                    Object.keys(pbPlacedMarkers).length>0&&React.createElement("button",{
+                      onClick:function(){setPbPlacedMarkers({});setPbMergedPreview(null);},
+                      style:{fontSize:9,padding:"3px 8px",borderRadius:5,border:"1px solid rgba(239,68,68,0.4)",background:"rgba(239,68,68,0.1)",color:"#F87171",fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},
+                      "Clear All")
+                  )
+                ),
                 !pbPage&&React.createElement("div",{style:{padding:20,textAlign:"center",color:mc,fontSize:12}},"\u2190 Select a page first"),
                 pbPage&&NEPQ_STAGES.map(function(stage){
                   var isExp=pbNepqExpanded===stage.id;
@@ -4394,7 +4435,64 @@ function App() {
               ),
               React.createElement("div",{style:{padding:"12px 12px",borderTop:br}},
                 React.createElement("div",{style:{fontSize:10,color:mc,marginBottom:8,textAlign:"center"}},
-                  Object.keys(pbNepqContent).length+" of 13 NEPQ sections ready"),
+                  (function(){
+                    var nepqCount=Object.keys(pbNepqContent).length;
+                    var placedCount=Object.keys(pbPlacedMarkers).length;
+                    var swhCount=["seed","water","harvest"].filter(function(k){return pbPlanAnalysis[k]&&pbPlanAnalysis[k].length>10;}).length;
+                    var total=nepqCount+swhCount;
+                    if(total===0) return "Generate content first, then place it";
+                    if(placedCount===0) return total+" blocks ready -- use Place Blocks to position them";
+                    return placedCount+" of "+total+" blocks placed";
+                  })()),
+                (pbPage&&(Object.keys(pbNepqContent).length>0||pbPlanAnalysis.seed))&&React.createElement("button",{
+                  onClick:function(){
+                    var srcHtml=pbPage&&pbPage.html;
+                    if(!srcHtml){alert("No saved HTML for this page.");return;}
+                    var allBlocks=[];
+                    ["seed","water","harvest"].forEach(function(k){
+                      var txt=pbPlanAnalysis[k];
+                      if(!txt||txt.length<10) return;
+                      var bid="swh-"+k;
+                      var label=k==="seed"?"SEED":k==="water"?"WATER":"HARVEST";
+                      var color=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
+                      var placed=pbPlacedMarkers[bid];
+                      allBlocks.push({id:bid,label:label,color:color,y:placed?placed.y:null,
+                        html:"<div class=\"gh-swh-"+k+"\" style=\"margin:40px 0;max-width:720px;padding:24px 28px;background:linear-gradient(135deg,"+color+"10,"+color+"06);border-left:4px solid "+color+";border-radius:0 16px 16px 0;\"><p style=\"font-size:16px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+txt+"</p></div>"});
+                    });
+                    var STAGE_ORDER2=["connecting","situation","problem","two-truths","solution","consequence","qualifying","clarifying","expanded","decision","transition","committing","resolving"];
+                    STAGE_ORDER2.forEach(function(id){
+                      var txt=pbNepqContent[id];
+                      if(!txt) return;
+                      var bid="nepq-"+id;
+                      var placed=pbPlacedMarkers[bid];
+                      allBlocks.push({id:bid,label:"NEPQ: "+id,color:"#4B9CD3",y:placed?placed.y:null,html:txt});
+                    });
+                    var placed2=allBlocks.filter(function(b){return b.y!==null;}).sort(function(a,b){return a.y-b.y;});
+                    var unplaced=allBlocks.filter(function(b){return b.y===null;});
+                    var sorted=placed2.concat(unplaced);
+                    if(sorted.length===0){alert("No content to merge.");return;}
+                    var out=srcHtml;
+                    function insAfterSec2(str,n,ins){
+                      var c=0,p=0;
+                      while(true){var i=str.indexOf("</section>",p);if(i===-1)break;c++;if(c===n)return str.slice(0,i+10)+ins+str.slice(i+10);p=i+10;}
+                      return str+ins;
+                    }
+                    function wrapBlock(blk){
+                      return "\n<section class=\"gh-section\" style=\"padding:40px 0;display:block\"><div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block\">"+blk.html+"</div></section>\n";
+                    }
+                    var sectionCount=(srcHtml.match(/<\/section>/g)||[]).length;
+                    var totalSecs=Math.max(sectionCount,3);
+                    sorted.forEach(function(blk,i){
+                      var secN=blk.y!==null?Math.max(1,Math.min(totalSecs,Math.round((blk.y/2000)*totalSecs)+1)):totalSecs;
+                      out=insAfterSec2(out,secN,wrapBlock(blk));
+                    });
+                    var banner="<div style=\"position:sticky;top:0;z-index:999;background:#0D9488;color:#fff;padding:8px 16px;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;\"><span>Preview Merge -- "+sorted.length+" blocks woven in -- scroll to review</span></div>";
+                    setPbMergedPreview(banner+out);
+                  },
+                  style:{width:"100%",padding:"9px",borderRadius:10,border:"1px solid rgba(96,165,250,0.4)",
+                    background:"rgba(96,165,250,0.1)",color:"#60A5FA",fontSize:12,fontWeight:700,
+                    cursor:"pointer",marginBottom:8,transition:"all 0.2s"}},
+                  "Preview Merge"),
                 React.createElement("button",{onClick:copyOutput,
                   disabled:!pbPage||Object.keys(pbNepqContent).length===0,
                   style:{width:"100%",padding:"11px",borderRadius:10,border:"none",
