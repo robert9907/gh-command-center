@@ -3954,43 +3954,37 @@ function App() {
           shimmerFix = shimmerFix + cardScript;
 
           // ── WordPress-safe inline styles on CTA cards ──
-          // WordPress kses strips: gradients, rgba(), backdrop-filter, transform
-          // Only safe: hex colors, basic padding/margin/border/border-radius/display/color
-
-          // CTA modal - dark navy background using hex only
           var MODAL_STYLE = 'background-color:#0F2744;border-radius:20px;padding:48px 36px;margin:48px 0;';
-          out = out.replace(/<section([^>]*)class="([^"]*gh-cta-modal[^"]*)"([^>]*)>/g,
-            '<section$1class="$2"$3 style="'+MODAL_STYLE+'">');
-          out = out.replace(/<div([^>]*)class="([^"]*gh-cta-modal[^"]*)"([^>]*)>/g,
-            '<div$1class="$2"$3 style="'+MODAL_STYLE+'">');
-
-          // CTA card - semi-transparent white using rgba is stripped, use hex with opacity trick
-          // Use a dark card background that works: #162840 (dark navy card)
-          var CARD_STYLE = 'background-color:#162840;border:1px solid #2a4a7a;border-radius:20px;padding:28px 24px;margin-bottom:16px;';
-          out = out.replace(/<div([^>]*)class="([^"]*gh-cta-card[^"]*)"([^>]*)>/g,
-            '<div$1class="$2"$3 style="'+CARD_STYLE+'">');
-
-          // Ghost buttons - use hex equivalents
+          var GRID_STYLE = 'display:grid;grid-template-columns:1fr 1fr;gap:20px;';
+          var CARD_STYLE = 'background-color:#162840;border:1px solid #2a4a7a;border-radius:20px;padding:28px 24px;';
+          var HD_STYLE = 'text-align:center;margin-bottom:28px;';
+          var H2_STYLE = 'color:#ffffff;font-size:28px;font-weight:700;margin-bottom:8px;';
+          var H3_STYLE = 'color:#ffffff;font-size:20px;font-weight:600;margin-bottom:10px;';
+          var P_STYLE = 'color:rgba(255,255,255,0.8);font-size:14px;line-height:1.6;margin-bottom:16px;';
           var GHOST_BASE = 'display:block;text-align:center;padding:12px 20px;border-radius:50px;font-size:15px;text-decoration:none;margin-bottom:8px;font-weight:600;color:#ffffff;';
-          out = out.replace(/class="([^"]*gh-ghost[^"]*gh-ghost--compare[^"]*)"/g,
-            'class="$1" style="'+GHOST_BASE+'background-color:#1a3a6b;border:2px solid #4B9CD3;"');
-          out = out.replace(/class="([^"]*gh-ghost[^"]*gh-ghost--call[^"]*)"/g,
-            'class="$1" style="'+GHOST_BASE+'background-color:#14532d;border:2px solid #22C55E;"');
-          out = out.replace(/class="([^"]*gh-ghost[^"]*gh-ghost--calendly[^"]*)"/g,
-            'class="$1" style="'+GHOST_BASE+'background-color:#451a03;border:2px solid #F59E0B;"');
-          // Generic ghost buttons not matched above
-          out = out.replace(/class="([^"]*gh-ghost[^"]*)(?<!-compare)(?<!-call)(?<!-calendly)"(?![^<]*style=)/g,
-            'class="$1" style="'+GHOST_BASE+'background-color:#1e3a5f;border:2px solid #4B9CD3;"');
 
-          // CTA headings and text - ensure white color
-          out = out.replace(/<h2([^>]*)class="([^"]*gh-cta[^"]*)">/g,
-            '<h2$1class="$2" style="color:#ffffff;">');
-          out = out.replace(/(<div[^>]*class="[^"]*gh-cta-hd[^"]*"[^>]*>)/g,
-            '$1');
-          // Make all text inside cta-modal white
-          out = out.replace(/(<[^>]*class="[^"]*gh-cta-hd[^"]*"[^>]*>)/g,
-            '<div class="gh-cta-hd" style="text-align:center;margin-bottom:28px;">');
-
+          // Apply to modal container
+          out = out.split('class="gh-cta-modal"').join('class="gh-cta-modal" style="'+MODAL_STYLE+'"');
+          out = out.split('class="gh-cta-modal" aria-label').join('class="gh-cta-modal" style="'+MODAL_STYLE+'" aria-label');
+          // Grid
+          out = out.split('class="gh-cta-grid"').join('class="gh-cta-grid" style="'+GRID_STYLE+'"');
+          // Cards
+          out = out.split('class="gh-cta-card"').join('class="gh-cta-card" style="'+CARD_STYLE+'"');
+          // Header area
+          out = out.split('class="gh-cta-hd"').join('class="gh-cta-hd" style="'+HD_STYLE+'"');
+          // Headings inside modal
+          out = out.replace(/(<div[^>]*gh-cta-modal[^>]*>[\s\S]*?<h2)([^>]*>)/g, '$1 style="'+H2_STYLE+'"$2');
+          // h3 in cards
+          out = out.replace(/(<div[^>]*gh-cta-card[^>]*>[\s\S]*?<h3)([^>]*>)/g, '$1 style="'+H3_STYLE+'"$2');
+          // p in cards
+          out = out.replace(/(<div[^>]*gh-cta-card[^>]*>[\s\S]*?<p)([^>]*>)/g, '$1 style="'+P_STYLE+'"$2');
+          // Buttons
+          out = out.split('class="gh-ghost gh-ghost--primary gh-ghost--compare"').join('class="gh-ghost gh-ghost--compare" style="'+GHOST_BASE+'background-color:#1a3a6b;border:2px solid #4B9CD3;"');
+          out = out.split('class="gh-ghost gh-ghost--compare"').join('class="gh-ghost gh-ghost--compare" style="'+GHOST_BASE+'background-color:#1a3a6b;border:2px solid #4B9CD3;"');
+          out = out.split('class="gh-ghost gh-ghost--call"').join('class="gh-ghost gh-ghost--call" style="'+GHOST_BASE+'background-color:#14532d;border:2px solid #22C55E;"');
+          out = out.split('class="gh-ghost gh-ghost--text"').join('class="gh-ghost gh-ghost--text" style="'+GHOST_BASE+'background-color:#1e3a5f;border:2px solid #60A5FA;"');
+          out = out.split('class="gh-ghost gh-ghost--sched"').join('class="gh-ghost gh-ghost--sched" style="'+GHOST_BASE+'background-color:#451a03;border:2px solid #F59E0B;"');
+          out = out.split('class="gh-ghost gh-ghost--calendly"').join('class="gh-ghost gh-ghost--calendly" style="'+GHOST_BASE+'background-color:#451a03;border:2px solid #F59E0B;"');
           // Fix ALL compare/sunfire URLs comprehensively
           var SF_URL = "https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/";
           // Old sunfire without #/
