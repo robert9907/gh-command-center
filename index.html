@@ -4334,250 +4334,32 @@ function App() {
                   style:{padding:"6px 14px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#16A34A,#22C55E)",color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},
                   "\u2705 Mark Complete")
               ),
-              React.createElement("div",{style:{flex:1,background:bg,border:br,borderRadius:14,overflow:"hidden",position:"relative",minHeight:300}},
-                pbMode==="new"&&React.createElement("div",{style:{padding:32,display:"flex",flexDirection:"column",gap:20,height:"100%",overflowY:"auto"}},
-                  React.createElement("div",null,
-                    React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc,fontFamily:"Georgia,serif",marginBottom:4}},"✨ New Page Generator"),
-                    React.createElement("div",{style:{fontSize:12,color:mc}},pbNewKeyword?"Generating from: "+pbNewKeyword:"Enter keyword + slug to generate a full v5.2 NEPQ page")
-                  ),
-                  React.createElement("div",{style:{display:"flex",gap:10,flexWrap:"wrap"}},
-                    React.createElement("div",{style:{flex:2,minWidth:220}},
-                      React.createElement("div",{style:{fontSize:11,fontWeight:700,color:mc,textTransform:"uppercase",marginBottom:4}},"Target Keyword"),
-                      React.createElement("input",{value:pbNewKeyword,onChange:function(e){setPbNewKeyword(e.target.value);},placeholder:"e.g. medicare advantage plans durham nc",style:{width:"100%",padding:"9px 12px",borderRadius:9,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)",color:tc,fontSize:13,outline:"none",boxSizing:"border-box"}})
-                    ),
-                    React.createElement("div",{style:{flex:1,minWidth:160}},
-                      React.createElement("div",{style:{fontSize:11,fontWeight:700,color:mc,textTransform:"uppercase",marginBottom:4}},"URL Slug"),
-                      React.createElement("input",{value:pbNewSlug,onChange:function(e){setPbNewSlug(e.target.value.replace(/\s+/g,"-").toLowerCase());},placeholder:"medicare-advantage-durham-nc",style:{width:"100%",padding:"9px 12px",borderRadius:9,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)",color:tc,fontSize:13,outline:"none",boxSizing:"border-box"}})
-                    )
-                  ),
-                  React.createElement("button",{
-                    onClick:async function(){
-                      var apiKey=pbApiKey||"";
-                      if(!apiKey){alert("Add Claude API key — click gear above.");return;}
-                      if(!pbNewKeyword.trim()||!pbNewSlug.trim()){alert("Enter keyword and slug.");return;}
-                      setPbNewGenerating(true);setPbNewHTML("");
-                      try{
-                        var sys="You are Rob Simm, independent Medicare broker in Durham NC. Generate a complete v5.2 NEPQ page for the keyword '"+pbNewKeyword+"'. Include: H1 (pain/consequence formula), hero subtitle under 22 words, instant answer block (.gh-answer), 3 NEPQ question+answer sections, comparison table, FAQ with 3 gh-faq-item entries, author block (.gh-author), CTA with phone (828) 761-3326. Use 2026 figures: Part B $202.90/mo. Return clean HTML only — no DOCTYPE, no html/head/body tags.";
-                        var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:sys,messages:[{role:"user",content:"Generate the full page for: '"+pbNewKeyword+"' Slug: "+pbNewSlug}]})});
-                        var data=await resp.json();
-                        if(data.error)throw new Error(data.error.message);
-                        var txt=(data.content&&data.content[0]&&data.content[0].text)||"";
-                        setPbNewHTML(txt);setPbScanResults(scan17(txt));
-                      }catch(e){alert("Error: "+e.message);}
-                      finally{setPbNewGenerating(false);}
-                    },
-                    disabled:pbNewGenerating||!pbNewKeyword.trim()||!pbNewSlug.trim(),
-                    style:{padding:"11px 28px",borderRadius:10,border:"none",
-                      background:(pbNewGenerating||!pbNewKeyword.trim()||!pbNewSlug.trim())?"rgba(255,255,255,0.06)":"linear-gradient(135deg,#0D9488,#14B8A6)",
-                      color:(pbNewGenerating||!pbNewKeyword.trim()||!pbNewSlug.trim())?"#6B7B8D":"#FFF",
-                      fontSize:14,fontWeight:700,cursor:(pbNewGenerating||!pbNewKeyword.trim()||!pbNewSlug.trim())?"not-allowed":"pointer",alignSelf:"flex-start"}
-                  },pbNewGenerating?"⏳ Generating...":"✨ Generate Page"),
-                  pbNewHTML&&React.createElement("div",{style:{display:"flex",gap:10,flexWrap:"wrap"}},
-                    React.createElement("button",{onClick:function(){navigator.clipboard.writeText(pbNewHTML).then(function(){alert("✅ Copied! Paste into WordPress → New Page → Custom HTML block.");}).catch(function(){var ta=document.createElement("textarea");ta.value=pbNewHTML;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("✅ Copied!");});},style:{padding:"9px 20px",borderRadius:9,border:"none",background:"#2563EB",color:"#FFF",fontSize:13,fontWeight:700,cursor:"pointer"}},"📋 Copy for WordPress"),
-                    React.createElement("button",{onClick:function(){setPbPendingPublish(function(prev){var k="new-"+pbNewSlug;return prev.includes(k)?prev:[...prev,k];});alert("⏳ Marked pending publish — paste into WordPress then mark live in Architecture.");},style:{padding:"9px 20px",borderRadius:9,border:"1px solid rgba(255,199,44,0.4)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",fontSize:13,fontWeight:700,cursor:"pointer"}},"⏳ Mark Pending Publish")
-                  ),
-                  pbNewHTML&&React.createElement("iframe",{srcDoc:pbNewHTML,style:{width:"100%",flex:1,minHeight:400,border:"1px solid rgba(255,255,255,0.08)",borderRadius:12},sandbox:"allow-same-origin allow-scripts",title:"New Page Preview"})
-                ),
-                !pbPage&&pbMode!=="new"&&React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:12,padding:40}},
+              React.createElement("div",{style:{flex:1,background:bg,border:br,borderRadius:14,
+                overflow:"hidden",position:"relative",minHeight:300}},
+
+                !pbPage&&React.createElement("div",{style:{display:"flex",flexDirection:"column",
+                  alignItems:"center",justifyContent:"center",height:"100%",gap:12,padding:40}},
                   React.createElement("div",{style:{fontSize:52,lineHeight:1}},"\uD83D\uDCC4"),
-                  React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc}},"\u2190 Select a page to begin"),
-                  React.createElement("div",{style:{fontSize:13,color:mc,textAlign:"center",maxWidth:300}},
-                    "Pick a page from the queue. Pages with saved HTML from Optimize will render here.")
+                  React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc}},"\u2190 Select a page to begin")
                 ),
-                pbPage&&!pbPage.html&&React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:12,padding:40}},
-                  React.createElement("div",{style:{fontSize:40}},"🔍"),
+
+                pbPage&&!pbPage.html&&React.createElement("div",{style:{display:"flex",flexDirection:"column",
+                  alignItems:"center",justifyContent:"center",height:"100%",gap:12,padding:40}},
+                  React.createElement("div",{style:{fontSize:40}},"\uD83D\uDD0D"),
                   React.createElement("div",{style:{fontSize:15,fontWeight:700,color:tc}},"No saved HTML"),
-                  React.createElement("div",{style:{fontSize:13,color:mc,textAlign:"center"}},"Go to Optimize tab → find this page → Fetch → Save HTML.")
+                  React.createElement("div",{style:{fontSize:13,color:mc,textAlign:"center"}},
+                    "Go to Optimize tab \u2192 find this page \u2192 Fetch \u2192 Save HTML.")
                 ),
-                pbPage&&pbPage.html&&!pbEditMode&&(function(){
-                  // Build live preview with NEPQ blocks merged in
-                  var previewHtml = pbPage.html;
-                  var nepqKeys = ["connecting","situation","problem","two-truths","solution",
-                    "consequence","qualifying","clarifying","expanded","decision","transition",
-                    "committing","resolving"];
-                  var hasNepq = nepqKeys.some(function(k){return !!pbNepqContent[k];});
-                  if(hasNepq){
-                    var nepqStyle2 = "<style>.gh-np{font-family:-apple-system,sans-serif;margin:32px 0;max-width:720px;}.gh-np .gh-nepq-q{background:linear-gradient(135deg,rgba(75,156,211,0.1),rgba(13,148,136,0.07));border-left:4px solid #4B9CD3;border-radius:0 12px 12px 0;padding:16px 20px;}.gh-np .gh-nepq-q h3{font-size:19px;font-weight:700;color:#0A1628;margin:0;line-height:1.4;}.gh-np .gh-answer{background:#fff;border:1px solid rgba(75,156,211,0.15);border-top:none;border-radius:0 0 12px 12px;padding:16px 20px;}.gh-np .gh-answer p{font-size:15px;color:#374151;line-height:1.7;margin:0;}</style>";
-                    previewHtml = nepqStyle2 + previewHtml;
-                    var banner = "<div style=\"background:linear-gradient(135deg,#0D9488,#14B8A6);color:#fff;padding:10px 18px;font-size:12px;font-weight:700;text-align:center\">✨ NEPQ Live Preview — "+Object.values(pbNepqContent).filter(Boolean).length+" stages active — scroll to see content distributed through the page</div>";
-                    previewHtml = previewHtml.replace("<body",banner+"<body");
 
-                    function wrapP(ids,label){
-                      var blks=ids.map(function(id){return pbNepqContent[id];}).filter(Boolean);
-                      if(!blks.length)return "";
-                      return "<section style=\"padding:40px 0;display:block;width:100%;\"><div style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block;\">"+blks.map(function(b){return "<div class=\"gh-np\" style=\"display:block;margin:32px 0;\">"+b+"</div>";}).join("")+"</div></section>";
-                    }
-
-                    function insAfterSec(str,n,html){
-                      var c=0,p=0;
-                      while(true){var i=str.indexOf("</section>",p);if(i===-1)break;c++;if(c===n){return str.slice(0,i+10)+html+str.slice(i+10);}p=i+10;}
-                      return str+html;
-                    }
-                    function insBefore(str,pat,html){
-                      var i=str.indexOf(pat);if(i===-1)return str;
-                      var s=str.lastIndexOf("<section",i);var ins=s>-1?s:i;
-                      return str.slice(0,ins)+html+str.slice(ins);
-                    }
-
-                    previewHtml = insAfterSec(previewHtml,1,wrapP(["connecting","situation"],"Connecting + Situation"));
-                    previewHtml = insAfterSec(previewHtml,2,wrapP(["problem","two-truths"],"Problem Awareness"));
-                    if(pbNepqContent["consequence"]||pbNepqContent["solution"]){
-                      var hasCta=previewHtml.indexOf("gh-cta-modal")>-1;
-                      if(hasCta){previewHtml=insBefore(previewHtml,"gh-cta-modal",wrapP(["solution","consequence"],"Consequence"));}
-                      else{previewHtml=insAfterSec(previewHtml,3,wrapP(["solution","consequence"],"Consequence"));}
-                    }
-                    previewHtml = insBefore(previewHtml,"gh-faq",wrapP(["qualifying","clarifying","expanded","decision","transition"],"Decision + Transition"));
-                    if(previewHtml.indexOf("</body>")>-1){
-                      previewHtml=previewHtml.replace("</body>",wrapP(["committing","resolving"],"Committing + Resolving")+"</body>");
-                    }
-                  }
-                  return React.createElement("iframe",{
-                    srcDoc:pbMergedPreview||previewHtml,
-                    style:{width:"100%",height:"100%",border:"none"},
-                    sandbox:"allow-same-origin allow-scripts",
-                    title:"Page Preview"
-                  });
-                })(),
-                /* Zone overlay: positioned over iframe, renders named clickable zone bands */
-                pbPlacementMode&&(function(){
-                  var zones = computeDropZones(pbPage&&pbPage.html||"");
-                  if(!zones||zones.length===0) return null;
-                  var seq3 = STANDARD_SEQUENCES[pbProductType]||[];
-                  var curStep = seq3[pbSequenceStep];
-                  var targetZoneId = curStep ? curStep.zoneId : null;
-                  var bLabel = curStep ? curStep.label.toUpperCase() : "";
-                  return React.createElement("div",{
-                    style:{position:"absolute",top:0,left:0,right:0,bottom:0,
-                      zIndex:20,pointerEvents:"none",borderRadius:14,overflow:"hidden"}
-                  },
-                    zones.map(function(zone){
-                      var placed = Object.values(pbPlacedMarkers).find(function(m){return m.zoneId===zone.id;});
-                      var isTarget = zone.id === targetZoneId && !placed;
-                      var isActive = isTarget; // only target zone is clickable
-                      var pctTop = Math.round(zone.pct*100);
-                      return React.createElement("div",{
-                        key:zone.id,
-                        onClick:function(e){
-                          if(!pbSelectedBlock||placed) return;
-                          e.stopPropagation();
-                          var bid=pbSelectedBlock;
-                          setPbPlacedMarkers(function(prev){
-                            var n=Object.assign({},prev);
-                            n[bid]={zoneId:zone.id,htmlPos:zone.htmlPos,id:bid,label:zone.label};
-                            return n;
-                          });
-                          setPbSelectedBlock(null);
-                          // Advance sequence: find next unplaced block
-                          var seq2 = STANDARD_SEQUENCES[pbProductType]||[];
-                          var nextStep = pbSequenceStep + 1;
-                          setPbSequenceStep(nextStep);
-                          if(nextStep < seq2.length){
-                            setPbSelectedBlock(seq2[nextStep].blockId);
-                          }
-                          // Rebuild merged preview using latest markers
-                          setTimeout(function(){
-                            var srcHtml = pbPage&&pbPage.html;
-                            if(!srcHtml) return;
-                            var allBlocks=[];
-                            ["seed","water","harvest"].forEach(function(k){
-                              var txt=pbPlanAnalysis[k];
-                              if(!txt||txt.length<10) return;
-                              var bk="swh-"+k;
-                              var pm=pbPlacedMarkers[bk];
-                              // Also check if just placed
-                              if(!pm&&bk===bid) pm={zoneId:zone.id,htmlPos:zone.htmlPos,id:bid,label:zone.label};
-                              var col=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
-                              if(pm) allBlocks.push({id:bk,htmlPos:pm.htmlPos,
-                                html:"<div style=\"padding:28px 32px;background:linear-gradient(135deg,"+col+"12,"+col+"06);border-left:4px solid "+col+";margin:0;\">"
-                                  +"<p style=\"font-size:16px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+txt+"</p></div>"});
-                            });
-                            var SORDER3=["connecting","situation","problem","two-truths","solution","consequence","qualifying","clarifying","expanded","decision","transition","committing","resolving"];
-                            SORDER3.forEach(function(id){
-                              var txt=pbNepqContent[id];
-                              if(!txt) return;
-                              var bk="nepq-"+id;
-                              var pm=pbPlacedMarkers[bk];
-                              if(!pm&&bk===bid) pm={zoneId:zone.id,htmlPos:zone.htmlPos,id:bid,label:zone.label};
-                              if(pm) allBlocks.push({id:bk,htmlPos:pm.htmlPos,html:txt});
-                            });
-                            if(allBlocks.length===0) return;
-                            function wrap4(blk){
-                              return "<section class=\"gh-section\" style=\"padding:40px 0;display:block\"><div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block\">"+blk.html+"</div></section>";
-                            }
-                            var placed4=allBlocks.sort(function(a,b){return a.htmlPos-b.htmlPos;});
-                            var out4=srcHtml;
-                            placed4.slice().reverse().forEach(function(blk){
-                              out4=out4.slice(0,blk.htmlPos)+wrap4(blk)+out4.slice(blk.htmlPos);
-                            });
-                            setPbMergedPreview(out4);
-                          },80);                        },
-                        style:{
-                          position:"absolute",
-                          top:"calc("+pctTop+"% - 18px)",
-                          left:0,right:0,height:36,
-                          pointerEvents:isActive?"auto":"all",
-                          cursor:isActive?"pointer":"default",
-                          zIndex:22,
-                          display:"flex",alignItems:"center",
-                          justifyContent:"space-between",
-                          padding:"0 14px",
-                          background:placed
-                            ?"rgba(74,222,128,0.92)"
-                            :isActive
-                              ?"rgba(0,0,0,0.85)"
-                              :"rgba(0,0,0,0.72)",
-                          borderTop:"2px solid "+(placed?"#4ADE80":zone.color),
-                          borderBottom:"2px solid "+(placed?"#4ADE80":zone.color),
-                          boxShadow:"0 2px 8px rgba(0,0,0,0.4)"
-                        }
-                      },
-                        React.createElement("div",{
-                          style:{display:"flex",alignItems:"center",gap:8}
-                        },
-                          React.createElement("div",{
-                            style:{width:10,height:10,borderRadius:"50%",
-                              background:placed?"#1A2332":zone.color,flexShrink:0}
-                          }),
-                          React.createElement("span",{
-                            style:{fontSize:11,fontWeight:800,letterSpacing:"0.07em",
-                              textTransform:"uppercase",
-                              color:placed?"#1A2332":zone.color}
-                          },placed
-                            ? zone.label+" -- "+placed.id.replace("swh-","").replace("nepq-","").toUpperCase()
-                            : zone.label
-                          )
-                        ),
-                        placed
-                          ? React.createElement("span",{
-                              style:{fontSize:10,fontWeight:800,color:"#1A2332",
-                                background:"rgba(0,0,0,0.15)",padding:"2px 8px",borderRadius:4}},
-                              "PLACED")
-                          : isTarget
-                            ? React.createElement("div",{
-                                style:{background:zone.color,color:"#1A2332",
-                                  fontSize:11,fontWeight:800,
-                                  padding:"4px 12px",borderRadius:5,
-                                  animation:"savePulse 1s ease-in-out infinite"}},
-                                "STEP "+(pbSequenceStep+1)+" -- DROP "+bLabel+" HERE")
-                            : React.createElement("span",{
-                                style:{fontSize:10,color:"rgba(255,255,255,0.45)"}},
-                                "available")
-                      );
-                    })
-                  );
-                })(),
-                
-                pbPage&&pbEditMode&&React.createElement("div",{style:{display:"flex",flexDirection:"column",height:"100%",padding:12,gap:8}},
+                pbPage&&pbPage.html&&pbEditMode&&React.createElement("div",{style:{display:"flex",
+                  flexDirection:"column",height:"100%",padding:12,gap:8}},
                   React.createElement("textarea",{
                     value:pbEditHTML,
-                    onChange:function(e){
-                      setPbEditHTML(e.target.value);
-                      setPbScanResults(scan17(e.target.value));
-                    },
+                    onChange:function(e){setPbEditHTML(e.target.value);setPbScanResults(scan17(e.target.value));},
                     style:{flex:1,width:"100%",padding:"10px 12px",borderRadius:10,border:br,
                       background:isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.02)",
-                      color:tc,fontSize:12,fontFamily:"monospace",resize:"none",
-                      outline:"none",boxSizing:"border-box",lineHeight:1.5}
+                      color:tc,fontSize:12,fontFamily:"monospace",resize:"none",outline:"none",
+                      boxSizing:"border-box",lineHeight:1.5}
                   }),
                   React.createElement("div",{style:{display:"flex",gap:8,justifyContent:"flex-end"}},
                     React.createElement("button",{
@@ -4585,78 +4367,215 @@ function App() {
                         var key=pbPage.clusterId+"-"+pbPage.idx;
                         setSavedHTML(function(prev){var n=Object.assign({},prev);n[key]=pbEditHTML;return n;});
                         setPbPage(function(p){return Object.assign({},p,{html:pbEditHTML});});
-                        setPbEditMode(false);
-                        setPbScanResults(scan17(pbEditHTML));
+                        setPbEditMode(false);setPbScanResults(scan17(pbEditHTML));
                       },
-                      style:{padding:"8px 18px",borderRadius:9,border:"none",background:"#0D9488",color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}
-                    },"💾 Save HTML"),
+                      style:{padding:"8px 18px",borderRadius:9,border:"none",background:"#0D9488",
+                        color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}
+                    },"\uD83D\uDCBE Save HTML"),
                     React.createElement("button",{
                       onClick:function(){setPbEditMode(false);},
-                      style:{padding:"8px 14px",borderRadius:9,border:br,background:"transparent",color:mc,fontSize:12,cursor:"pointer"}
+                      style:{padding:"8px 14px",borderRadius:9,border:br,background:"transparent",
+                        color:mc,fontSize:12,cursor:"pointer"}
                     },"Cancel")
                   )
-                )
-              ),
-              /* Placement content preview -- shows placed blocks in zone order */
-              pbPlacementMode&&Object.keys(pbPlacedMarkers).length>0&&React.createElement("div",{
-                style:{background:"rgba(0,0,0,0.3)",border:"1px solid rgba(255,255,255,0.08)",
-                  borderRadius:12,overflow:"hidden",marginTop:8,flexShrink:0}
-              },
-                React.createElement("div",{
-                  style:{padding:"8px 14px",borderBottom:"1px solid rgba(255,255,255,0.06)",
-                    fontSize:10,fontWeight:800,color:"#6B7B8D",letterSpacing:"0.08em",
-                    textTransform:"uppercase"}
-                },"Placed Content Preview -- "+Object.keys(pbPlacedMarkers).length+" blocks"),
-                (function(){
-                  var zones=computeDropZones(pbPage&&pbPage.html||"");
-                  var orderedBlocks=zones
-                    .map(function(z){
-                      var bid=Object.keys(pbPlacedMarkers).find(function(k){return pbPlacedMarkers[k].zoneId===z.id;});
-                      if(!bid) return null;
-                      var marker=pbPlacedMarkers[bid];
-                      var content="";
-                      var color="#4B9CD3";
-                      if(bid.indexOf("swh-")===0){
-                        var k=bid.replace("swh-","");
-                        content=pbPlanAnalysis[k]||"";
-                        color=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
-                      } else if(bid.indexOf("nepq-")===0){
-                        content=pbNepqContent[bid.replace("nepq-","")]||"";
-                        color="#A78BFA";
-                      }
-                      return {bid:bid,zone:z,content:content,color:color};
-                    })
-                    .filter(Boolean);
-                  // Also add unplaced blocks at end
-                  return React.createElement("div",{style:{maxHeight:220,overflowY:"auto"}},
-                    orderedBlocks.map(function(b,i){
-                      var isHtml=b.content.indexOf("<")>-1;
-                      return React.createElement("div",{
-                        key:b.bid,
-                        style:{padding:"10px 14px",
-                          borderBottom:i<orderedBlocks.length-1?"1px solid rgba(255,255,255,0.04)":"none",
-                          borderLeft:"3px solid "+b.color,
-                          background:"rgba(255,255,255,0.02)"}
-                      },
-                        React.createElement("div",{
-                          style:{fontSize:9,fontWeight:800,color:b.color,
-                            letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:5}
-                        },b.zone.label+" -- "+b.bid.replace("swh-","").replace("nepq-","").toUpperCase()),
-                        isHtml
-                          ? React.createElement("div",{
-                              dangerouslySetInnerHTML:{__html:b.content},
-                              style:{fontSize:12,color:"#C4CDD5",lineHeight:1.6,
-                                maxHeight:60,overflow:"hidden"}
-                            })
-                          : React.createElement("p",{
-                              style:{fontSize:12,color:"#C4CDD5",lineHeight:1.6,
-                                margin:0,maxHeight:60,overflow:"hidden"}
-                            },b.content.slice(0,200)+(b.content.length>200?"...":""))
-                      );
-                    })
+                ),
+
+                pbPage&&pbPage.html&&!pbEditMode&&!pbPlacementMode&&(function(){
+                  var previewHtml=pbPage.html;
+                  return React.createElement("iframe",{
+                    srcDoc:pbMergedPreview||previewHtml,
+                    style:{width:"100%",height:"100%",border:"none"},
+                    sandbox:"allow-same-origin allow-scripts",
+                    title:"Page Preview"
+                  });
+                })(),
+
+                pbPage&&pbPage.html&&pbPlacementMode&&!pbEditMode&&(function(){
+                  var seq=STANDARD_SEQUENCES[pbProductType]||[];
+                  var step=Math.min(pbSequenceStep,seq.length-1);
+                  var cur=seq[step];
+                  var zones=computeDropZones(pbPage.html);
+                  var isDone=pbSequenceStep>=seq.length;
+                  var stepColors=["#2DD4BF","#4B9CD3","#FFC72C","#A78BFA","#F59E0B","#FB923C","#4ADE80","#F472B6"];
+                  var stepColor=stepColors[step%8]||"#4B9CD3";
+
+                  var mergedHtml=(function(){
+                    var allBlocks=[];
+                    ["seed","water","harvest"].forEach(function(k){
+                      var txt=pbPlanAnalysis[k];
+                      if(!txt||txt.length<10) return;
+                      var bk="swh-"+k;
+                      var pm=pbPlacedMarkers[bk];
+                      if(!pm) return;
+                      var col=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
+                      allBlocks.push({id:bk,htmlPos:pm.htmlPos,
+                        html:"<div style=\"padding:28px 32px;background:"+col+"10;border-left:4px solid "+col+";\">"
+                          +"<p style=\"font-size:16px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+txt+"</p></div>"});
+                    });
+                    var SORD=["connecting","situation","problem","two-truths","solution","consequence",
+                      "qualifying","clarifying","expanded","decision","transition","committing","resolving"];
+                    SORD.forEach(function(id){
+                      var txt=pbNepqContent[id];
+                      if(!txt) return;
+                      var bk="nepq-"+id;
+                      var pm=pbPlacedMarkers[bk];
+                      if(!pm) return;
+                      allBlocks.push({id:bk,htmlPos:pm.htmlPos,html:txt});
+                    });
+                    if(allBlocks.length===0) return pbPage.html;
+                    function wrapIt(blk){
+                      return "<section style=\"padding:40px 0;display:block\"><div style=\"max-width:780px;margin:0 auto;padding:0 24px;\">"+blk.html+"</div></section>";
+                    }
+                    var out=pbPage.html;
+                    allBlocks.sort(function(a,b){return a.htmlPos-b.htmlPos;}).slice().reverse()
+                      .forEach(function(blk){out=out.slice(0,blk.htmlPos)+wrapIt(blk)+out.slice(blk.htmlPos);});
+                    return out;
+                  })();
+
+                  var curContent="";
+                  if(cur){
+                    if(cur.blockId.indexOf("swh-")===0) curContent=pbPlanAnalysis[cur.blockId.replace("swh-","")]||"";
+                    else if(cur.blockId.indexOf("nepq-")===0) curContent=pbNepqContent[cur.blockId.replace("nepq-","")]||"";
+                  }
+                  var isNepqHtml=curContent.indexOf("<")>-1;
+
+                  return React.createElement("div",{style:{display:"flex",flexDirection:"column",
+                    height:"100%",overflow:"hidden"}},
+
+                    React.createElement("div",{style:{padding:"8px 14px",flexShrink:0,
+                      background:"rgba(0,0,0,0.35)",borderBottom:"1px solid rgba(255,255,255,0.06)",
+                      display:"flex",alignItems:"center",justifyContent:"space-between"}},
+                      React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8}},
+                        React.createElement("span",{style:{fontSize:12,fontWeight:800,color:stepColor,
+                          letterSpacing:"0.05em",textTransform:"uppercase"}},
+                          isDone?"\u2705 All "+seq.length+" blocks placed"
+                            :("Step "+(step+1)+" of "+seq.length+" -- "+(cur?cur.label:""))
+                        ),
+                        React.createElement("div",{style:{display:"flex",gap:3,marginLeft:6}},
+                          seq.map(function(s,i){
+                            var isCur=i===step&&!isDone;
+                            var placed=!!pbPlacedMarkers[s.blockId];
+                            return React.createElement("div",{key:i,style:{
+                              width:isCur?14:7,height:7,borderRadius:4,
+                              background:placed?"#4ADE80":isCur?stepColor:"rgba(255,255,255,0.15)",
+                              transition:"all 0.2s"}});
+                          })
+                        )
+                      ),
+                      !isDone&&React.createElement("span",{style:{fontSize:10,color:mc}},
+                        cur?(zones.find(function(z){return z.id===cur.zoneId;})||{label:"end of page"}).label:"")
+                    ),
+
+                    React.createElement("iframe",{
+                      key:"pv-"+(Object.keys(pbPlacedMarkers).length),
+                      srcDoc:mergedHtml,
+                      style:{flex:1,width:"100%",border:"none",minHeight:0},
+                      sandbox:"allow-same-origin allow-scripts",
+                      title:"Placement Preview"
+                    }),
+
+                    !isDone&&cur&&React.createElement("div",{style:{
+                      flexShrink:0,background:"rgba(0,0,0,0.45)",
+                      borderTop:"3px solid "+stepColor,padding:"12px 16px"}},
+                      React.createElement("div",{style:{display:"flex",alignItems:"center",
+                        justifyContent:"space-between",gap:12}},
+                        React.createElement("div",{style:{flex:1,minWidth:0}},
+                          React.createElement("div",{style:{fontSize:10,fontWeight:800,color:stepColor,
+                            letterSpacing:"0.07em",textTransform:"uppercase",marginBottom:4}},
+                            cur.label+" -- "+cur.desc),
+                          curContent
+                            ?(isNepqHtml
+                              ?React.createElement("div",{
+                                  dangerouslySetInnerHTML:{__html:curContent},
+                                  style:{fontSize:11,color:"#C4CDD5",lineHeight:1.5,
+                                    maxHeight:52,overflow:"hidden"}})
+                              :React.createElement("p",{style:{fontSize:11,color:"#C4CDD5",
+                                  lineHeight:1.5,margin:0,maxHeight:52,overflow:"hidden"}},
+                                  curContent.slice(0,160)+(curContent.length>160?"...":"")))
+                            :React.createElement("p",{style:{fontSize:11,color:"#F87171",margin:0}},
+                                cur.blockId.indexOf("nepq-")===0
+                                  ?"Generate this NEPQ stage -- click \u2728 in the right panel"
+                                  :"Click "+pbProductType.toUpperCase()+" in the right panel first")
+                        ),
+                        React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:6,flexShrink:0}},
+                          curContent&&React.createElement("button",{
+                            onClick:function(){
+                              var zone=zones.find(function(z){return z.id===cur.zoneId;});
+                              var htmlPos=zone?zone.htmlPos:Math.max(0,pbPage.html.lastIndexOf("</body>"));
+                              if(htmlPos<=0) htmlPos=pbPage.html.length-50;
+                              setPbPlacedMarkers(function(prev){
+                                var n=Object.assign({},prev);
+                                n[cur.blockId]={zoneId:cur.zoneId,htmlPos:htmlPos,
+                                  id:cur.blockId,label:cur.label};
+                                return n;
+                              });
+                              var nextStep=pbSequenceStep+1;
+                              setPbSequenceStep(nextStep);
+                              setPbSelectedBlock(nextStep<seq.length?seq[nextStep].blockId:null);
+                            },
+                            style:{padding:"10px 20px",borderRadius:10,border:"none",
+                              background:stepColor,color:"#1A2332",
+                              fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap"}
+                          },"Place \u2192"),
+                          React.createElement("button",{
+                            onClick:function(){
+                              var n=pbSequenceStep+1;
+                              setPbSequenceStep(n);
+                              setPbSelectedBlock(n<seq.length?seq[n].blockId:null);
+                            },
+                            style:{padding:"5px 14px",borderRadius:8,
+                              border:"1px solid rgba(255,255,255,0.12)",
+                              background:"transparent",color:mc,
+                              fontSize:11,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}
+                          },"Skip")
+                        )
+                      )
+                    ),
+
+                    isDone&&React.createElement("div",{style:{
+                      flexShrink:0,padding:"14px 16px",
+                      background:"rgba(74,222,128,0.1)",
+                      borderTop:"2px solid #4ADE80",
+                      display:"flex",alignItems:"center",justifyContent:"space-between"}},
+                      React.createElement("span",{style:{fontSize:13,fontWeight:700,color:"#4ADE80"}},
+                        "\u2705 All "+seq.length+" blocks placed -- ready to merge"),
+                      React.createElement("button",{
+                        onClick:function(){
+                          var ab=[];
+                          ["seed","water","harvest"].forEach(function(k){
+                            var txt=pbPlanAnalysis[k];
+                            if(!txt||txt.length<10) return;
+                            var bk="swh-"+k; var pm=pbPlacedMarkers[bk];
+                            if(!pm) return;
+                            var col=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
+                            ab.push({id:bk,htmlPos:pm.htmlPos,
+                              html:"<div style=\"padding:28px 32px;background:"+col+"10;border-left:4px solid "+col+";\">"
+                                +"<p style=\"font-size:16px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+txt+"</p></div>"});
+                          });
+                          ["connecting","situation","problem","two-truths","solution","consequence",
+                            "qualifying","clarifying","expanded","decision","transition","committing","resolving"
+                          ].forEach(function(id){
+                            var txt=pbNepqContent[id]; if(!txt) return;
+                            var bk="nepq-"+id; var pm=pbPlacedMarkers[bk];
+                            if(!pm) return;
+                            ab.push({id:bk,htmlPos:pm.htmlPos,html:txt});
+                          });
+                          function wrapFinal(blk){
+                            return "<section style=\"padding:40px 0;display:block\"><div style=\"max-width:780px;margin:0 auto;padding:0 24px;\">"+blk.html+"</div></section>";
+                          }
+                          var finalOut=pbPage.html;
+                          ab.sort(function(a,b){return a.htmlPos-b.htmlPos;}).slice().reverse()
+                            .forEach(function(blk){finalOut=finalOut.slice(0,blk.htmlPos)+wrapFinal(blk)+finalOut.slice(blk.htmlPos);});
+                          setPbMergedPreview(finalOut);
+                          setPbPlacementMode(false);
+                        },
+                        style:{padding:"10px 24px",borderRadius:10,border:"none",
+                          background:"linear-gradient(135deg,#0D9488,#14B8A6)",
+                          color:"#fff",fontSize:13,fontWeight:800,cursor:"pointer"}
+                      },"Preview Merge \u2192")
+                    )
                   );
-                })()
-              ),
+                })(),
               pbPage&&pbScanResults&&React.createElement("div",{style:{background:bg,border:br,borderRadius:14,padding:"14px 16px",maxHeight:200,overflowY:"auto"}},
                 React.createElement("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:10,flexWrap:"wrap"}},
                   React.createElement(ScoreRing,{score:pbScanResults.score,total:17,size:54}),
