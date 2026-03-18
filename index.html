@@ -1422,8 +1422,8 @@ function App() {
   // GA4 Live API State
   const [ga4ClientId, setGa4ClientId] = useState(() => localStorage.getItem("gh-cc-ga4-client-id") || "");
   const [ga4PropertyId, setGa4PropertyId] = useState(() => localStorage.getItem("gh-cc-ga4-property-id") || "");
-  const [ga4Token, setGa4Token] = useState("");
-  const [ga4Connected, setGa4Connected] = useState(false);
+  const [ga4Token, setGa4Token] = useState(() => localStorage.getItem("gh-cc-ga4-token") || "");
+  const [ga4Connected, setGa4Connected] = useState(() => !!localStorage.getItem("gh-cc-ga4-token"));
   const [ga4Data, setGa4Data] = useState(() => { try { return JSON.parse(localStorage.getItem("gh-cc-ga4-data")||"null") || {}; } catch { return {}; } });
   const [ga4Loading, setGa4Loading] = useState(false);
   const [ga4Error, setGa4Error] = useState("");
@@ -1520,6 +1520,7 @@ function App() {
         if (token) {
           setGa4Token(token);
           setGa4Connected(true);
+          localStorage.setItem("gh-cc-ga4-token", token);
           setGa4Error("");
           try { window.history.replaceState(null, "", window.location.pathname); } catch {}
         }
@@ -2810,7 +2811,7 @@ function App() {
                   },"🔗 Connect GA4"),
                   ga4Connected&&React.createElement("span",{style:{fontSize:10,padding:"2px 8px",borderRadius:6,background:"rgba(74,222,128,0.1)",color:"#4ADE80",fontWeight:700}},"● Live"),
                   ga4Connected&&React.createElement("button",{
-                    onClick:function(){setGa4Token("");setGa4Connected(false);},
+                    onClick:function(){setGa4Token("");setGa4Connected(false);localStorage.removeItem("gh-cc-ga4-token");},
                     style:{fontSize:10,padding:"3px 8px",borderRadius:6,border:"1px solid rgba(248,113,113,0.2)",background:"none",color:"#F87171",fontWeight:600,cursor:"pointer"}
                   },"✕")
                 )
@@ -3052,7 +3053,7 @@ function App() {
                     React.createElement("span",{style:{fontSize:12,color:"#4ADE80",fontWeight:600}},"Connected"),
                     React.createElement("button",{onClick:function(){ga4Fetch("30daysAgo");},disabled:ga4Loading,style:{padding:"5px 12px",borderRadius:7,border:"1px solid rgba(74,222,128,0.3)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",fontSize:11,fontWeight:600,cursor:"pointer"}},ga4Loading?"⏳ Fetching...":"🔄 30 Days"),
                     React.createElement("button",{onClick:function(){ga4Fetch("90daysAgo");},disabled:ga4Loading,style:{padding:"5px 12px",borderRadius:7,border:"1px solid rgba(96,165,250,0.3)",background:"rgba(96,165,250,0.08)",color:"#60A5FA",fontSize:11,fontWeight:600,cursor:"pointer"}},"90 Days"),
-                    React.createElement("button",{onClick:function(){setGa4Token("");setGa4Connected(false);},style:{padding:"5px 10px",borderRadius:7,border:"1px solid rgba(248,113,113,0.2)",background:"none",color:"#F87171",fontSize:11,cursor:"pointer"}},"Disconnect")
+                    React.createElement("button",{onClick:function(){setGa4Token("");setGa4Connected(false);localStorage.removeItem("gh-cc-ga4-token");},style:{padding:"5px 10px",borderRadius:7,border:"1px solid rgba(248,113,113,0.2)",background:"none",color:"#F87171",fontSize:11,cursor:"pointer"}},"Disconnect")
                   )
                 ),
                 ga4Error&&React.createElement("div",{style:{padding:"8px 12px",borderRadius:8,background:"rgba(248,113,113,0.1)",color:"#F87171",fontSize:11,marginBottom:12}},ga4Error),
