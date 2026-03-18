@@ -3570,7 +3570,38 @@ function App() {
           });
           // Remove duplicates within 4% of each other
           var seen={};
-          return result.filter(function(z){var b=Math.round(z.pct*25);if(seen[b])return false;seen[b]=true;return true;});
+          result = result.filter(function(z){var b=Math.round(z.pct*25);if(seen[b])return false;seen[b]=true;return true;});
+          // Fallback: if page structure not detected, spread 8 zones evenly through body
+          if(result.length < 3){
+            var bStart=html.indexOf("<body");
+            var bEnd=html.lastIndexOf("</body>");
+            if(bStart===-1){bStart=0;}
+            if(bEnd===-1){bEnd=html.length;}
+            var bLen=bEnd-bStart;
+            var fallbackDefs=[
+              {id:"z1",label:"After Hero",         color:"#2DD4BF",pct:0.08},
+              {id:"z2",label:"After Answer Block", color:"#4B9CD3",pct:0.20},
+              {id:"z3",label:"Before CTA 1",       color:"#FFC72C",pct:0.32},
+              {id:"z4",label:"After Comparison",   color:"#A78BFA",pct:0.44},
+              {id:"z5",label:"Before CTA 2",       color:"#F59E0B",pct:0.56},
+              {id:"z6",label:"Before FAQ",         color:"#FB923C",pct:0.68},
+              {id:"z7",label:"After FAQ",          color:"#4ADE80",pct:0.80},
+              {id:"z8",label:"End of Page",        color:"#F472B6",pct:0.92}
+            ];
+            result = fallbackDefs.map(function(f){
+              // Find nearest </p> or </div> or </section> to that pct position
+              var targetPos = bStart + Math.round(f.pct * bLen);
+              // Snap to nearest block close tag
+              var tags=["</section>","</div>","</p>","</h2>","</h3>"];
+              var best=targetPos;
+              for(var ti=0;ti<tags.length;ti++){
+                var tp=html.indexOf(tags[ti],Math.max(0,targetPos-500));
+                if(tp>-1&&tp<=targetPos+1000){best=tp+tags[ti].length;break;}
+              }
+              return {id:f.id,label:f.label,color:f.color,pct:f.pct,htmlPos:best};
+            });
+          }
+          return result;
         }
 
         // buildPlacementPreview: injects clickable placeholder divs into page HTML
@@ -3622,7 +3653,7 @@ function App() {
               var blockName=placedBlock.replace("swh-","").replace("nepq-","").toUpperCase();
               zoneHtml = "<div class=\"gh-placed-block\" style=\"background:"+zone.color+"10;border-left:4px solid "+zone.color+";margin:0;\">"
                 +"<div style=\"font-size:10px;font-weight:800;color:"+zone.color+";letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;\">"
-                +zone.label+" — "+blockName
+                +zone.label+" -- "+blockName
                 +"</div>"
                 +(content.indexOf("<")>-1?content:"<p style=\"font-size:15px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+content+"</p>")
                 +"</div>";
