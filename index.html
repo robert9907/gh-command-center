@@ -1259,6 +1259,7 @@ function App() {
   const [pbPlacedMarkers, setPbPlacedMarkers] = useState({});
   const [pbSelectedBlock, setPbSelectedBlock] = useState(null);
   const [pbMergedPreview, setPbMergedPreview] = useState(null);
+  const [pbSequenceStep, setPbSequenceStep] = useState(0);
   const pbSelectedBlockRef = useRef(null);
   useEffect(function(){pbSelectedBlockRef.current=pbSelectedBlock;},[pbSelectedBlock]);
 
@@ -3525,6 +3526,33 @@ function App() {
 
         var VOICE_PROFILE = "You are Rob Simm, independent Medicare and ACA broker in Durham, NC. NC License #10447418, AHIP Certified. YOUR VOICE: You simplify Medicare by making people picture real situations — sitting in a hospital bed, standing at the pharmacy counter, getting a cancer diagnosis. You talk like a knowledgeable neighbor, not a 1-800 call center. You are straight, compliant, and local. Common truth: neighbors give bad Medicare advice, one plan does not fit everyone, health insurance is financial protection for your worst day. WRITING STYLE: Conversational, warm, direct. Short sentences. Real scenarios. Never start with 'Medicare is...' or 'In North Carolina...'. Start with the person's reality.";
 
+        // Standard 8-block sequences per product type
+        // Each entry: {blockId, zoneId, label}
+        // blockId: "swh-seed" | "swh-water" | "swh-harvest" | "nepq-{stage}"
+        // zoneId: matches ZONE_DEFS ids z1-z8
+        var STANDARD_SEQUENCES = {
+          medicare: [
+            {blockId:"swh-seed",      zoneId:"z1", label:"Seed",          desc:"Plant the idea -- plan weakness"},
+            {blockId:"nepq-connecting", zoneId:"z2", label:"Connecting",    desc:"Open on their world"},
+            {blockId:"nepq-consequence",zoneId:"z3", label:"Consequence",   desc:"What happens if nothing changes"},
+            {blockId:"swh-water",     zoneId:"z4", label:"Water",          desc:"Real cost when something goes wrong"},
+            {blockId:"nepq-qualifying",zoneId:"z5", label:"Qualifying",     desc:"How important is this to them"},
+            {blockId:"nepq-decision",  zoneId:"z6", label:"Decision Making",desc:"Shift from price to results"},
+            {blockId:"swh-harvest",   zoneId:"z7", label:"Harvest",        desc:"20-minute plan analysis close"},
+            {blockId:"nepq-committing",zoneId:"z8", label:"Committing",     desc:"Get commitment to next step"}
+          ],
+          aca: [
+            {blockId:"swh-seed",      zoneId:"z1", label:"Seed",          desc:"Broker vs 800 number"},
+            {blockId:"nepq-connecting", zoneId:"z2", label:"Connecting",    desc:"Open on their world"},
+            {blockId:"nepq-consequence",zoneId:"z3", label:"Consequence",   desc:"What happens if coverage fails"},
+            {blockId:"swh-water",     zoneId:"z4", label:"Water",          desc:"Deductible reality check"},
+            {blockId:"nepq-qualifying",zoneId:"z5", label:"Qualifying",     desc:"How important is this to them"},
+            {blockId:"nepq-decision",  zoneId:"z6", label:"Decision Making",desc:"Shift from price to results"},
+            {blockId:"swh-harvest",   zoneId:"z7", label:"Harvest",        desc:"20-minute plan review close"},
+            {blockId:"nepq-committing",zoneId:"z8", label:"Committing",     desc:"Get commitment to next step"}
+          ]
+        };
+
         var ZONE_DEFS = [
           {id:"z1",label:"After Hero",          color:"#2DD4BF", find:["gh-hero","gh-answer-label"], after:false, n:1},
           {id:"z2",label:"After Instant Answer", color:"#4B9CD3", find:["gh-answer","gh-stats"],      after:true,  n:2},
@@ -4275,12 +4303,21 @@ function App() {
                   pbEditMode?"👁 Preview":"✏️ Edit HTML"),
               React.createElement("button",{
                   onClick:function(){
-                    setPbPlacementMode(function(m){
-                      if(m){setPbSelectedBlock(null);}
-                      return !m;
-                    });
-                    setPbMergedPreview(null);
-                    setPbPlacedMarkers({});
+                    if(!pbProductType){
+                      alert("Select MEDICARE or ACA first to load content.");
+                      return;
+                    }
+                    var entering = !pbPlacementMode;
+                    if(entering){
+                      setPbPlacedMarkers({});
+                      setPbMergedPreview(null);
+                      setPbSequenceStep(0);
+                      var seq = STANDARD_SEQUENCES[pbProductType]||[];
+                      if(seq.length>0) setPbSelectedBlock(seq[0].blockId);
+                    } else {
+                      setPbSelectedBlock(null);
+                    }
+                    setPbPlacementMode(!pbPlacementMode);
                   },
                   style:{padding:"6px 14px",borderRadius:8,
                     border:"1.5px solid "+(pbPlacementMode?"#FFC72C":"rgba(255,199,44,0.4)"),
@@ -4405,16 +4442,18 @@ function App() {
                 pbPlacementMode&&(function(){
                   var zones = computeDropZones(pbPage&&pbPage.html||"");
                   if(!zones||zones.length===0) return null;
-                  var bLabel = pbSelectedBlock
-                    ? (pbSelectedBlock||"").replace("swh-","").replace("nepq-","").toUpperCase()
-                    : "";
+                  var seq3 = STANDARD_SEQUENCES[pbProductType]||[];
+                  var curStep = seq3[pbSequenceStep];
+                  var targetZoneId = curStep ? curStep.zoneId : null;
+                  var bLabel = curStep ? curStep.label.toUpperCase() : "";
                   return React.createElement("div",{
                     style:{position:"absolute",top:0,left:0,right:0,bottom:0,
                       zIndex:20,pointerEvents:"none",borderRadius:14,overflow:"hidden"}
                   },
                     zones.map(function(zone){
                       var placed = Object.values(pbPlacedMarkers).find(function(m){return m.zoneId===zone.id;});
-                      var isActive = !!pbSelectedBlock && !placed;
+                      var isTarget = zone.id === targetZoneId && !placed;
+                      var isActive = isTarget; // only target zone is clickable
                       var pctTop = Math.round(zone.pct*100);
                       return React.createElement("div",{
                         key:zone.id,
@@ -4428,49 +4467,50 @@ function App() {
                             return n;
                           });
                           setPbSelectedBlock(null);
-                          // Auto-preview: rebuild merged view after each placement
+                          // Advance sequence: find next unplaced block
+                          var seq2 = STANDARD_SEQUENCES[pbProductType]||[];
+                          var nextStep = pbSequenceStep + 1;
+                          setPbSequenceStep(nextStep);
+                          if(nextStep < seq2.length){
+                            setPbSelectedBlock(seq2[nextStep].blockId);
+                          }
+                          // Rebuild merged preview using latest markers
                           setTimeout(function(){
-                            var srcHtml=pbPage&&pbPage.html;
+                            var srcHtml = pbPage&&pbPage.html;
                             if(!srcHtml) return;
-                            // Get fresh markers including this new one
-                            setPbPlacedMarkers(function(latestMarkers){
-                              var allBlocks=[];
-                              ["seed","water","harvest"].forEach(function(k){
-                                var txt=pbPlanAnalysis[k];
-                                if(!txt||txt.length<10) return;
-                                var bk="swh-"+k;
-                                var placed=latestMarkers[bk];
-                                var col=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
-                                allBlocks.push({id:bk,htmlPos:placed?placed.htmlPos:null,
-                                  html:"<div style=\"margin:0;padding:24px 28px;background:linear-gradient(135deg,"+col+"12,"+col+"06);border-left:4px solid "+col+";\">"
-                                    +"<p style=\"font-size:16px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+txt+"</p></div>"});
-                              });
-                              var SORDER2=["connecting","situation","problem","two-truths","solution","consequence","qualifying","clarifying","expanded","decision","transition","committing","resolving"];
-                              SORDER2.forEach(function(id){
-                                var txt=pbNepqContent[id];
-                                if(!txt) return;
-                                var bk="nepq-"+id;
-                                var placed=latestMarkers[bk];
-                                allBlocks.push({id:bk,htmlPos:placed?placed.htmlPos:null,html:txt});
-                              });
-                              var placed3=allBlocks.filter(function(b){return b.htmlPos!=null;}).sort(function(a,b){return a.htmlPos-b.htmlPos;});
-                              var unplaced3=allBlocks.filter(function(b){return b.htmlPos==null;});
-                              var sorted3=placed3.concat(unplaced3);
-                              if(sorted3.length===0) return latestMarkers;
-                              function wrap3(blk){
-                                return "<section class=\"gh-section\" style=\"padding:40px 0;display:block\"><div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block\">"+blk.html+"</div></section>";
-                              }
-                              var out3=srcHtml;
-                              sorted3.slice().reverse().forEach(function(blk){
-                                if(blk.htmlPos!=null){
-                                  out3=out3.slice(0,blk.htmlPos)+wrap3(blk)+out3.slice(blk.htmlPos);
-                                }
-                              });
-                              setPbMergedPreview(out3);
-                              return latestMarkers;
+                            var allBlocks=[];
+                            ["seed","water","harvest"].forEach(function(k){
+                              var txt=pbPlanAnalysis[k];
+                              if(!txt||txt.length<10) return;
+                              var bk="swh-"+k;
+                              var pm=pbPlacedMarkers[bk];
+                              // Also check if just placed
+                              if(!pm&&bk===bid) pm={zoneId:zone.id,htmlPos:zone.htmlPos,id:bid,label:zone.label};
+                              var col=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
+                              if(pm) allBlocks.push({id:bk,htmlPos:pm.htmlPos,
+                                html:"<div style=\"padding:28px 32px;background:linear-gradient(135deg,"+col+"12,"+col+"06);border-left:4px solid "+col+";margin:0;\">"
+                                  +"<p style=\"font-size:16px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+txt+"</p></div>"});
                             });
-                          },50);
-                        },
+                            var SORDER3=["connecting","situation","problem","two-truths","solution","consequence","qualifying","clarifying","expanded","decision","transition","committing","resolving"];
+                            SORDER3.forEach(function(id){
+                              var txt=pbNepqContent[id];
+                              if(!txt) return;
+                              var bk="nepq-"+id;
+                              var pm=pbPlacedMarkers[bk];
+                              if(!pm&&bk===bid) pm={zoneId:zone.id,htmlPos:zone.htmlPos,id:bid,label:zone.label};
+                              if(pm) allBlocks.push({id:bk,htmlPos:pm.htmlPos,html:txt});
+                            });
+                            if(allBlocks.length===0) return;
+                            function wrap4(blk){
+                              return "<section class=\"gh-section\" style=\"padding:40px 0;display:block\"><div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block\">"+blk.html+"</div></section>";
+                            }
+                            var placed4=allBlocks.sort(function(a,b){return a.htmlPos-b.htmlPos;});
+                            var out4=srcHtml;
+                            placed4.slice().reverse().forEach(function(blk){
+                              out4=out4.slice(0,blk.htmlPos)+wrap4(blk)+out4.slice(blk.htmlPos);
+                            });
+                            setPbMergedPreview(out4);
+                          },80);                        },
                         style:{
                           position:"absolute",
                           top:"calc("+pctTop+"% - 18px)",
@@ -4512,13 +4552,13 @@ function App() {
                               style:{fontSize:10,fontWeight:800,color:"#1A2332",
                                 background:"rgba(0,0,0,0.15)",padding:"2px 8px",borderRadius:4}},
                               "PLACED")
-                          : isActive
+                          : isTarget
                             ? React.createElement("div",{
                                 style:{background:zone.color,color:"#1A2332",
                                   fontSize:11,fontWeight:800,
                                   padding:"4px 12px",borderRadius:5,
                                   animation:"savePulse 1s ease-in-out infinite"}},
-                                "DROP "+bLabel+" HERE")
+                                "STEP "+(pbSequenceStep+1)+" -- DROP "+bLabel+" HERE")
                             : React.createElement("span",{
                                 style:{fontSize:10,color:"rgba(255,255,255,0.45)"}},
                                 "available")
@@ -4748,12 +4788,38 @@ function App() {
                     React.createElement("div",null,
                       React.createElement("div",{style:{fontSize:11,fontWeight:800,color:"#FFC72C",marginBottom:2}},"Placement Mode Active"),
                       React.createElement("div",{style:{fontSize:10,color:mc}},
-                        pbSelectedBlock?"Click anywhere in the page preview to drop it":pbSelectedBlock?"Click a zone to place: "+(pbSelectedBlock||"").replace("swh-","").replace("nepq-","").toUpperCase():"Select a block then click a zone")
+                        (function(){
+                          var seq4=STANDARD_SEQUENCES[pbProductType]||[];
+                          var cur=seq4[pbSequenceStep];
+                          if(!cur) return "All blocks placed -- hit Preview Merge";
+                          return "Step "+(pbSequenceStep+1)+" of "+seq4.length+" -- Drop "+cur.label+" in the highlighted zone";
+                        })())
                     ),
+                    React.createElement("div",{style:{display:"flex",gap:6}},
+                    (function(){
+                      var seq5=STANDARD_SEQUENCES[pbProductType]||[];
+                      var hasNext=pbSequenceStep<seq5.length-1;
+                      return hasNext?React.createElement("button",{
+                        onClick:function(){
+                          var next=pbSequenceStep+1;
+                          setPbSequenceStep(next);
+                          var seq6=STANDARD_SEQUENCES[pbProductType]||[];
+                          if(seq6[next]) setPbSelectedBlock(seq6[next].blockId);
+                        },
+                        style:{fontSize:9,padding:"3px 8px",borderRadius:5,
+                          border:"1px solid rgba(75,156,211,0.4)",
+                          background:"rgba(75,156,211,0.1)",
+                          color:"#4B9CD3",fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},
+                        "Next →"):null;
+                    })(),
                     Object.keys(pbPlacedMarkers).length>0&&React.createElement("button",{
-                      onClick:function(){setPbPlacedMarkers({});setPbMergedPreview(null);},
+                      onClick:function(){setPbPlacedMarkers({});setPbMergedPreview(null);setPbSequenceStep(0);
+                        var seq7=STANDARD_SEQUENCES[pbProductType]||[];
+                        if(seq7[0]) setPbSelectedBlock(seq7[0].blockId);
+                      },
                       style:{fontSize:9,padding:"3px 8px",borderRadius:5,border:"1px solid rgba(239,68,68,0.4)",background:"rgba(239,68,68,0.1)",color:"#F87171",fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},
                       "Clear All")
+                  )
                   )
                 ),
                 !pbPage&&React.createElement("div",{style:{padding:20,textAlign:"center",color:mc,fontSize:12}},"\u2190 Select a page first"),
