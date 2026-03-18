@@ -4748,7 +4748,7 @@ function App() {
                     React.createElement("div",null,
                       React.createElement("div",{style:{fontSize:11,fontWeight:800,color:"#FFC72C",marginBottom:2}},"Placement Mode Active"),
                       React.createElement("div",{style:{fontSize:10,color:mc}},
-                        pbSelectedBlock?"Click anywhere in the page preview to drop it":"Select a block below, then click in the page")
+                        pbSelectedBlock?"Click anywhere in the page preview to drop it":pbSelectedBlock?"Click a zone to place: "+(pbSelectedBlock||"").replace("swh-","").replace("nepq-","").toUpperCase():"Select a block then click a zone")
                     ),
                     Object.keys(pbPlacedMarkers).length>0&&React.createElement("button",{
                       onClick:function(){setPbPlacedMarkers({});setPbMergedPreview(null);},
