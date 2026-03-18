@@ -3748,7 +3748,48 @@ function App() {
           setTimeout(function(){setPbFixProgress(null);setPbFixing(false);},2500);
         }
 
-                function copyOutput(){
+                function insertNepqIntoPage(stageId){
+          if(!pbPage||!pbPage.html) return;
+          var block = pbNepqContent[stageId];
+          if(!block) return;
+          var placement = pbNepqPlacement[stageId]||"auto";
+          // Resolve auto placement based on stage
+          if(placement==="auto"){
+            if(stageId==="connecting"||stageId==="situation") placement="after-hero";
+            else if(stageId==="problem"||stageId==="two-truths") placement="after-intro";
+            else if(stageId==="solution"||stageId==="consequence") placement="before-cta1";
+            else if(stageId==="qualifying"||stageId==="clarifying"||stageId==="expanded") placement="before-compare";
+            else if(stageId==="decision"||stageId==="transition") placement="before-faq";
+            else placement="before-end";
+          }
+          var html = pbPage.html;
+          var wrapped = "<div style=\"display:block;margin:40px 0;max-width:780px;\">"+block+"</div>";
+
+          function afterSec(str,n){var c=0,p=0;while(true){var i=str.indexOf("</section>",p);if(i===-1)break;c++;if(c===n)return i+10;p=i+10;}
+            var h2s=[],pos=0;while(true){var j=str.indexOf("</h2>",pos);if(j===-1)break;h2s.push(j+5);pos=j+5;}
+            if(h2s.length>=n)return h2s[n-1];return h2s.length>0?h2s[h2s.length-1]:Math.floor(str.length*0.25);}
+          function bPat(str,pat){var i=str.indexOf(pat);if(i===-1)return -1;var s=str.lastIndexOf("<section",i);return s>-1?s:i;}
+
+          var pos=0;
+          if(placement==="after-hero")pos=afterSec(html,1);
+          else if(placement==="after-intro")pos=afterSec(html,2);
+          else if(placement==="before-cta1"){var p1=bPat(html,"gh-cta-modal");pos=p1>-1?p1:afterSec(html,3);}
+          else if(placement==="before-cta2"){var f=html.indexOf("gh-cta-modal");var s2=f>-1?html.indexOf("gh-cta-modal",f+20):-1;if(s2>-1){var ps=html.lastIndexOf("<section",s2);pos=ps>-1?ps:s2;}else pos=afterSec(html,4);}
+          else if(placement==="before-compare"){var pc=bPat(html,"gh-compare");if(pc>-1)pos=pc;else{var pt=html.indexOf("<table");pos=pt>-1?pt:afterSec(html,3);}}
+          else if(placement==="before-faq"){var pf=bPat(html,"gh-faq");if(pf>-1)pos=pf;else{var pd=html.indexOf("<details");pos=pd>-1?pd:afterSec(html,5);}}
+          else if(placement==="before-end"){var be=html.lastIndexOf("</body>");pos=be>-1?be:html.length;}
+
+          var newHtml = html.slice(0,pos)+wrapped+html.slice(pos);
+          var key=pbPage.clusterId+"-"+pbPage.idx;
+          setSavedHTML(function(prev){var n=Object.assign({},prev);n[key]=newHtml;return n;});
+          setPbPage(function(p){return Object.assign({},p,{html:newHtml});});
+          setPbEditHTML(newHtml);
+          setPbScanResults(scan17(newHtml));
+          // Mark this stage as inserted
+          setPbNepqPlacement(function(p){var n=Object.assign({},p);n[stageId+"_inserted"]=true;return n;});
+        }
+
+        function copyOutput(){
           if(!pbPage) return;
           var nepqBlocks = Object.values(pbNepqContent).filter(Boolean);
           if(nepqBlocks.length===0){
@@ -3895,7 +3936,7 @@ function App() {
           // ── Add shimmer fix + comment header ──
           var slug = pbPage.slug||"new-page";
           var today2 = new Date().toISOString().split("T")[0];
-          var shimmerFix = '<style id="gh-shimmer-fix">\n/* GH Shimmer Fix — WordPress Custom HTML + Elementor override */\n:root{--r-full:100px!important;--r-xl:20px!important;--r-2xl:24px!important;--r-lg:16px!important;--ease:cubic-bezier(.4,0,.2,1)!important;}\n@keyframes ghSweep{0%{left:-100%;}100%{left:200%;}}\n@keyframes ghGlowBlue{0%,100%{box-shadow:0 0 0 0 rgba(75,156,211,0)!important;}50%{box-shadow:0 0 12px 3px rgba(75,156,211,.5)!important;}}\n@keyframes ghGlowGreen{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0)!important;}50%{box-shadow:0 0 12px 3px rgba(22,163,74,.5)!important;}}\n@keyframes ghGlowAmber{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)!important;}50%{box-shadow:0 0 12px 3px rgba(245,158,11,.5)!important;}}\n.gh-cta-card{position:relative!important;overflow:hidden!important;border-radius:20px!important;isolation:isolate!important;}\n.gh-cta-card::after{content:""!important;position:absolute!important;top:0!important;left:-150%!important;width:80%!important;height:100%!important;background:linear-gradient(120deg,transparent,rgba(255,255,255,.07),transparent)!important;transform:skewX(-15deg)!important;animation:ghSweep 5s ease-in-out infinite!important;pointer-events:none!important;z-index:1!important;}\n.gh-cta-card:nth-child(2)::after{animation-delay:2.5s!important;}\n.gh-ghost{display:block!important;text-align:center!important;padding:14px 24px!important;border-radius:100px!important;font-size:15px!important;text-decoration:none!important;margin-bottom:8px!important;border:1.5px solid rgba(255,255,255,.32)!important;background:transparent!important;color:#fff!important;font-weight:600!important;transition:all 280ms ease!important;position:relative!important;overflow:hidden!important;}\n.gh-ghost::before{content:""!important;position:absolute!important;top:0!important;left:-100%!important;width:60%!important;height:100%!important;background:linear-gradient(120deg,transparent,rgba(255,255,255,.18),transparent)!important;transform:skewX(-15deg)!important;animation:ghSweep 3.5s ease-in-out infinite!important;pointer-events:none!important;z-index:2!important;}\n.gh-ghost--compare{border-color:rgba(75,156,211,.55)!important;background:rgba(75,156,211,.07)!important;animation:ghGlowBlue 8s ease-in-out infinite!important;}\n.gh-ghost--compare::before{background:linear-gradient(120deg,transparent 20%,rgba(75,156,211,.75) 50%,transparent 80%)!important;animation:ghSweep 8s ease-in-out infinite!important;animation-delay:0s!important;}\n.gh-ghost--call{border-color:rgba(22,163,74,.55)!important;animation:ghGlowGreen 8s ease-in-out 2s infinite!important;}\n.gh-ghost--call::before{background:linear-gradient(120deg,transparent 20%,rgba(22,163,74,.75) 50%,transparent 80%)!important;animation:ghSweep 8s ease-in-out 2s infinite!important;}\n.gh-ghost--calendly{border-color:rgba(245,158,11,.55)!important;animation:ghGlowAmber 8s ease-in-out 4s infinite!important;}\n.gh-ghost--calendly::before{background:linear-gradient(120deg,transparent 20%,rgba(245,158,11,.75) 50%,transparent 80%)!important;animation:ghSweep 8s ease-in-out 4s infinite!important;}\n</style>';
+          var shimmerFix = '<style id="gh-shimmer-fix">\n:root{--r-full:100px;--r-xl:20px;--r-2xl:24px;--r-lg:16px;--ease:cubic-bezier(.4,0,.2,1);}\n@keyframes ghSweep{0%{left:-100%}100%{left:200%}}\n@keyframes ghGlowB{0%,100%{box-shadow:0 0 0 0 rgba(75,156,211,0)}50%{box-shadow:0 0 14px 4px rgba(75,156,211,.6)}}\n@keyframes ghGlowG{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}50%{box-shadow:0 0 14px 4px rgba(22,163,74,.6)}}\n@keyframes ghGlowA{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 14px 4px rgba(245,158,11,.6)}}\n.gh-cta-card{position:relative!important;overflow:hidden!important;border-radius:20px!important;isolation:isolate!important;transform:translateZ(0)!important;}\n.gh-cta-card::after{content:\"\"!important;position:absolute!important;top:0!important;left:-150%!important;width:80%!important;height:100%!important;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,.09) 50%,transparent 80%)!important;transform:skewX(-15deg)!important;animation:ghSweep 5s ease-in-out infinite!important;pointer-events:none!important;z-index:10!important;}\n.gh-cta-card:nth-child(2)::after,.gh-cta-card:nth-child(even)::after{animation-delay:2.5s!important;}\n.gh-ghost{position:relative!important;overflow:hidden!important;display:block!important;text-align:center!important;padding:14px 24px!important;border-radius:100px!important;font-size:15px!important;text-decoration:none!important;margin-bottom:8px!important;border:1.5px solid rgba(255,255,255,.32)!important;background:transparent!important;color:#fff!important;font-weight:600!important;}\n.gh-ghost::before{content:\"\"!important;position:absolute!important;top:0!important;left:-100%!important;width:60%!important;height:100%!important;background:linear-gradient(120deg,transparent 10%,rgba(255,255,255,.22) 50%,transparent 90%)!important;transform:skewX(-15deg)!important;animation:ghSweep 3.5s ease-in-out infinite!important;pointer-events:none!important;z-index:5!important;}\n.gh-ghost--compare{border-color:rgba(75,156,211,.6)!important;background:rgba(75,156,211,.1)!important;animation:ghGlowB 8s ease-in-out infinite!important;}\n.gh-ghost--compare::before{background:linear-gradient(120deg,transparent 15%,rgba(75,156,211,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out infinite!important;}\n.gh-ghost--call{border-color:rgba(22,163,74,.6)!important;animation:ghGlowG 8s ease-in-out 2s infinite!important;}\n.gh-ghost--call::before{background:linear-gradient(120deg,transparent 15%,rgba(22,163,74,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out 2s infinite!important;}\n.gh-ghost--calendly{border-color:rgba(245,158,11,.6)!important;animation:ghGlowA 8s ease-in-out 4s infinite!important;}\n.gh-ghost--calendly::before{background:linear-gradient(120deg,transparent 15%,rgba(245,158,11,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out 4s infinite!important;}\n</style>';
           var header = "<!-- GH Page Builder · "+slug+" · "+today2+" · Score:"+(pbScanResults?pbScanResults.score:0)+"/17 -->\n";
           // Inject shimmer CSS after existing </style> block or at top
           // Inject shimmer at very top so it loads first
@@ -4215,7 +4256,10 @@ function App() {
                       style:{display:"flex",alignItems:"center",gap:7,padding:"8px 10px",cursor:"pointer",transition:"background 0.15s"}},
                       React.createElement("span",{style:{fontSize:13}},(hasCont?"✅":stage.icon)),
                       React.createElement("div",{style:{flex:1,minWidth:0}},
-                        React.createElement("div",{style:{fontSize:12,fontWeight:600,color:hasCont?"#4ADE80":tc}},stage.n+". "+stage.label),
+                        React.createElement("div",{style:{display:"flex",alignItems:"center",gap:5}},
+                          React.createElement("div",{style:{fontSize:12,fontWeight:600,color:hasCont?"#4ADE80":tc}},stage.n+". "+stage.label),
+                          pbNepqPlacement[stage.id+"_inserted"]&&React.createElement("span",{style:{fontSize:9,padding:"1px 5px",borderRadius:4,background:"rgba(13,148,136,0.2)",color:"#0D9488",fontWeight:700}},"✓ IN PAGE")
+                        ),
                         !isExp&&React.createElement("div",{style:{fontSize:10,color:mc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},hasCont?"✅ Content ready — click to expand":stage.desc)
                       ),
                       React.createElement("button",{className:"pb-gen",
@@ -4233,7 +4277,7 @@ function App() {
                         onClick:function(e){e.stopPropagation();},
                         style:{fontSize:9,padding:"2px 4px",borderRadius:6,border:"1px solid rgba(255,255,255,0.12)",
                           background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)",
-                          color:mc,cursor:"pointer",flexShrink:0,maxWidth:80}
+                          color:mc,cursor:"pointer",flexShrink:0,maxWidth:72}
                       },
                         React.createElement("option",{value:"auto"},"Auto"),
                         React.createElement("option",{value:"after-hero"},"After Hero"),
@@ -4243,7 +4287,17 @@ function App() {
                         React.createElement("option",{value:"before-compare"},"Near Table"),
                         React.createElement("option",{value:"before-faq"},"Before FAQ"),
                         React.createElement("option",{value:"before-end"},"End of Page")
-                      )
+                      ),
+                      hasCont&&pbPage&&pbPage.html&&React.createElement("button",{
+                        title:"Insert into page",
+                        onClick:function(e){
+                          e.stopPropagation();
+                          insertNepqIntoPage(stage.id);
+                        },
+                        style:{padding:"3px 9px",borderRadius:7,border:"none",
+                          background:"linear-gradient(135deg,#0D9488,#14B8A6)",
+                          color:"#fff",fontSize:10,fontWeight:700,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}
+                      },"↓ Insert")
                     ),
                     isExp&&React.createElement("div",{style:{padding:"0 10px 10px",borderTop:br}},
                       React.createElement("div",{style:{fontSize:10,color:mc,padding:"6px 0 4px"}},stage.desc),
