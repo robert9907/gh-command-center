@@ -4083,8 +4083,7 @@ function App() {
                       setPbNewGenerating(true);setPbNewHTML("");
                       try{
                         var sys="You are Rob Simm, independent Medicare broker in Durham NC. Generate a complete v5.2 NEPQ page for the keyword '"+pbNewKeyword+"'. Include: H1 (pain/consequence formula), hero subtitle under 22 words, instant answer block (.gh-answer), 3 NEPQ question+answer sections, comparison table, FAQ with 3 gh-faq-item entries, author block (.gh-author), CTA with phone (828) 761-3326. Use 2026 figures: Part B $202.90/mo. Return clean HTML only — no DOCTYPE, no html/head/body tags.";
-                        var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:sys,messages:[{role:"user",content:"Generate the full page for: '"+pbNewKeyword+"'
-Slug: "+pbNewSlug}]})});
+                        var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,system:sys,messages:[{role:"user",content:"Generate the full page for: '"+pbNewKeyword+"' Slug: "+pbNewSlug}]})});
                         var data=await resp.json();
                         if(data.error)throw new Error(data.error.message);
                         var txt=(data.content&&data.content[0]&&data.content[0].text)||"";
