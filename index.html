@@ -4280,6 +4280,7 @@ function App() {
                       return !m;
                     });
                     setPbMergedPreview(null);
+                    setPbPlacedMarkers({});
                   },
                   style:{padding:"6px 14px",borderRadius:8,
                     border:"1.5px solid "+(pbPlacementMode?"#FFC72C":"rgba(255,199,44,0.4)"),
@@ -4427,6 +4428,48 @@ function App() {
                             return n;
                           });
                           setPbSelectedBlock(null);
+                          // Auto-preview: rebuild merged view after each placement
+                          setTimeout(function(){
+                            var srcHtml=pbPage&&pbPage.html;
+                            if(!srcHtml) return;
+                            // Get fresh markers including this new one
+                            setPbPlacedMarkers(function(latestMarkers){
+                              var allBlocks=[];
+                              ["seed","water","harvest"].forEach(function(k){
+                                var txt=pbPlanAnalysis[k];
+                                if(!txt||txt.length<10) return;
+                                var bk="swh-"+k;
+                                var placed=latestMarkers[bk];
+                                var col=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
+                                allBlocks.push({id:bk,htmlPos:placed?placed.htmlPos:null,
+                                  html:"<div style=\"margin:0;padding:24px 28px;background:linear-gradient(135deg,"+col+"12,"+col+"06);border-left:4px solid "+col+";\">"
+                                    +"<p style=\"font-size:16px;color:#374151;line-height:1.8;margin:0;font-style:italic;\">"+txt+"</p></div>"});
+                              });
+                              var SORDER2=["connecting","situation","problem","two-truths","solution","consequence","qualifying","clarifying","expanded","decision","transition","committing","resolving"];
+                              SORDER2.forEach(function(id){
+                                var txt=pbNepqContent[id];
+                                if(!txt) return;
+                                var bk="nepq-"+id;
+                                var placed=latestMarkers[bk];
+                                allBlocks.push({id:bk,htmlPos:placed?placed.htmlPos:null,html:txt});
+                              });
+                              var placed3=allBlocks.filter(function(b){return b.htmlPos!=null;}).sort(function(a,b){return a.htmlPos-b.htmlPos;});
+                              var unplaced3=allBlocks.filter(function(b){return b.htmlPos==null;});
+                              var sorted3=placed3.concat(unplaced3);
+                              if(sorted3.length===0) return latestMarkers;
+                              function wrap3(blk){
+                                return "<section class=\"gh-section\" style=\"padding:40px 0;display:block\"><div class=\"gh-container\" style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block\">"+blk.html+"</div></section>";
+                              }
+                              var out3=srcHtml;
+                              sorted3.slice().reverse().forEach(function(blk){
+                                if(blk.htmlPos!=null){
+                                  out3=out3.slice(0,blk.htmlPos)+wrap3(blk)+out3.slice(blk.htmlPos);
+                                }
+                              });
+                              setPbMergedPreview(out3);
+                              return latestMarkers;
+                            });
+                          },50);
                         },
                         style:{
                           position:"absolute",
@@ -4665,7 +4708,7 @@ function App() {
                     {key:"water",label:"WATER",color:"#4B9CD3",desc:"Stakes - mid page"},
                     {key:"harvest",label:"HARVEST",color:"#FFC72C",desc:"Close - before FAQ"}
                   ].map(function(blk){
-                    var isSelected = pbSelectedBlock===("swh-"+blk.key);
+                    var isSelected = pbSelectedBlock===("swh-"+blk.key) && !isPlaced;
                     var isPlaced = !!pbPlacedMarkers["swh-"+blk.key];
                     return React.createElement("div",{key:blk.key,style:{borderRadius:10,border:"1.5px solid "+(isSelected?"rgba(255,255,255,0.4)":isPlaced?blk.color+"60":blk.color+"30"),background:isSelected?blk.color+"18":blk.color+"08",overflow:"hidden",transition:"all 0.2s"}},
                       React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",borderBottom:"1px solid "+blk.color+"20"}},
