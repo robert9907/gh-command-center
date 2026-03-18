@@ -1246,6 +1246,7 @@ function App() {
   const [pbFixing, setPbFixing] = useState(false);
   const [pbFixProgress, setPbFixProgress] = useState(null);
   const [pbRegenning, setPbRegenning] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
 
   const [expandedCluster, setExpandedCluster] = useState(null);
@@ -3438,6 +3439,25 @@ function App() {
       {/* ═══ PAGE BUILDER TAB ═══ */}
       {view==="pageBuilder"&&(()=>{
         var isDark = theme==="dark";
+        var tc = isDark?"#E8ECF0":"#1a1a2e";
+        var mc = isDark?"#6B7B8D":"#888";
+        var bg = isDark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.85)";
+        var br = isDark?"1px solid rgba(255,255,255,0.08)":"1px solid rgba(0,0,0,0.08)";
+
+        // ── Compute preview HTML ──
+        var pbPreviewHtml = null;
+        if(pbPage&&pbPage.html){
+          var _prevHtml = pbPage.html;
+          // Inject NEPQ live preview if any content generated
+          var _nepqKeys = Object.keys(pbNepqContent).filter(function(k){return pbNepqContent[k];});
+          if(_nepqKeys.length>0){
+            var _nepqStyle = "<style>.gh-np{font-family:-apple-system,sans-serif;margin:32px 0;max-width:720px;display:block;}.gh-np .gh-nepq-q{background:linear-gradient(135deg,rgba(75,156,211,0.1),rgba(13,148,136,0.07));border-left:4px solid #4B9CD3;border-radius:0 12px 12px 0;padding:16px 20px;}.gh-np .gh-nepq-q h3{font-size:19px;font-weight:700;color:#0A1628;margin:0;line-height:1.4;}.gh-np .gh-answer{background:#fff;border:1px solid rgba(75,156,211,0.15);border-top:none;border-radius:0 0 14px 14px;padding:16px 20px;}.gh-np .gh-answer p{font-size:15px;color:#374151;line-height:1.7;margin:0;}</style>";
+            var _banner = "<div style=\"background:linear-gradient(135deg,#0D9488,#14B8A6);color:#fff;padding:8px 16px;font-size:11px;font-weight:700;text-align:center\">✨ NEPQ Live Preview — "+_nepqKeys.length+" stages active</div>";
+            _prevHtml = _nepqStyle + _banner + _prevHtml;
+          }
+          pbPreviewHtml = _prevHtml;
+        }
+
 
         var NEPQ_STAGES = [
           {id:"connecting",n:"1",label:"Connecting",icon:"👋",desc:"Open with focus on their world — not the product"},
@@ -3953,399 +3973,375 @@ function App() {
             '<\/script>';
           shimmerFix = shimmerFix + cardScript;
 
-          // ── WordPress-safe inline styles on CTA cards ──
-          var MODAL_STYLE = 'background-color:#0F2744;border-radius:20px;padding:48px 36px;margin:48px 0;';
-          var GRID_STYLE = 'display:grid;grid-template-columns:1fr 1fr;gap:20px;';
-          var CARD_STYLE = 'background-color:#162840;border:1px solid #2a4a7a;border-radius:20px;padding:28px 24px;';
-          var HD_STYLE = 'text-align:center;margin-bottom:28px;';
-          var H2_STYLE = 'color:#ffffff;font-size:28px;font-weight:700;margin-bottom:8px;';
-          var H3_STYLE = 'color:#ffffff;font-size:20px;font-weight:600;margin-bottom:10px;';
-          var P_STYLE = 'color:rgba(255,255,255,0.8);font-size:14px;line-height:1.6;margin-bottom:16px;';
-          var GHOST_BASE = 'display:block;text-align:center;padding:12px 20px;border-radius:50px;font-size:15px;text-decoration:none;margin-bottom:8px;font-weight:600;color:#ffffff;';
+          // ── Convert CTA modal to table layout (Elementor-safe) ──
+          // Elementor strips div+class combos but never strips table HTML
+          // Replace the entire gh-cta-modal section with a pure table version
 
-          // Apply to modal container
-          out = out.split('class="gh-cta-modal"').join('class="gh-cta-modal" style="'+MODAL_STYLE+'"');
-          out = out.split('class="gh-cta-modal" aria-label').join('class="gh-cta-modal" style="'+MODAL_STYLE+'" aria-label');
-          // Grid
-          out = out.split('class="gh-cta-grid"').join('class="gh-cta-grid" style="'+GRID_STYLE+'"');
-          // Cards
-          out = out.split('class="gh-cta-card"').join('class="gh-cta-card" style="'+CARD_STYLE+'"');
-          // Header area
-          out = out.split('class="gh-cta-hd"').join('class="gh-cta-hd" style="'+HD_STYLE+'"');
-          // Headings inside modal
-          out = out.replace(/(<div[^>]*gh-cta-modal[^>]*>[\s\S]*?<h2)([^>]*>)/g, '$1 style="'+H2_STYLE+'"$2');
-          // h3 in cards
-          out = out.replace(/(<div[^>]*gh-cta-card[^>]*>[\s\S]*?<h3)([^>]*>)/g, '$1 style="'+H3_STYLE+'"$2');
-          // p in cards
-          out = out.replace(/(<div[^>]*gh-cta-card[^>]*>[\s\S]*?<p)([^>]*>)/g, '$1 style="'+P_STYLE+'"$2');
-          // Buttons
-          out = out.split('class="gh-ghost gh-ghost--primary gh-ghost--compare"').join('class="gh-ghost gh-ghost--compare" style="'+GHOST_BASE+'background-color:#1a3a6b;border:2px solid #4B9CD3;"');
-          out = out.split('class="gh-ghost gh-ghost--compare"').join('class="gh-ghost gh-ghost--compare" style="'+GHOST_BASE+'background-color:#1a3a6b;border:2px solid #4B9CD3;"');
-          out = out.split('class="gh-ghost gh-ghost--call"').join('class="gh-ghost gh-ghost--call" style="'+GHOST_BASE+'background-color:#14532d;border:2px solid #22C55E;"');
-          out = out.split('class="gh-ghost gh-ghost--text"').join('class="gh-ghost gh-ghost--text" style="'+GHOST_BASE+'background-color:#1e3a5f;border:2px solid #60A5FA;"');
-          out = out.split('class="gh-ghost gh-ghost--sched"').join('class="gh-ghost gh-ghost--sched" style="'+GHOST_BASE+'background-color:#451a03;border:2px solid #F59E0B;"');
-          out = out.split('class="gh-ghost gh-ghost--calendly"').join('class="gh-ghost gh-ghost--calendly" style="'+GHOST_BASE+'background-color:#451a03;border:2px solid #F59E0B;"');
-          // Fix ALL compare/sunfire URLs comprehensively
+          var MODAL_BG = '#0F2744';
+          var CARD_BG = '#162840';
+          var CARD_BORDER = '#2a4a7a';
+
+          // Replace gh-cta-grid + cards with a table
+          // First find and replace each gh-cta-modal block entirely
+          function rebuildCtaModal(html){
+            var result = html;
+            var modalOpen = 'class="gh-cta-modal"';
+            var modalOpenAria = 'class="gh-cta-modal" aria-label';
+            
+            // Process each modal
+            [modalOpen, modalOpenAria].forEach(function(marker){
+              var idx2 = 0;
+              while(true){
+                var start2 = result.indexOf('<div '+marker, idx2);
+                if(start2 === -1) break;
+                // Find the closing tag by counting div depth
+                var depth = 0;
+                var pos2 = start2;
+                var end2 = -1;
+                while(pos2 < result.length){
+                  var openDiv = result.indexOf('<div', pos2);
+                  var closeDiv = result.indexOf('</div>', pos2);
+                  if(closeDiv === -1) break;
+                  if(openDiv !== -1 && openDiv < closeDiv){
+                    depth++;
+                    pos2 = openDiv + 4;
+                  } else {
+                    depth--;
+                    if(depth === 0){end2 = closeDiv + 6; break;}
+                    pos2 = closeDiv + 6;
+                  }
+                }
+                if(end2 === -1){idx2 = start2+1; continue;}
+                
+                var block = result.slice(start2, end2);
+                
+                // Extract headline
+                var h2m = block.match(/<h2[^>]*>([\s\S]*?)<\/h2>/);
+                var headline = h2m ? h2m[1].replace(/<[^>]+>/g,'') : 'Get Help Comparing Plans';
+                
+                // Extract cards
+                var cards = [];
+                var cp = 0;
+                while(true){
+                  var cs = block.indexOf('<div class="gh-cta-card">', cp);
+                  if(cs === -1) break;
+                  var cdepth = 0;
+                  var cpos = cs;
+                  var ce = -1;
+                  while(cpos < block.length){
+                    var od = block.indexOf('<div', cpos);
+                    var cd = block.indexOf('</div>', cpos);
+                    if(cd === -1) break;
+                    if(od !== -1 && od < cd){cdepth++;cpos=od+4;}
+                    else{cdepth--;if(cdepth===0){ce=cd+6;break;}cpos=cd+6;}
+                  }
+                  if(ce === -1) break;
+                  cards.push(block.slice(cs, ce));
+                  cp = ce;
+                }
+                
+                // Build table version
+                var tbl = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:'+MODAL_BG+';border-radius:20px;margin:48px 0;">'+
+                  '<tr><td colspan="2" style="padding:36px 36px 24px;text-align:center;">'+
+                  '<h2 style="color:#ffffff;font-size:26px;font-weight:700;margin:0 0 8px;">'+headline+'</h2>'+
+                  '<p style="color:rgba(255,255,255,0.7);font-size:14px;margin:0;">Licensed &middot; Independent &middot; All Carriers &middot; Your Data Never Sold</p>'+
+                  '</td></tr><tr>';
+                
+                if(cards.length === 0){
+                  // No cards found, just use a basic layout
+                  tbl += '<td width="50%" valign="top" style="padding:20px;background-color:'+CARD_BG+';border:1px solid '+CARD_BORDER+';border-radius:16px;margin:8px;">'+
+                    '<a href="https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/" style="display:block;text-align:center;padding:12px 20px;border-radius:50px;font-size:15px;text-decoration:none;margin-bottom:8px;font-weight:600;color:#ffffff;background-color:#1a3a6b;border:2px solid #4B9CD3;">Compare Plans Online</a>'+
+                    '</td>'+
+                    '<td width="50%" valign="top" style="padding:20px;background-color:'+CARD_BG+';border:1px solid '+CARD_BORDER+';border-radius:16px;">'+
+                    '<a href="tel:8287613326" style="display:block;text-align:center;padding:12px 20px;border-radius:50px;font-size:15px;text-decoration:none;margin-bottom:8px;font-weight:600;color:#ffffff;background-color:#14532d;border:2px solid #22C55E;">&#128222; Call (828) 761-3326</a>'+
+                    '</td>';
+                } else {
+                  cards.forEach(function(card, ci){
+                    var h3m = card.match(/<h3[^>]*>([\s\S]*?)<\/h3>/);
+                    var pm = card.match(/<p[^>]*>([\s\S]*?)<\/p>/);
+                    var h3txt = h3m ? h3m[1] : '';
+                    var ptxt = pm ? pm[1] : '';
+                    // Extract all anchor buttons
+                    var btns = '';
+                    var btnRe = /<a([^>]*)>([\s\S]*?)<\/a>/g;
+                    var bm;
+                    while((bm = btnRe.exec(card)) !== null){
+                      var attrs = bm[1];
+                      var label = bm[2].replace(/<[^>]+>/g,' ').trim();
+                      var href = (attrs.match(/href="([^"]*)"/) || ['','#'])[1];
+                      var btnClass = (attrs.match(/class="([^"]*)"/) || ['',''])[1];
+                      var bg = '#1a3a6b', bdr = '#4B9CD3';
+                      if(btnClass.indexOf('call')>-1||href.indexOf('tel:')>-1){bg='#14532d';bdr='#22C55E';}
+                      else if(btnClass.indexOf('sched')>-1||btnClass.indexOf('calendly')>-1||href.indexOf('calendly')>-1){bg='#451a03';bdr='#F59E0B';}
+                      else if(btnClass.indexOf('text')>-1||href.indexOf('sms:')>-1){bg='#1e3a5f';bdr='#60A5FA';}
+                      else if(btnClass.indexOf('compare')>-1){href='https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/';}
+                      btns += '<a href="'+href+'" style="display:block;text-align:center;padding:12px 20px;border-radius:50px;font-size:14px;text-decoration:none;margin-bottom:8px;font-weight:600;color:#ffffff;background-color:'+bg+';border:2px solid '+bdr+';">'+label+'</a>';
+                    }
+                    tbl += '<td width="'+(100/cards.length)+'%" valign="top" style="padding:24px 20px;background-color:'+CARD_BG+';border:1px solid '+CARD_BORDER+';border-radius:16px;'+  (ci>0?'padding-left:10px;':'padding-right:10px;')+'">'+
+                      (h3txt?'<h3 style="color:#ffffff;font-size:18px;font-weight:600;margin:0 0 10px;">'+h3txt+'</h3>':'')+
+                      (ptxt?'<p style="color:rgba(255,255,255,0.75);font-size:13px;line-height:1.6;margin:0 0 16px;">'+ptxt+'</p>':'')+
+                      btns+'</td>';
+                  });
+                }
+                tbl += '</tr><tr><td colspan="'+Math.max(2,cards.length)+'" style="padding:16px 36px 32px;text-align:center;font-size:11px;color:rgba(255,255,255,0.4);">Not affiliated with or endorsed by the U.S. government or the federal Medicare program.</td></tr></table>';
+                
+                result = result.slice(0,start2) + tbl + result.slice(end2);
+                idx2 = start2 + tbl.length;
+              }
+            });
+            return result;
+          }
+          out = rebuildCtaModal(out);
+
+          // Fix ALL compare/sunfire URLs
           var SF_URL = "https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/";
-          // Old sunfire without #/
           out = out.split('sunfirematrix.com/app/consumer/medicareadvocates/10447418/"').join('sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/"');
-          // All internal /compare variations
-          ["/compare","/compare/","https://generationhealth.me/compare","https://www.generationhealth.me/compare","http://generationhealth.me/compare"].forEach(function(u){
+          ["/compare","/compare/","https://generationhealth.me/compare","https://www.generationhealth.me/compare"].forEach(function(u){
             out = out.split('href="'+u+'"').join('href="'+SF_URL+'"');
             out = out.split("href='"+u+"'").join("href='"+SF_URL+"'");
           });
-          // Fix gh-hero-btn--compare that may have missing or wrong href
-          out = out.replace(/(<a[^>]*class="[^"]*gh-hero-btn--compare[^"]*"[^>]*href=")[^"]*"/g, '$1'+SF_URL+'"');
-          out = out.replace(/(<a[^>]*href=")[^"]*"([^>]*class="[^"]*gh-hero-btn--compare[^"]*")/g, '$1'+SF_URL+'"$2');
-          // Fix any "Compare Plans" buttons pointing nowhere or to /compare
-          out = out.replace(/href="[^"]*generationhealth\.me[/]compare[^"]*"/g, 'href="'+SF_URL+'"');
 
-          // ── Add shimmer fix + comment header ──
+          // Shimmer CSS
+          var shimmerFix = '<style id="gh-shimmer-fix">:root{--r-full:100px;--r-xl:20px;}@keyframes ghSweep{0%{left:-100%}100%{left:200%}}@keyframes ghGlowB{0%,100%{box-shadow:0 0 0 0 rgba(75,156,211,0)}50%{box-shadow:0 0 14px 4px rgba(75,156,211,.6)}}@keyframes ghGlowG{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}50%{box-shadow:0 0 14px 4px rgba(22,163,74,.6)}}@keyframes ghGlowA{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 14px 4px rgba(245,158,11,.6)}}.gh-ghost{position:relative!important;overflow:hidden!important;display:block!important;text-align:center!important;padding:14px 24px!important;border-radius:100px!important;font-size:15px!important;text-decoration:none!important;margin-bottom:8px!important;color:#fff!important;font-weight:600!important;}.gh-ghost::before{content:""!important;position:absolute!important;top:0!important;left:-100%!important;width:60%!important;height:100%!important;background:linear-gradient(120deg,transparent 10%,rgba(255,255,255,.22) 50%,transparent 90%)!important;transform:skewX(-15deg)!important;animation:ghSweep 3.5s ease-in-out infinite!important;pointer-events:none!important;z-index:5!important;}.gh-ghost--compare{border-color:rgba(75,156,211,.6)!important;animation:ghGlowB 8s ease-in-out infinite!important;}.gh-ghost--compare::before{background:linear-gradient(120deg,transparent 15%,rgba(75,156,211,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out infinite!important;}.gh-ghost--call{border-color:rgba(22,163,74,.6)!important;animation:ghGlowG 8s ease-in-out 2s infinite!important;}.gh-ghost--call::before{background:linear-gradient(120deg,transparent 15%,rgba(22,163,74,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out 2s infinite!important;}.gh-ghost--calendly,.gh-ghost--sched{border-color:rgba(245,158,11,.6)!important;animation:ghGlowA 8s ease-in-out 4s infinite!important;}.gh-ghost--calendly::before,.gh-ghost--sched::before{background:linear-gradient(120deg,transparent 15%,rgba(245,158,11,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out 4s infinite!important;}</style>';
+          out = shimmerFix + "\n" + out;
+
           var slug = pbPage.slug||"new-page";
           var today2 = new Date().toISOString().split("T")[0];
-          var shimmerFix = '<style id="gh-shimmer-fix">\n:root{--r-full:100px;--r-xl:20px;--r-2xl:24px;--r-lg:16px;--ease:cubic-bezier(.4,0,.2,1);}\n@keyframes ghSweep{0%{left:-100%}100%{left:200%}}\n@keyframes ghGlowB{0%,100%{box-shadow:0 0 0 0 rgba(75,156,211,0)}50%{box-shadow:0 0 14px 4px rgba(75,156,211,.6)}}\n@keyframes ghGlowG{0%,100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}50%{box-shadow:0 0 14px 4px rgba(22,163,74,.6)}}\n@keyframes ghGlowA{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 14px 4px rgba(245,158,11,.6)}}\n.gh-cta-card{position:relative!important;overflow:hidden!important;border-radius:20px!important;isolation:isolate!important;transform:translateZ(0)!important;}\n.gh-cta-card::after{content:\"\"!important;position:absolute!important;top:0!important;left:-150%!important;width:80%!important;height:100%!important;background:linear-gradient(120deg,transparent 20%,rgba(255,255,255,.09) 50%,transparent 80%)!important;transform:skewX(-15deg)!important;animation:ghSweep 5s ease-in-out infinite!important;pointer-events:none!important;z-index:10!important;}\n.gh-cta-card:nth-child(2)::after,.gh-cta-card:nth-child(even)::after{animation-delay:2.5s!important;}\n.gh-ghost{position:relative!important;overflow:hidden!important;display:block!important;text-align:center!important;padding:14px 24px!important;border-radius:100px!important;font-size:15px!important;text-decoration:none!important;margin-bottom:8px!important;border:1.5px solid rgba(255,255,255,.32)!important;background:transparent!important;color:#fff!important;font-weight:600!important;}\n.gh-ghost::before{content:\"\"!important;position:absolute!important;top:0!important;left:-100%!important;width:60%!important;height:100%!important;background:linear-gradient(120deg,transparent 10%,rgba(255,255,255,.22) 50%,transparent 90%)!important;transform:skewX(-15deg)!important;animation:ghSweep 3.5s ease-in-out infinite!important;pointer-events:none!important;z-index:5!important;}\n.gh-ghost--compare{border-color:rgba(75,156,211,.6)!important;background:rgba(75,156,211,.1)!important;animation:ghGlowB 8s ease-in-out infinite!important;}\n.gh-ghost--compare::before{background:linear-gradient(120deg,transparent 15%,rgba(75,156,211,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out infinite!important;}\n.gh-ghost--call{border-color:rgba(22,163,74,.6)!important;animation:ghGlowG 8s ease-in-out 2s infinite!important;}\n.gh-ghost--call::before{background:linear-gradient(120deg,transparent 15%,rgba(22,163,74,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out 2s infinite!important;}\n.gh-ghost--calendly{border-color:rgba(245,158,11,.6)!important;animation:ghGlowA 8s ease-in-out 4s infinite!important;}\n.gh-ghost--calendly::before{background:linear-gradient(120deg,transparent 15%,rgba(245,158,11,.8) 50%,transparent 85%)!important;animation:ghSweep 8s ease-in-out 4s infinite!important;}\n</style>';
           var header = "<!-- GH Page Builder · "+slug+" · "+today2+" · Score:"+(pbScanResults?pbScanResults.score:0)+"/17 -->\n";
-          // Inject shimmer CSS after existing </style> block or at top
-          // Inject shimmer at very top so it loads first
-          out = shimmerFix + "\n" + out;
           out = header + out;
 
-          // ── Copy ──
           navigator.clipboard.writeText(out).then(function(){
-            alert("✅ Merged & Copied!\n\n"+nepqBlocks.length+" NEPQ sections woven into "+slug+".\n\nOpen WordPress → Custom HTML block → Select All → Paste.");
+            alert("\u2705 Merged & Copied!\n\n"+Object.keys(pbNepqContent).length+" NEPQ sections woven into "+slug+".\n\nOpen WordPress \u2192 Custom HTML block \u2192 Select All \u2192 Paste.");
           }).catch(function(){
-            var ta=document.createElement("textarea"); ta.value=out;
-            document.body.appendChild(ta); ta.select(); document.execCommand("copy");
+            var ta=document.createElement("textarea");ta.value=out;
+            document.body.appendChild(ta);ta.select();document.execCommand("copy");
             document.body.removeChild(ta);
-            alert("✅ Merged & Copied! Paste into WordPress Custom HTML block.");
+            alert("\u2705 Merged & Copied!");
           });
         }
 
-        function ScoreRing(props){var score=props.score,total=props.total,size=props.size;
-          size=size||60;
-          var r=size/2-6,circ=2*Math.PI*r,p=total>0?score/total:0;
-          var col=p>=0.85?"#4ADE80":p>=0.6?"#FFC72C":"#F87171";
-          return React.createElement("svg",{width:size,height:size,viewBox:"0 0 "+size+" "+size,style:{flexShrink:0,transform:"rotate(-90deg)"}},
-            React.createElement("circle",{cx:size/2,cy:size/2,r:r,fill:"none",stroke:"rgba(255,255,255,0.08)",strokeWidth:5}),
-            React.createElement("circle",{cx:size/2,cy:size/2,r:r,fill:"none",stroke:col,strokeWidth:5,
-              strokeDasharray:circ,strokeDashoffset:circ*(1-p),strokeLinecap:"round",style:{transition:"stroke-dashoffset 0.8s ease"}}),
-            React.createElement("text",{x:size/2,y:size/2,textAnchor:"middle",dominantBaseline:"middle",
-              fill:col,fontSize:size>50?12:9,fontWeight:800,transform:"rotate(90 "+(size/2)+" "+(size/2)+")"},score+"/"+total)
-          );
-        }
+        // ── Page Builder Render ──
+        return React.createElement("div",{style:{display:"flex",flexDirection:"column",height:"calc(100vh - 120px)",overflow:"hidden"}},
 
-        var bg=isDark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.9)";
-        var br=isDark?"1px solid rgba(255,255,255,0.08)":"1px solid rgba(0,0,0,0.08)";
-        var tc=isDark?"#E8ECF0":"#1a1a2e";
-        var mc=isDark?"#6B7B8D":"#888";
-
-        return React.createElement(React.Fragment,null,
-          null /* style#2 extracted */,
-
-          /* Header */
-          React.createElement("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20,flexWrap:"wrap",gap:12}},
-            React.createElement("div",{style:{display:"flex",alignItems:"center",gap:14}},
-              /* Lightsabers */
-              React.createElement("div",{style:{display:"flex",alignItems:"center",gap:0,height:36}},
-                React.createElement("div",{className:"sb-r",style:{height:32}}),
-                React.createElement("div",{style:{width:8,height:8,borderRadius:"50%",background:"#fff",boxShadow:"0 0 8px 3px rgba(255,220,80,0.9)",margin:"0 2px",flexShrink:0}}),
-                React.createElement("div",{className:"sb-b",style:{height:32}})
-              ),
-              React.createElement("div",null,
-                React.createElement("h2",{style:{fontSize:20,fontWeight:700,color:tc,margin:0,fontFamily:"Georgia,serif"}},"Page Builder"),
-                React.createElement("p",{style:{fontSize:12,color:mc,margin:"2px 0 0"}},donePages.length+" / "+allPages.length+" pages complete · v5.2 NEPQ")
-              )
+          /* Header bar */
+          React.createElement("div",{style:{display:"flex",alignItems:"center",gap:12,padding:"10px 16px",borderBottom:br,flexShrink:0}},
+            React.createElement("div",{style:{width:28,height:28,borderRadius:8,background:"linear-gradient(135deg,#DC2626,#7C3AED)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}},"📄"),
+            React.createElement("div",{style:{flex:1}},
+              React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc}},"Page Builder"),
+              React.createElement("div",{style:{fontSize:11,color:mc}},donePages.length+" / "+allPages.length+" pages complete · v5.2 NEPQ")
             ),
-            /* Progress bar */
-            React.createElement("div",{style:{flex:1,maxWidth:280}},
-              React.createElement("div",{style:{display:"flex",justifyContent:"space-between",fontSize:11,color:mc,marginBottom:4}},
-                React.createElement("span",null,"Progress"),
-                React.createElement("span",{style:{fontWeight:800,color:pct>=80?"#4ADE80":pct>=40?"#FFC72C":"#F87171"}},pct+"%")
+            React.createElement("div",{style:{flex:1,margin:"0 16px"}},
+              React.createElement("div",{style:{fontSize:10,color:mc,marginBottom:4,textAlign:"right"}},"Progress"),
+              React.createElement("div",{style:{position:"relative",height:6,background:"rgba(255,255,255,0.06)",borderRadius:3,overflow:"hidden"}},
+                React.createElement("div",{style:{position:"absolute",left:0,top:0,height:"100%",width:pct+"%",background:"linear-gradient(90deg,#0D9488,#14B8A6)",borderRadius:3,transition:"width 0.5s"}})
               ),
-              React.createElement("div",{style:{height:8,background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.08)",borderRadius:100,overflow:"hidden"}},
-                React.createElement("div",{style:{height:"100%",width:pct+"%",background:"linear-gradient(90deg,#0D9488,#4ADE80)",borderRadius:100,transition:"width 0.7s ease"}})
-              )
+              React.createElement("div",{style:{fontSize:10,color:"#0D9488",textAlign:"right",marginTop:2}},pct+"%")
             ),
-            /* API key gear */
-            React.createElement("div",{style:{position:"relative"}},
-              React.createElement("button",{onClick:function(){setPbShowApiKey(function(p){return !p;});},
-                style:{width:36,height:36,borderRadius:10,border:br,background:pbApiKey?"rgba(74,222,128,0.1)":"rgba(255,255,255,0.04)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16},title:"Claude API Key"},"⚙️"),
-              pbShowApiKey&&React.createElement("div",{style:{position:"absolute",top:44,right:0,width:300,padding:16,background:isDark?"#1A2840":"#fff",border:br,borderRadius:14,boxShadow:"0 8px 32px rgba(0,0,0,0.3)",zIndex:99}},
-                React.createElement("div",{style:{fontSize:11,fontWeight:700,color:mc,marginBottom:8,textTransform:"uppercase"}},pbApiKey?"✅ API Key Saved":"Claude API Key"),
-                React.createElement("div",{style:{display:"flex",gap:8}},
-                  React.createElement("input",{type:"password",value:pbApiKey,onChange:function(e){setPbApiKey(e.target.value);},placeholder:"sk-ant-...",style:{flex:1,padding:"8px 10px",borderRadius:8,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)",color:tc,fontSize:12,outline:"none"}}),
-                  React.createElement("button",{onClick:function(){setPbShowApiKey(false);},style:{padding:"8px 14px",borderRadius:8,border:"none",background:"#0D9488",color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}},"Save")
-                )
-              )
-            )
+            React.createElement("button",{onClick:function(){setShowSettings(function(p){return !p;})},style:{width:32,height:32,borderRadius:8,border:br,background:"transparent",cursor:"pointer",color:mc,fontSize:14}},"⚙️")
           ),
 
-          /* 3-panel grid */
-          React.createElement("div",{style:{display:"grid",gridTemplateColumns:"255px 1fr 290px",gap:14,height:"calc(100vh - 230px)",minHeight:580}},
+          /* Settings modal */
+          showSettings&&React.createElement("div",{style:{position:"absolute",top:60,right:16,zIndex:100,background:isDark?"#1a2332":"#fff",border:br,borderRadius:12,padding:16,width:280,boxShadow:"0 8px 32px rgba(0,0,0,0.3)"}},
+            React.createElement("div",{style:{fontSize:12,fontWeight:700,color:tc,marginBottom:12}},"⚙️ Page Builder Settings"),
+            React.createElement("div",{style:{fontSize:11,color:mc,marginBottom:6}},"Claude API Key (for AI content generation)"),
+            React.createElement("input",{type:"password",value:pbApiKey||"",onChange:function(e){setPbApiKey(e.target.value);localStorage.setItem("gh-cc-pb-apikey",e.target.value);},placeholder:"sk-ant-...",style:{width:"100%",padding:"6px 10px",borderRadius:8,border:br,background:"transparent",color:tc,fontSize:11,boxSizing:"border-box"}}),
+            React.createElement("button",{onClick:function(){setShowSettings(false);},style:{marginTop:10,padding:"5px 12px",borderRadius:8,border:br,background:"transparent",color:mc,fontSize:11,cursor:"pointer",width:"100%"}},"Close")
+          ),
 
-            /* ═══ LEFT — Queue ═══ */
-            React.createElement("div",{style:{background:bg,border:br,borderRadius:16,display:"flex",flexDirection:"column",overflow:"hidden"}},
-              React.createElement("div",{style:{padding:"12px 12px 8px",borderBottom:br}},
-                React.createElement("input",{value:pbSearch,onChange:function(e){setPbSearch(e.target.value);},placeholder:"Search pages...",style:{width:"100%",padding:"8px 10px",borderRadius:8,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.04)",color:tc,fontSize:12,outline:"none",boxSizing:"border-box"}}),
-                React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginTop:6,fontSize:10,color:mc}},
-                  React.createElement("span",null,filteredPages.length+" active"),
-                  React.createElement("span",{style:{color:"#4ADE80"}},donePages.length+" done")
-                )
+          /* Three-panel layout */
+          React.createElement("div",{style:{display:"flex",flex:1,overflow:"hidden",gap:0}},
+
+            /* LEFT PANEL - page list */
+            React.createElement("div",{style:{width:220,flexShrink:0,borderRight:br,overflow:"auto",padding:"10px 8px"}},
+              React.createElement("input",{value:pbSearch,onChange:function(e){setPbSearch(e.target.value);},placeholder:"Search pages...",style:{width:"100%",padding:"7px 10px",borderRadius:9,border:br,background:"rgba(255,255,255,0.04)",color:tc,fontSize:12,boxSizing:"border-box",marginBottom:8,outline:"none"}}),
+              React.createElement("div",{style:{display:"flex",justifyContent:"space-between",marginBottom:8}},
+                React.createElement("span",{style:{fontSize:10,color:mc}},filteredPages.length+" active"),
+                React.createElement("span",{style:{fontSize:10,color:"#0D9488",cursor:"pointer"}},donePages.length+" done")
               ),
-              React.createElement("div",{style:{flex:1,overflowY:"auto",padding:"6px 6px"}},
-                filteredPages.length===0&&React.createElement("div",{style:{padding:20,textAlign:"center",color:mc,fontSize:12}},"No pages found"),
-                filteredPages.map(function(p){
-                  var s=scan17(p.html);
-                  var isSel=pbPage&&pbPage.key===p.key;
-                  var sc=s.score>=14?"#4ADE80":s.score>=8?"#FFC72C":"#F87171";
-                  return React.createElement("div",{key:p.key,className:"pb-item"+(isSel?" sel":""),
-                    onClick:function(){selectPage(p);},
-                    style:{padding:"9px 10px",marginBottom:3,borderRadius:10,border:"1px solid "+(isSel?"rgba(75,156,211,0.45)":"transparent"),transition:"all 0.15s"}},
-                    React.createElement("div",{style:{display:"flex",alignItems:"flex-start",gap:6}},
-                      React.createElement("div",{style:{flex:1,minWidth:0}},
-                        React.createElement("div",{style:{fontSize:12,fontWeight:600,color:isSel?"#4B9CD3":tc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},(p.name||p.slug||"").replace(/\s*\|.*$/,"")),
-                        React.createElement("div",{style:{fontSize:10,color:mc,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},"/"+p.slug)
-                      ),
-                      React.createElement("span",{style:{fontSize:11,fontWeight:800,color:sc,flexShrink:0,padding:"2px 6px",borderRadius:6,background:sc+"18"}},p.html?s.score+"/17":"—")
-                    )
-                  );
-                }),
-                donePages.length>0&&React.createElement("div",{style:{marginTop:10}},
-                  React.createElement("div",{style:{fontSize:10,fontWeight:700,color:mc,textTransform:"uppercase",letterSpacing:"0.08em",padding:"4px 4px"}},"\u2705 Done ("+donePages.length+")"),
-                  donePages.map(function(p){
-                    return React.createElement("div",{key:p.key,
-                      style:{padding:"6px 10px",marginBottom:2,borderRadius:8,
-                        background:pbPage&&pbPage.key===p.key?"rgba(74,222,128,0.15)":"rgba(74,222,128,0.05)",
-                        border:"1px solid rgba(74,222,128,0.2)",cursor:"pointer",
-                        display:"flex",alignItems:"center",justifyContent:"space-between",gap:6},
-                      onClick:function(){selectPage(p);}},
-                      React.createElement("span",{style:{fontSize:11,color:"#4ADE80",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}},
-                        (p.name||p.slug||"").replace(/\s*\|.*$/,"")),
-                      React.createElement("button",{
-                        onClick:function(e){
-                          e.stopPropagation();
-                          setPbCompleted(function(prev){return prev.filter(function(k){return k!==p.key;});});
-                          setPbPage(null);setPbScanResults(null);setPbNepqContent({});
-                        },
-                        title:"Move back to active",
-                        style:{fontSize:9,padding:"1px 6px",borderRadius:5,border:"1px solid rgba(74,222,128,0.3)",
-                          background:"transparent",color:mc,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}
-                      },"↩")
-                    );
-                  })
-                )
-              )
-            ),
-
-            /* ═══ MIDDLE — Studio ═══ */
-            React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:12,overflow:"hidden"}},
-              pbPage&&React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"10px 14px",background:bg,border:br,borderRadius:12,flexWrap:"wrap"}},
-                React.createElement("div",{style:{flex:1,fontSize:12,color:mc,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},
-                  "generationhealth.me/",React.createElement("span",{style:{color:tc,fontWeight:600}},pbPage.slug)
-                ),
-                React.createElement("span",{style:{fontSize:11,padding:"3px 8px",borderRadius:6,fontWeight:700,
-                  background:pbPage.html?"rgba(74,222,128,0.1)":"rgba(251,146,60,0.1)",
-                  color:pbPage.html?"#4ADE80":"#FB923C"}},
-                  pbPage.html?"✅ HTML Saved":"⚠ Fetch in Optimize tab first"),
-                React.createElement("button",{
-                  onClick:function(){setPbEditMode(function(m){return !m;});setPbEditHTML(pbPage.html||"");},
-                  style:{padding:"6px 14px",borderRadius:8,border:br,background:pbEditMode?"rgba(75,156,211,0.15)":"transparent",color:pbEditMode?"#4B9CD3":mc,fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}},
-                  pbEditMode?"👁 Preview":"✏️ Edit HTML"),
-              React.createElement("button",{onClick:markComplete,
-                  style:{padding:"6px 14px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#16A34A,#22C55E)",color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},
-                  "\u2705 Mark Complete")
-              ),
-              React.createElement("div",{style:{flex:1,background:bg,border:br,borderRadius:14,overflow:"hidden",position:"relative",minHeight:300}},
-                !pbPage&&React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:12,padding:40}},
-                  React.createElement("div",{style:{fontSize:52,lineHeight:1}},"\uD83D\uDCC4"),
-                  React.createElement("div",{style:{fontSize:16,fontWeight:700,color:tc}},"\u2190 Select a page to begin"),
-                  React.createElement("div",{style:{fontSize:13,color:mc,textAlign:"center",maxWidth:300}},
-                    "Pick a page from the queue. Pages with saved HTML from Optimize will render here.")
-                ),
-                pbPage&&!pbPage.html&&React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",gap:12,padding:40}},
-                  React.createElement("div",{style:{fontSize:40}},"🔍"),
-                  React.createElement("div",{style:{fontSize:15,fontWeight:700,color:tc}},"No saved HTML"),
-                  React.createElement("div",{style:{fontSize:13,color:mc,textAlign:"center"}},"Go to Optimize tab → find this page → Fetch → Save HTML.")
-                ),
-                pbPage&&pbPage.html&&!pbEditMode&&(function(){
-                  // Build live preview with NEPQ blocks merged in
-                  var previewHtml = pbPage.html;
-                  var nepqKeys = ["connecting","situation","problem","two-truths","solution",
-                    "consequence","qualifying","clarifying","expanded","decision","transition",
-                    "committing","resolving"];
-                  var hasNepq = nepqKeys.some(function(k){return !!pbNepqContent[k];});
-                  if(hasNepq){
-                    var nepqStyle2 = "<style>.gh-np{font-family:-apple-system,sans-serif;margin:32px 0;max-width:720px;}.gh-np .gh-nepq-q{background:linear-gradient(135deg,rgba(75,156,211,0.1),rgba(13,148,136,0.07));border-left:4px solid #4B9CD3;border-radius:0 12px 12px 0;padding:16px 20px;}.gh-np .gh-nepq-q h3{font-size:19px;font-weight:700;color:#0A1628;margin:0;line-height:1.4;}.gh-np .gh-answer{background:#fff;border:1px solid rgba(75,156,211,0.15);border-top:none;border-radius:0 0 12px 12px;padding:16px 20px;}.gh-np .gh-answer p{font-size:15px;color:#374151;line-height:1.7;margin:0;}</style>";
-                    previewHtml = nepqStyle2 + previewHtml;
-                    var banner = "<div style=\"background:linear-gradient(135deg,#0D9488,#14B8A6);color:#fff;padding:10px 18px;font-size:12px;font-weight:700;text-align:center\">✨ NEPQ Live Preview — "+Object.values(pbNepqContent).filter(Boolean).length+" stages active — scroll to see content distributed through the page</div>";
-                    previewHtml = previewHtml.replace("<body",banner+"<body");
-
-                    function wrapP(ids,label){
-                      var blks=ids.map(function(id){return pbNepqContent[id];}).filter(Boolean);
-                      if(!blks.length)return "";
-                      return "<section style=\"padding:40px 0;display:block;width:100%;\"><div style=\"max-width:780px;margin:0 auto;padding:0 24px;display:block;\">"+blks.map(function(b){return "<div class=\"gh-np\" style=\"display:block;margin:32px 0;\">"+b+"</div>";}).join("")+"</div></section>";
-                    }
-
-                    function insAfterSec(str,n,html){
-                      var c=0,p=0;
-                      while(true){var i=str.indexOf("</section>",p);if(i===-1)break;c++;if(c===n){return str.slice(0,i+10)+html+str.slice(i+10);}p=i+10;}
-                      return str+html;
-                    }
-                    function insBefore(str,pat,html){
-                      var i=str.indexOf(pat);if(i===-1)return str;
-                      var s=str.lastIndexOf("<section",i);var ins=s>-1?s:i;
-                      return str.slice(0,ins)+html+str.slice(ins);
-                    }
-
-                    previewHtml = insAfterSec(previewHtml,1,wrapP(["connecting","situation"],"Connecting + Situation"));
-                    previewHtml = insAfterSec(previewHtml,2,wrapP(["problem","two-truths"],"Problem Awareness"));
-                    if(pbNepqContent["consequence"]||pbNepqContent["solution"]){
-                      var hasCta=previewHtml.indexOf("gh-cta-modal")>-1;
-                      if(hasCta){previewHtml=insBefore(previewHtml,"gh-cta-modal",wrapP(["solution","consequence"],"Consequence"));}
-                      else{previewHtml=insAfterSec(previewHtml,3,wrapP(["solution","consequence"],"Consequence"));}
-                    }
-                    previewHtml = insBefore(previewHtml,"gh-faq",wrapP(["qualifying","clarifying","expanded","decision","transition"],"Decision + Transition"));
-                    if(previewHtml.indexOf("</body>")>-1){
-                      previewHtml=previewHtml.replace("</body>",wrapP(["committing","resolving"],"Committing + Resolving")+"</body>");
-                    }
-                  }
-                  return React.createElement("iframe",{
-                    srcDoc:previewHtml,
-                    style:{width:"100%",height:"100%",border:"none"},
-                    sandbox:"allow-same-origin allow-scripts allow-popups",
-                    title:"Page Preview"
-                  });
-                })(),
-                pbPage&&pbEditMode&&React.createElement("div",{style:{display:"flex",flexDirection:"column",height:"100%",padding:12,gap:8}},
-                  React.createElement("textarea",{
-                    value:pbEditHTML,
-                    onChange:function(e){
-                      setPbEditHTML(e.target.value);
-                      setPbScanResults(scan17(e.target.value));
-                    },
-                    style:{flex:1,width:"100%",padding:"10px 12px",borderRadius:10,border:br,
-                      background:isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.02)",
-                      color:tc,fontSize:12,fontFamily:"monospace",resize:"none",
-                      outline:"none",boxSizing:"border-box",lineHeight:1.5}
-                  }),
-                  React.createElement("div",{style:{display:"flex",gap:8,justifyContent:"flex-end"}},
+              filteredPages.length===0&&React.createElement("div",{style:{padding:"20px 0",textAlign:"center",color:mc,fontSize:12}},"No pages found"),
+              filteredPages.map(function(p){
+                var isSelected = pbPage&&pbPage.key===p.key;
+                var score = pbScanResults&&isSelected?pbScanResults.score:(savedHTML[p.key]?null:null);
+                return React.createElement("div",{key:p.key,
+                  onClick:function(){selectPage(p);},
+                  style:{padding:"8px 10px",marginBottom:3,borderRadius:9,
+                    background:isSelected?(isDark?"rgba(75,156,211,0.15)":"rgba(75,156,211,0.1)"):"transparent",
+                    border:isSelected?"1px solid rgba(75,156,211,0.3)":br,
+                    cursor:"pointer",transition:"all 0.15s"}},
+                  React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center"}},
+                    React.createElement("span",{style:{fontSize:11,fontWeight:isSelected?600:400,color:isSelected?"#60A5FA":tc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:140}},(p.name||p.slug||"").replace(/\s*\|.*$/,"")),
+                    savedHTML[p.key]&&React.createElement("span",{style:{fontSize:9,padding:"1px 5px",borderRadius:4,background:"rgba(74,222,128,0.15)",color:"#4ADE80",flexShrink:0}},(isSelected&&pbScanResults?pbScanResults.score:"")||"✓")
+                  ),
+                  React.createElement("div",{style:{fontSize:9,color:mc,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},"/"+p.slug)
+                );
+              }),
+              donePages.length>0&&React.createElement("div",{style:{marginTop:10}},
+                React.createElement("div",{style:{fontSize:10,fontWeight:700,color:mc,textTransform:"uppercase",letterSpacing:"0.08em",padding:"4px 4px"}},"✅ Done ("+donePages.length+")"),
+                donePages.map(function(p){
+                  return React.createElement("div",{key:p.key,
+                    style:{padding:"6px 10px",marginBottom:2,borderRadius:8,
+                      background:pbPage&&pbPage.key===p.key?"rgba(74,222,128,0.15)":"rgba(74,222,128,0.05)",
+                      border:"1px solid rgba(74,222,128,0.2)",cursor:"pointer",
+                      display:"flex",alignItems:"center",justifyContent:"space-between",gap:6},
+                    onClick:function(){selectPage(p);}},
+                    React.createElement("span",{style:{fontSize:11,color:"#4ADE80",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}},
+                      (p.name||p.slug||"").replace(/\s*\|.*$/,"")),
                     React.createElement("button",{
-                      onClick:function(){
-                        var key=pbPage.clusterId+"-"+pbPage.idx;
-                        setSavedHTML(function(prev){var n=Object.assign({},prev);n[key]=pbEditHTML;return n;});
-                        setPbPage(function(p){return Object.assign({},p,{html:pbEditHTML});});
-                        setPbEditMode(false);
-                        setPbScanResults(scan17(pbEditHTML));
+                      onClick:function(e){
+                        e.stopPropagation();
+                        setPbCompleted(function(prev){return prev.filter(function(k){return k!==p.key;});});
+                        setPbPage(null);setPbScanResults(null);setPbNepqContent({});
                       },
-                      style:{padding:"8px 18px",borderRadius:9,border:"none",background:"#0D9488",color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}
-                    },"💾 Save HTML"),
-                    React.createElement("button",{
-                      onClick:function(){setPbEditMode(false);},
-                      style:{padding:"8px 14px",borderRadius:9,border:br,background:"transparent",color:mc,fontSize:12,cursor:"pointer"}
-                    },"Cancel")
-                  )
-                )
-              ),
-              pbPage&&pbScanResults&&React.createElement("div",{style:{background:bg,border:br,borderRadius:14,padding:"14px 16px",maxHeight:200,overflowY:"auto"}},
-                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:10,flexWrap:"wrap"}},
-                  React.createElement(ScoreRing,{score:pbScanResults.score,total:17,size:54}),
-                  React.createElement("div",{style:{flex:1}},
-                    React.createElement("div",{style:{fontSize:14,fontWeight:700,color:tc}},"17-Point Optimization Scan"),
-                    React.createElement("div",{style:{fontSize:12,color:mc}},
-                      pbScanResults.score===17?"🎯 Perfect — ready to deploy":(17-pbScanResults.score)+" items need work")
-                  ),
-                  pbScanResults.score<17&&React.createElement("button",{
-                    onClick:fixAllIssues,
-                    disabled:!!pbFixing||!!pbRegenning,
-                    style:{padding:"6px 14px",borderRadius:9,border:"none",
-                      background:pbFixing?"rgba(255,255,255,0.06)":"linear-gradient(135deg,#F59E0B,#FBBF24)",
-                      color:pbFixing?"#888":"#1a1a2e",fontSize:12,fontWeight:700,cursor:(pbFixing||pbRegenning)?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}
-                  },pbFixing?"⏳ Fixing...":"⚡ Fix All Issues"),
-                  pbPage&&pbPage.html&&React.createElement("button",{
-                    onClick:regenContent,
-                    disabled:!!pbRegenning||!!pbFixing,
-                    style:{padding:"6px 14px",borderRadius:9,border:"1px solid rgba(96,165,250,0.4)",
-                      background:pbRegenning?"rgba(255,255,255,0.06)":"rgba(96,165,250,0.1)",
-                      color:pbRegenning?"#888":"#60A5FA",fontSize:12,fontWeight:700,cursor:(pbRegenning||pbFixing)?"not-allowed":"pointer",whiteSpace:"nowrap",flexShrink:0}
-                  },pbRegenning?"⏳ Regenerating...":"🔄 Regen Content")
-                ),
-                pbFixProgress&&React.createElement("div",{style:{marginBottom:8}},
-                  React.createElement("div",{style:{display:"flex",justifyContent:"space-between",fontSize:10,color:mc,marginBottom:3}},
-                    React.createElement("span",null,pbFixProgress.msg),
-                    React.createElement("span",null,pbFixProgress.done+"/"+pbFixProgress.total)
-                  ),
-                  React.createElement("div",{style:{height:5,background:"rgba(255,255,255,0.08)",borderRadius:100,overflow:"hidden"}},
-                    React.createElement("div",{style:{height:"100%",width:Math.round(pbFixProgress.done/pbFixProgress.total*100)+"%",
-                      background:"linear-gradient(90deg,#F59E0B,#4ADE80)",borderRadius:100,transition:"width 0.3s ease"}})
-                  )
-                ),
-                React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:3}},
-                  pbScanResults.checks.map(function(c){
-                    var FIX_SNIPPETS = window.GH_FIX_SNIPPETS||{};
-                    var snippet = FIX_SNIPPETS[c.id];
-                    return React.createElement("div",{key:c.id,style:{display:"flex",alignItems:"center",gap:5,padding:"3px 0",fontSize:11}},
-                      React.createElement("span",null,c.pass?"✅":"❌"),
-                      React.createElement("span",{style:{flex:1,color:c.pass?tc:mc}},c.label),
-                      React.createElement("span",{style:{fontSize:9,padding:"1px 4px",borderRadius:4,background:c.catColor+"15",color:c.catColor,fontWeight:700,flexShrink:0}},c.cat),
-                      !c.pass&&snippet&&React.createElement("button",{
-                        onClick:function(){
-                          navigator.clipboard.writeText(snippet).then(function(){
-                            alert("✅ Fix snippet copied — paste into your WordPress Custom HTML block after the existing content.");
-                          }).catch(function(){
-                            var ta=document.createElement("textarea");ta.value=snippet;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);
-                            alert("✅ Fix snippet copied — paste into your WordPress Custom HTML block.");
-                          });
-                        },
-                        style:{fontSize:9,padding:"2px 7px",borderRadius:5,border:"1px solid rgba(251,146,60,0.4)",background:"rgba(251,146,60,0.08)",color:"#FB923C",fontWeight:700,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}
-                      },"⚡ Fix")
-                    );
-                  })
-                )
+                      style:{fontSize:9,padding:"1px 6px",borderRadius:5,border:"1px solid rgba(74,222,128,0.3)",background:"transparent",color:mc,cursor:"pointer",flexShrink:0}},"↩")
+                  );
+                })
               )
             ),
 
-            /* ═══ RIGHT — NEPQ Engine ═══ */
-            React.createElement("div",{style:{background:bg,border:br,borderRadius:16,display:"flex",flexDirection:"column",overflow:"hidden"}},
-              React.createElement("div",{style:{padding:"14px 14px 10px",borderBottom:br}},
-                React.createElement("div",{style:{fontSize:14,fontWeight:700,color:tc,marginBottom:2}},"NEPQ Content Engine"),
-                React.createElement("div",{style:{fontSize:11,color:mc}},
-                  pbPage?"Topic: "+(pbPage.slug||"").replace(/-/g," "):"Select a page to generate copy")
+            /* MIDDLE PANEL - preview */
+            React.createElement("div",{style:{flex:1,display:"flex",flexDirection:"column",overflow:"hidden",borderRight:br}},
+              pbPage?React.createElement(React.Fragment,null,
+                /* Top bar */
+                React.createElement("div",{style:{display:"flex",alignItems:"center",gap:8,padding:"8px 12px",borderBottom:br,flexShrink:0}},
+                  React.createElement("span",{style:{fontSize:11,color:mc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1}},pbPage.slug||""),
+                  savedHTML[pbPage.clusterId+"-"+pbPage.idx]&&React.createElement("span",{style:{fontSize:10,padding:"2px 8px",borderRadius:6,background:"rgba(74,222,128,0.1)",color:"#4ADE80",fontWeight:700}},"✅ HTML Saved"),
+                  React.createElement("button",{
+                    onClick:function(){setPbEditMode(function(p){return !p;});},
+                    style:{fontSize:10,padding:"3px 10px",borderRadius:7,border:br,background:pbEditMode?"rgba(96,165,250,0.15)":"transparent",color:pbEditMode?"#60A5FA":mc,cursor:"pointer",whiteSpace:"nowrap"}},
+                    pbEditMode?"✏️ Edit HTML":"✏️ Edit HTML"),
+                  React.createElement("button",{
+                    onClick:function(){
+                      var key=pbPage.clusterId+"-"+pbPage.idx;
+                      if(!pbCompleted.includes(key)){
+                        setPbCompleted(function(prev){return prev.concat([key]);});
+                        setPbPage(null);setPbScanResults(null);setPbNepqContent({});
+                      }
+                    },
+                    style:{fontSize:11,padding:"5px 12px",borderRadius:8,border:"none",background:"linear-gradient(135deg,#16A34A,#22C55E)",color:"#fff",fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},"✅ Mark Complete")
+                ),
+
+                /* Edit mode textarea */
+                pbEditMode&&React.createElement("textarea",{
+                  value:pbEditHTML||"",
+                  onChange:function(e){
+                    setPbEditHTML(e.target.value);
+                    var key=pbPage.clusterId+"-"+pbPage.idx;
+                    setSavedHTML(function(prev){var n=Object.assign({},prev);n[key]=e.target.value;return n;});
+                    setPbPage(function(p){return Object.assign({},p,{html:e.target.value});});
+                    setPbScanResults(scan17(e.target.value));
+                  },
+                  style:{flex:1,padding:12,border:"none",borderBottom:br,background:isDark?"rgba(0,0,0,0.3)":"rgba(0,0,0,0.02)",color:tc,fontSize:11,fontFamily:"monospace",resize:"none",outline:"none"}
+                }),
+
+                /* iFrame preview */
+                !pbEditMode&&React.createElement("div",{style:{flex:1,overflow:"hidden",position:"relative"}},
+                  pbPreviewHtml&&React.createElement(React.Fragment,null,
+                    Object.keys(pbNepqContent).filter(function(k){return pbNepqContent[k];}).length>0&&
+                    React.createElement("div",{style:{padding:"6px 12px",background:"linear-gradient(135deg,#0D9488,#14B8A6)",fontSize:11,fontWeight:700,color:"#fff",textAlign:"center"}},
+                      "✨ NEPQ Live Preview — "+Object.keys(pbNepqContent).filter(function(k){return pbNepqContent[k];}).length+" stages active — scroll to see content distributed through the page"
+                    ),
+                    React.createElement("iframe",{
+                      srcDoc:pbPreviewHtml,
+                      sandbox:"allow-same-origin allow-scripts allow-popups",
+                      style:{width:"100%",height:"100%",border:"none"},
+                      title:"Page Preview"
+                    })
+                  ),
+                  !pbPreviewHtml&&React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:mc}},
+                    React.createElement("div",{style:{fontSize:40,marginBottom:12}},"📄"),
+                    React.createElement("div",{style:{fontSize:14,fontWeight:600,color:tc,marginBottom:6}},"← Select a page to begin"),
+                    React.createElement("div",{style:{fontSize:12,textAlign:"center",maxWidth:280}},"Pick a page from the queue. Pages with saved HTML from Optimize will render here.")
+                  )
+                ),
+
+                /* Scan panel */
+                pbScanResults&&React.createElement("div",{style:{padding:"10px 12px",borderTop:br,flexShrink:0,background:isDark?"rgba(0,0,0,0.2)":"rgba(0,0,0,0.02)"}},
+                  React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10,marginBottom:8}},
+                    React.createElement("div",{style:{position:"relative",width:44,height:44,flexShrink:0}},
+                      React.createElement("svg",{viewBox:"0 0 36 36",style:{width:44,height:44,transform:"rotate(-90deg)"}},
+                        React.createElement("circle",{cx:18,cy:18,r:15.9,fill:"none",stroke:"rgba(255,255,255,0.06)",strokeWidth:3}),
+                        React.createElement("circle",{cx:18,cy:18,r:15.9,fill:"none",
+                          stroke:pbScanResults.score>=15?"#4ADE80":pbScanResults.score>=10?"#F59E0B":"#F87171",
+                          strokeWidth:3,strokeDasharray:100,
+                          strokeDashoffset:100-Math.round((pbScanResults.score/17)*100)})
+                      ),
+                      React.createElement("div",{style:{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",fontSize:10,fontWeight:700,color:tc}},pbScanResults.score+"/17")
+                    ),
+                    React.createElement("div",{style:{flex:1}},
+                      React.createElement("div",{style:{fontSize:12,fontWeight:700,color:tc}},"17-Point Optimization Scan"),
+                      React.createElement("div",{style:{fontSize:10,color:pbScanResults.score===17?"#4ADE80":"#F59E0B"}},
+                        pbScanResults.score===17?"🎯 Perfect — ready to deploy":"⚡ "+pbScanResults.checks.filter(function(c){return !c.pass;}).length+" issues to fix"
+                      )
+                    ),
+                    pbRegenning?React.createElement("span",{style:{fontSize:10,color:mc}},"⏳ Regenerating..."):
+                    pbPage&&pbPage.html&&React.createElement("button",{
+                      onClick:regenContent,
+                      disabled:!!pbRegenning||!!pbFixing,
+                      style:{padding:"5px 10px",borderRadius:8,border:"1px solid rgba(96,165,250,0.4)",background:"rgba(96,165,250,0.08)",color:"#60A5FA",fontSize:11,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}},
+                      "🔄 Regen Content"),
+                    pbScanResults.score<17&&React.createElement("button",{
+                      onClick:fixAllIssues,
+                      disabled:!!pbFixing||!!pbRegenning,
+                      style:{padding:"5px 10px",borderRadius:8,border:"none",background:pbFixing?"rgba(255,255,255,0.06)":"linear-gradient(135deg,#F59E0B,#FBBF24)",color:pbFixing?"#888":"#1a1a2e",fontSize:11,fontWeight:700,cursor:pbFixing?"not-allowed":"pointer",whiteSpace:"nowrap"}},
+                      pbFixing?"⏳ Fixing...":"⚡ Fix All Issues")
+                  ),
+                  pbFixProgress&&React.createElement("div",{style:{marginBottom:6}},
+                    React.createElement("div",{style:{fontSize:10,color:"#60A5FA",marginBottom:3}},pbFixProgress.msg),
+                    React.createElement("div",{style:{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2,overflow:"hidden"}},
+                      React.createElement("div",{style:{height:"100%",background:"linear-gradient(90deg,#0D9488,#60A5FA)",width:Math.round((pbFixProgress.done/pbFixProgress.total)*100)+"%",transition:"width 0.3s",borderRadius:2}})
+                    )
+                  ),
+                  React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:4}},
+                    pbScanResults.checks.slice(0,8).map(function(c){
+                      return React.createElement("div",{key:c.id,style:{fontSize:9,padding:"2px 6px",borderRadius:4,background:c.pass?"rgba(74,222,128,0.1)":"rgba(248,113,113,0.1)",color:c.pass?"#4ADE80":"#F87171",border:"1px solid "+(c.pass?"rgba(74,222,128,0.2)":"rgba(248,113,113,0.2)"),whiteSpace:"nowrap"}},
+                        (c.pass?"✓":"✗")+" "+c.label+" ",
+                        React.createElement("span",{style:{opacity:0.6}},c.category)
+                      );
+                    })
+                  )
+                )
+              ):
+              React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",color:mc}},
+                React.createElement("div",{style:{fontSize:40,marginBottom:12}},"📄"),
+                React.createElement("div",{style:{fontSize:14,fontWeight:600,color:tc,marginBottom:6}},"← Select a page to begin"),
+                React.createElement("div",{style:{fontSize:12,textAlign:"center",maxWidth:280}},"Pick a page from the queue. Pages with saved HTML from Optimize will render here.")
+              )
+            ),
+
+            /* RIGHT PANEL - NEPQ engine */
+            React.createElement("div",{style:{width:220,flexShrink:0,overflow:"auto",display:"flex",flexDirection:"column"}},
+              React.createElement("div",{style:{padding:"10px 12px",borderBottom:br,flexShrink:0}},
+                React.createElement("div",{style:{fontSize:13,fontWeight:700,color:tc,marginBottom:2}},"NEPQ Content Engine"),
+                React.createElement("div",{style:{fontSize:10,color:mc}},"Topic: "+(pbPage?(pbPage.slug||"").replace(/-/g," "):"Select a page to generate copy"))
               ),
-              React.createElement("div",{style:{flex:1,overflowY:"auto",padding:"6px 8px"}},
-                !pbPage&&React.createElement("div",{style:{padding:20,textAlign:"center",color:mc,fontSize:12}},"\u2190 Select a page first"),
+              React.createElement("div",{style:{flex:1,overflow:"auto",padding:"6px 8px"}},
                 pbPage&&NEPQ_STAGES.map(function(stage){
                   var isExp=pbNepqExpanded===stage.id;
                   var hasCont=!!pbNepqContent[stage.id];
                   var isGen=pbGenerating===stage.id;
+                  var isInserted=!!pbNepqPlacement[stage.id+"_inserted"];
                   return React.createElement("div",{key:stage.id,style:{marginBottom:5,borderRadius:10,border:hasCont?"1px solid rgba(74,222,128,0.2)":br,overflow:"hidden"}},
                     React.createElement("div",{className:"pb-stage",
                       onClick:function(){setPbNepqExpanded(isExp?null:stage.id);},
-                      style:{display:"flex",alignItems:"center",gap:7,padding:"8px 10px",cursor:"pointer",transition:"background 0.15s"}},
-                      React.createElement("span",{style:{fontSize:13}},(hasCont?"✅":stage.icon)),
+                      style:{display:"flex",alignItems:"center",gap:5,padding:"7px 8px",cursor:"pointer"}},
+                      React.createElement("span",{style:{fontSize:12,flexShrink:0}},hasCont?"✅":stage.icon),
                       React.createElement("div",{style:{flex:1,minWidth:0}},
-                        React.createElement("div",{style:{display:"flex",alignItems:"center",gap:5}},
-                          React.createElement("div",{style:{fontSize:12,fontWeight:600,color:hasCont?"#4ADE80":tc}},stage.n+". "+stage.label),
-                          pbNepqPlacement[stage.id+"_inserted"]&&React.createElement("span",{style:{fontSize:9,padding:"1px 5px",borderRadius:4,background:"rgba(13,148,136,0.2)",color:"#0D9488",fontWeight:700}},"✓ IN PAGE")
+                        React.createElement("div",{style:{display:"flex",alignItems:"center",gap:4}},
+                          React.createElement("div",{style:{fontSize:11,fontWeight:600,color:hasCont?"#4ADE80":tc}},stage.n+". "+stage.label),
+                          isInserted&&React.createElement("span",{style:{fontSize:8,padding:"1px 4px",borderRadius:3,background:"rgba(13,148,136,0.2)",color:"#0D9488",fontWeight:700,flexShrink:0}},"✓ IN")
                         ),
-                        !isExp&&React.createElement("div",{style:{fontSize:10,color:mc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},hasCont?"✅ Content ready — click to expand":stage.desc)
+                        !isExp&&React.createElement("div",{style:{fontSize:9,color:mc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}},hasCont?"✅ Content ready — click to expand":stage.desc)
                       ),
                       React.createElement("button",{className:"pb-gen",
                         onClick:function(e){e.stopPropagation();generateNepq(stage);},
                         disabled:!!pbGenerating,
-                        style:{padding:"3px 9px",borderRadius:7,border:"1px solid rgba(75,156,211,0.35)",background:isGen?"rgba(75,156,211,0.18)":"transparent",color:"#4B9CD3",fontSize:10,fontWeight:700,cursor:pbGenerating?"not-allowed":"pointer",flexShrink:0}},
+                        style:{padding:"2px 7px",borderRadius:6,border:"1px solid rgba(75,156,211,0.35)",background:isGen?"rgba(75,156,211,0.18)":"transparent",color:"#4B9CD3",fontSize:9,fontWeight:700,cursor:pbGenerating?"not-allowed":"pointer",flexShrink:0}},
                         isGen?"⏳":"✨"),
                       hasCont&&React.createElement("select",{
                         value:pbNepqPlacement[stage.id]||"auto",
-                        onChange:function(e){
-                          e.stopPropagation();
-                          var v=e.target.value;
-                          setPbNepqPlacement(function(p){var n=Object.assign({},p);n[stage.id]=v;return n;});
-                        },
+                        onChange:function(e){e.stopPropagation();var v=e.target.value;setPbNepqPlacement(function(p){var n=Object.assign({},p);n[stage.id]=v;return n;});},
                         onClick:function(e){e.stopPropagation();},
-                        style:{fontSize:9,padding:"2px 4px",borderRadius:6,border:"1px solid rgba(255,255,255,0.12)",
-                          background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)",
-                          color:mc,cursor:"pointer",flexShrink:0,maxWidth:72}
-                      },
+                        style:{fontSize:8,padding:"1px 2px",borderRadius:5,border:"1px solid rgba(255,255,255,0.1)",background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)",color:mc,cursor:"pointer",flexShrink:0,maxWidth:60}},
                         React.createElement("option",{value:"auto"},"Auto"),
                         React.createElement("option",{value:"after-hero"},"After Hero"),
                         React.createElement("option",{value:"after-intro"},"After Intro"),
@@ -4357,61 +4353,46 @@ function App() {
                       ),
                       hasCont&&pbPage&&pbPage.html&&React.createElement("button",{
                         title:"Insert into page",
-                        onClick:function(e){
-                          e.stopPropagation();
-                          insertNepqIntoPage(stage.id);
-                        },
-                        style:{padding:"3px 9px",borderRadius:7,border:"none",
-                          background:"linear-gradient(135deg,#0D9488,#14B8A6)",
-                          color:"#fff",fontSize:10,fontWeight:700,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}
-                      },"↓ Insert")
+                        onClick:function(e){e.stopPropagation();insertNepqIntoPage(stage.id);},
+                        style:{padding:"2px 7px",borderRadius:6,border:"none",background:"linear-gradient(135deg,#0D9488,#14B8A6)",color:"#fff",fontSize:9,fontWeight:700,cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}},"↓")
                     ),
-                    isExp&&React.createElement("div",{style:{padding:"0 10px 10px",borderTop:br}},
-                      React.createElement("div",{style:{fontSize:10,color:mc,padding:"6px 0 4px"}},stage.desc),
+                    isExp&&React.createElement("div",{style:{padding:"0 8px 8px",borderTop:br}},
+                      React.createElement("div",{style:{fontSize:9,color:mc,padding:"5px 0 3px"}},stage.desc),
                       React.createElement("textarea",{
                         value:pbNepqContent[stage.id]||"",
                         onChange:function(e){setPbNepqContent(function(p){return Object.assign({},p,{[stage.id]:e.target.value});});},
-                        placeholder:isGen?"Generating...":"Click ✨ to generate, or type manually",
+                        placeholder:isGen?"Generating...":"Click ✨ to generate",
                         rows:5,
-                        style:{width:"100%",padding:"8px",borderRadius:8,border:br,background:isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.03)",color:tc,fontSize:11,fontFamily:"monospace",resize:"vertical",outline:"none",boxSizing:"border-box"}
+                        style:{width:"100%",padding:"6px",borderRadius:7,border:br,background:isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.03)",color:tc,fontSize:10,fontFamily:"monospace",resize:"vertical",outline:"none",boxSizing:"border-box"}
                       })
                     )
                   );
-                })
+                }),
+                !pbPage&&React.createElement("div",{style:{padding:"20px 8px",textAlign:"center",color:mc,fontSize:11}},"← Select a page first")
               ),
-              React.createElement("div",{style:{padding:"12px 12px",borderTop:br}},
-                React.createElement("div",{style:{fontSize:10,color:mc,marginBottom:8,textAlign:"center"}},
+              React.createElement("div",{style:{padding:"10px 10px",borderTop:br,flexShrink:0}},
+                React.createElement("div",{style:{fontSize:10,color:mc,marginBottom:6,textAlign:"center"}},
                   Object.keys(pbNepqContent).length+" of 13 NEPQ sections ready"),
                 React.createElement("button",{onClick:copyOutput,
                   disabled:!pbPage||Object.keys(pbNepqContent).length===0,
-                  style:{width:"100%",padding:"11px",borderRadius:10,border:"none",
+                  style:{width:"100%",padding:"10px",borderRadius:10,border:"none",marginBottom:6,
                     background:(pbPage&&Object.keys(pbNepqContent).length>0)?"linear-gradient(135deg,#0D9488,#14B8A6)":"rgba(255,255,255,0.05)",
                     color:(pbPage&&Object.keys(pbNepqContent).length>0)?"#fff":"#6B7B8D",
-                    fontSize:13,fontWeight:700,
-                    cursor:(pbPage&&Object.keys(pbNepqContent).length>0)?"pointer":"not-allowed",
-                    boxShadow:(pbPage&&Object.keys(pbNepqContent).length>0)?"0 4px 16px rgba(13,148,136,0.3)":"none",
-                    transition:"all 0.2s",marginBottom:8}},
+                    fontSize:12,fontWeight:700,cursor:(pbPage&&Object.keys(pbNepqContent).length>0)?"pointer":"not-allowed"}},
                   Object.keys(pbNepqContent).length>0?"🧬 Merge & Copy for WordPress":"Generate NEPQ content first"),
                 React.createElement("button",{
                   onClick:function(){
                     if(!pbPage||!pbPage.html){alert("No saved HTML for this page.");return;}
-                    navigator.clipboard.writeText(pbPage.html).then(function(){
-                      alert("✅ Raw HTML copied!");
-                    }).catch(function(){
-                      var ta=document.createElement("textarea");ta.value=pbPage.html;
-                      document.body.appendChild(ta);ta.select();document.execCommand("copy");
-                      document.body.removeChild(ta);
-                      alert("✅ Raw HTML copied!");
+                    navigator.clipboard.writeText(pbPage.html).then(function(){alert("✅ Raw HTML copied!");}).catch(function(){
+                      var ta=document.createElement("textarea");ta.value=pbPage.html;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("✅ Raw HTML copied!");
                     });
                   },
                   disabled:!pbPage||!pbPage.html,
-                  style:{width:"100%",padding:"9px",borderRadius:10,
+                  style:{width:"100%",padding:"8px",borderRadius:10,
                     border:(pbPage&&pbPage.html)?"1px solid rgba(96,165,250,0.4)":"1px solid rgba(255,255,255,0.06)",
                     background:(pbPage&&pbPage.html)?"rgba(96,165,250,0.08)":"transparent",
                     color:(pbPage&&pbPage.html)?"#60A5FA":"#6B7B8D",
-                    fontSize:12,fontWeight:700,
-                    cursor:(pbPage&&pbPage.html)?"pointer":"not-allowed",
-                    transition:"all 0.2s"}},
+                    fontSize:11,fontWeight:700,cursor:(pbPage&&pbPage.html)?"pointer":"not-allowed"}},
                   (pbPage&&pbPage.html)?"📄 Copy Raw HTML":"No HTML saved yet")
               )
             )
@@ -4419,7 +4400,6 @@ function App() {
         );
       })()}
 
-    </div>
   </div>;
 }
 
