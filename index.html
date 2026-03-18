@@ -1655,7 +1655,7 @@ function App() {
       const dResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dimensions:["date"],dataState:"final"})});
       const dData = dResp.ok ? await dResp.json() : {};
 
-      // 3b. True aggregate totals (no dimension filter = real site-wide numbers)
+      // 3b. True aggregate totals (no dimension = real site-wide impressions/clicks)
       const aggResp = await fetch(baseUrl,{method:"POST",headers,body:JSON.stringify({startDate,endDate,dataState:"final"})});
       const aggData = aggResp.ok ? await aggResp.json() : {};
 
@@ -5189,17 +5189,12 @@ WHEN DATA IS MISSING — DON'T JUST LIST WHAT'S MISSING:
 
           {/* ── Summary Cards ── */}
           {(gscData.daily?.rows||gscData.totals?.rows)&&(()=>{
-            // Prefer aggregate totals call (true site-wide) over summing daily rows
             const aggRow = gscData.totals?.rows?.[0];
-            const rows = gscData.daily.rows||[];
+            const rows = gscData.daily?.rows||[];
             const totClicks = aggRow ? (aggRow.clicks||0) : rows.reduce((a,r)=>a+(r.clicks||0),0);
             const totImpr = aggRow ? (aggRow.impressions||0) : rows.reduce((a,r)=>a+(r.impressions||0),0);
             const avgCTR = aggRow ? ((aggRow.ctr||0)*100).toFixed(1) : (totImpr>0?((totClicks/totImpr)*100).toFixed(1):0);
-            // Impression-weighted avg position (more accurate than simple average across days)
-            const avgPos = aggRow ? (aggRow.position||0).toFixed(1) : (()=>{
-              const wImpr = rows.reduce((a,r)=>a+(r.impressions||0),0);
-              return wImpr>0?(rows.reduce((a,r)=>a+((r.position||0)*(r.impressions||0)),0)/wImpr).toFixed(1):"—";
-            })();
+            const avgPos = aggRow ? (aggRow.position||0).toFixed(1) : (rows.length>0?(rows.reduce((a,r)=>a+(r.position||0)*(r.impressions||1),0)/Math.max(1,rows.reduce((a,r)=>a+(r.impressions||1),0))).toFixed(1):0);
             return <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:12,marginBottom:16}}>
               {[{l:"Total Clicks",v:totClicks.toLocaleString(),c:"#4ADE80"},{l:"Total Impressions",v:totImpr.toLocaleString(),c:"#60A5FA"},{l:"Avg CTR",v:avgCTR+"%",c:parseFloat(avgCTR)>=3?"#4ADE80":"#F59E0B"},{l:"Avg Position",v:avgPos,c:parseFloat(avgPos)<=20?"#4ADE80":"#F59E0B"}].map((m,i)=>
                 <div key={i} style={{background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:14,padding:"18px 16px",textAlign:"center"}}>
