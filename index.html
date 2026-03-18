@@ -1900,7 +1900,7 @@ function App() {
                 </div>
               </div>
               {isExp&&<div style={{padding:"0 24px 24px",borderTop:"1px solid rgba(0,0,0,0.06)"}}>
-                {<div style={{display:"flex",gap:8,margin:"16px 0 8px"}}>
+                <div style={{display:"flex",gap:8,margin:"16px 0 8px"}}>
                   <button onClick={function(){setFocusClusterId(focusClusterId===cluster.id?null:cluster.id);}} style={{padding:"6px 16px",borderRadius:8,border:"1.5px solid rgba(255,199,44,0.5)",background:focusClusterId===cluster.id?"rgba(255,199,44,0.15)":"transparent",color:"#FFC72C",fontSize:12,fontWeight:700,cursor:"pointer"}}>
                     {focusClusterId===cluster.id?"🎯 In Focus":"🎯 Set as Focus Cluster"}
                   </button>
