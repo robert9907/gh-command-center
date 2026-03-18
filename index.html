@@ -4394,14 +4394,7 @@ function App() {
                     }
                   }
                   return React.createElement("iframe",{
-                    srcDoc:(function(){
-                      if(pbMergedPreview) return pbMergedPreview;
-                      if(pbPlacementMode){
-                        var z=computeDropZones(previewHtml);
-                        return buildPlacementPreview(previewHtml,z,pbPlacedMarkers,pbNepqContent,pbPlanAnalysis,pbSelectedBlock);
-                      }
-                      return previewHtml;
-                    })(),
+                    srcDoc:pbMergedPreview||previewHtml,
                     style:{width:"100%",height:"100%",border:"none"},
                     sandbox:"allow-same-origin allow-scripts",
                     title:"Page Preview"
@@ -4520,6 +4513,66 @@ function App() {
                     },"Cancel")
                   )
                 )
+              ),
+              /* Placement content preview -- shows placed blocks in zone order */
+              pbPlacementMode&&Object.keys(pbPlacedMarkers).length>0&&React.createElement("div",{
+                style:{background:"rgba(0,0,0,0.3)",border:"1px solid rgba(255,255,255,0.08)",
+                  borderRadius:12,overflow:"hidden",marginTop:8,flexShrink:0}
+              },
+                React.createElement("div",{
+                  style:{padding:"8px 14px",borderBottom:"1px solid rgba(255,255,255,0.06)",
+                    fontSize:10,fontWeight:800,color:"#6B7B8D",letterSpacing:"0.08em",
+                    textTransform:"uppercase"}
+                },"Placed Content Preview -- "+Object.keys(pbPlacedMarkers).length+" blocks"),
+                (function(){
+                  var zones=computeDropZones(pbPage&&pbPage.html||"");
+                  var orderedBlocks=zones
+                    .map(function(z){
+                      var bid=Object.keys(pbPlacedMarkers).find(function(k){return pbPlacedMarkers[k].zoneId===z.id;});
+                      if(!bid) return null;
+                      var marker=pbPlacedMarkers[bid];
+                      var content="";
+                      var color="#4B9CD3";
+                      if(bid.indexOf("swh-")===0){
+                        var k=bid.replace("swh-","");
+                        content=pbPlanAnalysis[k]||"";
+                        color=k==="seed"?"#2DD4BF":k==="water"?"#4B9CD3":"#FFC72C";
+                      } else if(bid.indexOf("nepq-")===0){
+                        content=pbNepqContent[bid.replace("nepq-","")]||"";
+                        color="#A78BFA";
+                      }
+                      return {bid:bid,zone:z,content:content,color:color};
+                    })
+                    .filter(Boolean);
+                  // Also add unplaced blocks at end
+                  return React.createElement("div",{style:{maxHeight:220,overflowY:"auto"}},
+                    orderedBlocks.map(function(b,i){
+                      var isHtml=b.content.indexOf("<")>-1;
+                      return React.createElement("div",{
+                        key:b.bid,
+                        style:{padding:"10px 14px",
+                          borderBottom:i<orderedBlocks.length-1?"1px solid rgba(255,255,255,0.04)":"none",
+                          borderLeft:"3px solid "+b.color,
+                          background:"rgba(255,255,255,0.02)"}
+                      },
+                        React.createElement("div",{
+                          style:{fontSize:9,fontWeight:800,color:b.color,
+                            letterSpacing:"0.08em",textTransform:"uppercase",marginBottom:5}
+                        },b.zone.label+" -- "+b.bid.replace("swh-","").replace("nepq-","").toUpperCase()),
+                        isHtml
+                          ? React.createElement("div",{
+                              dangerouslySetInnerHTML:{__html:b.content},
+                              style:{fontSize:12,color:"#C4CDD5",lineHeight:1.6,
+                                maxHeight:60,overflow:"hidden"}
+                            })
+                          : React.createElement("p",{
+                              style:{fontSize:12,color:"#C4CDD5",lineHeight:1.6,
+                                margin:0,maxHeight:60,overflow:"hidden"}
+                            },b.content.slice(0,200)+(b.content.length>200?"...":""))
+                      );
+                    })
+                  );
+                })()
               ),
               pbPage&&pbScanResults&&React.createElement("div",{style:{background:bg,border:br,borderRadius:14,padding:"14px 16px",maxHeight:200,overflowY:"auto"}},
                 React.createElement("div",{style:{display:"flex",alignItems:"center",gap:12,marginBottom:10,flexWrap:"wrap"}},
