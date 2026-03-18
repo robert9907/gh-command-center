@@ -1253,6 +1253,12 @@ function App() {
   const [pbNewGenerating, setPbNewGenerating] = useState(false);
   const [pbNewHTML, setPbNewHTML] = useState("");
   const [pbPendingPublish, setPbPendingPublish] = useState(function(){return safeLSGet("gh-cc-pb-pending")||[];});
+  const [pbProductType, setPbProductType] = useState(null);
+  const [pbPlanAnalysis, setPbPlanAnalysis] = useState({seed:"",water:"",harvest:""});
+  const [pbPlacementMode, setPbPlacementMode] = useState(false);
+  const [pbPlacedMarkers, setPbPlacedMarkers] = useState({});
+  const [pbSelectedBlock, setPbSelectedBlock] = useState(null);
+  const [pbMergedPreview, setPbMergedPreview] = useState(null);
 
 
   const [expandedCluster, setExpandedCluster] = useState(null);
@@ -3486,6 +3492,19 @@ function App() {
       {view==="pageBuilder"&&(()=>{
         var isDark = theme==="dark";
 
+        var PLAN_ANALYSIS = {
+          medicare: {
+            seed: "Here's something Medicare salespeople don't tell you. Every plan on the market was built with a weakness. That weakness isn't an accident -- it's how insurance companies manage risk. My job is making sure that weakness doesn't become your financial problem.",
+            water: "Here's what Medicare Advantage actually costs when something goes wrong. Your PCP visit is zero. Blood test comes back clean -- zero. But if that blood test finds something, the picture changes. Now you have a diagnostic copay. Then an MRI at $300. Outpatient surgery at $450. Inpatient hospital care at $450 per day for days one through six. The $9,350 out of pocket maximum sounds like protection. But you'll spend thousands getting there before it kicks in. That's the weakness in the plan. And that's exactly what I show every client before we decide anything.",
+            harvest: "Every plan I've ever reviewed has a weakness. Most people don't know theirs until they need it. That's too late. What I do is simple -- I pull up your current coverage, I walk you through exactly where the money starts moving if something goes wrong, and I tell you honestly whether there's something better. If there is, we fix it. If there isn't, I'll tell you that too. Either way you hang up knowing exactly where you stand. That's not a sales call. That's a plan analysis. And it takes about 20 minutes."
+          },
+          aca: {
+            seed: "When something goes wrong with your health insurance -- a cancellation letter, a coverage gap, a plan change you didn't ask for -- the worst thing you can do is call the number on the letterhead. That's a sales line. What you need in that moment is someone who knows your file, knows your doctors, and can make calls on your behalf before the clock runs out. That's the difference between a broker and an 800 number.",
+            water: "Here's the part of your ACA plan nobody explains at signup. Your premium gets you in the door. But if something real happens -- a diagnosis, a hospitalization, an accident -- you're going to meet your deductible first. Every dollar of it. Then coinsurance kicks in on top of that. Most people I talk to couldn't write a $7,000 check today. That's not a criticism. That's just the reality of how these plans are built. The question isn't whether you have coverage. It's whether you could actually survive using it.",
+            harvest: "Most people with ACA coverage assume they're protected. What I actually find when I review a plan is one of three things. You're on the right plan and paying a fair price -- and I'll tell you that. You're on the right plan but overpaying -- and we fix that. Or you have coverage that looks good on paper but would devastate you financially if you actually used it -- and we fix that too. That conversation takes 20 minutes. It costs you nothing. And you hang up knowing whether the plan you're trusting with your health is actually doing its job."
+          }
+        };
+
         var NEPQ_STAGES = [
           {id:"connecting",n:"1",label:"Connecting",icon:"👋",desc:"Open with focus on their world — not the product"},
           {id:"situation",n:"2",label:"Situation",icon:"📍",desc:"Understand their current Medicare/ACA reality"},
@@ -4255,8 +4274,68 @@ function App() {
             React.createElement("div",{style:{background:bg,border:br,borderRadius:16,display:"flex",flexDirection:"column",overflow:"hidden"}},
               React.createElement("div",{style:{padding:"14px 14px 10px",borderBottom:br}},
                 React.createElement("div",{style:{fontSize:14,fontWeight:700,color:tc,marginBottom:2}},"NEPQ Content Engine"),
-                React.createElement("div",{style:{fontSize:11,color:mc}},
-                  pbPage?"Topic: "+(pbPage.slug||"").replace(/-/g," "):"Select a page to generate copy")
+                React.createElement("div",{style:{fontSize:11,color:mc,marginBottom:8}},
+                  pbPage?"Topic: "+(pbPage.slug||"").replace(/-/g," "):"Select a page to generate copy"),
+                React.createElement("div",{style:{display:"flex",gap:6,marginBottom:pbProductType?10:0}},
+                  ["medicare","aca"].map(function(pt){
+                    var isSel = pbProductType===pt;
+                    var col = pt==="medicare"?"#4B9CD3":"#16A34A";
+                    return React.createElement("button",{key:pt,
+                      onClick:function(){
+                        var willSel=!isSel;
+                        setPbProductType(willSel?pt:null);
+                        if(willSel&&PLAN_ANALYSIS[pt]){
+                          setPbPlanAnalysis({seed:PLAN_ANALYSIS[pt].seed,water:PLAN_ANALYSIS[pt].water,harvest:PLAN_ANALYSIS[pt].harvest});
+                        } else {
+                          setPbPlanAnalysis({seed:"",water:"",harvest:""});
+                        }
+                      },
+                      style:{flex:1,padding:"6px 0",borderRadius:8,border:"1.5px solid "+(isSel?col:"rgba(255,255,255,0.12)"),
+                        background:isSel?col+"22":"transparent",color:isSel?col:mc,
+                        fontSize:12,fontWeight:700,cursor:"pointer",textTransform:"uppercase",
+                        letterSpacing:"0.06em",transition:"all 0.2s"}
+                    },pt==="medicare"?"Medicare":"ACA");
+                  })
+                ),
+                pbProductType&&React.createElement("div",{style:{display:"flex",flexDirection:"column",gap:6}},
+                  [
+                    {key:"seed",label:"SEED",color:"#2DD4BF",desc:"Plant early - after hero"},
+                    {key:"water",label:"WATER",color:"#4B9CD3",desc:"Stakes - mid page"},
+                    {key:"harvest",label:"HARVEST",color:"#FFC72C",desc:"Close - before FAQ"}
+                  ].map(function(blk){
+                    var isSelected = pbSelectedBlock===("swh-"+blk.key);
+                    var isPlaced = !!pbPlacedMarkers["swh-"+blk.key];
+                    return React.createElement("div",{key:blk.key,style:{borderRadius:10,border:"1.5px solid "+(isSelected?"rgba(255,255,255,0.4)":isPlaced?blk.color+"60":blk.color+"30"),background:isSelected?blk.color+"18":blk.color+"08",overflow:"hidden",transition:"all 0.2s"}},
+                      React.createElement("div",{style:{display:"flex",alignItems:"center",gap:6,padding:"6px 10px",borderBottom:"1px solid "+blk.color+"20"}},
+                        React.createElement("span",{style:{fontSize:11,fontWeight:800,color:blk.color,letterSpacing:"0.08em"}},blk.label),
+                        React.createElement("span",{style:{fontSize:9,color:mc,flex:1}},blk.desc),
+                        isPlaced&&React.createElement("span",{style:{fontSize:9,color:blk.color,fontWeight:700,padding:"1px 5px",borderRadius:4,background:blk.color+"20"}},"Placed"),
+                        React.createElement("button",{
+                          onClick:function(){
+                            if(pbPlacementMode){
+                              var bid="swh-"+blk.key;
+                              setPbSelectedBlock(function(prev){return prev===bid?null:bid;});
+                            } else {
+                              var txt=pbPlanAnalysis[blk.key]||"";
+                              if(!txt)return;
+                              navigator.clipboard.writeText(txt).catch(function(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);});
+                            }
+                          },
+                          style:{fontSize:9,padding:"2px 7px",borderRadius:5,border:"1px solid "+blk.color+"40",background:isSelected?blk.color+"30":"transparent",color:blk.color,fontWeight:700,cursor:"pointer"}
+                        },pbPlacementMode?(isSelected?"Selected":"Place"):"Copy")
+                      ),
+                      React.createElement("textarea",{
+                        value:pbPlanAnalysis[blk.key]||"",
+                        onChange:function(e){var v=e.target.value;var k=blk.key;setPbPlanAnalysis(function(p){var n=Object.assign({},p);n[k]=v;return n;});},
+                        rows:3,
+                        placeholder:"Select Medicare or ACA above to load copy...",
+                        style:{width:"100%",padding:"8px 10px",border:"none",background:"transparent",
+                          color:tc,fontSize:11,lineHeight:1.65,resize:"vertical",
+                          outline:"none",fontFamily:"inherit",boxSizing:"border-box"}
+                      })
+                    );
+                  })
+                )
               ),
               React.createElement("div",{style:{flex:1,overflowY:"auto",padding:"6px 8px"}},
                 !pbPage&&React.createElement("div",{style:{padding:20,textAlign:"center",color:mc,fontSize:12}},"\u2190 Select a page first"),
