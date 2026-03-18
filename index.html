@@ -3918,6 +3918,41 @@ function App() {
           });
 
           // ── Fix URLs in merged output ──
+          // Add DOM-ready script to apply card styles programmatically
+          // This bypasses WordPress block editor HTML sanitization
+          var cardScript = '<script>'+
+            '(function(){'+
+            'function applyGHStyles(){'+
+            'var cards=document.querySelectorAll(".gh-cta-card");'+
+            'cards.forEach(function(c,i){'+
+            'c.style.cssText="background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.04));'+
+            'backdrop-filter:blur(12px);border:1.5px solid rgba(255,255,255,.15);border-radius:20px;'+
+            'padding:32px 28px;position:relative;overflow:hidden;isolation:isolate;transform:translateZ(0);";'+
+            '});'+
+            'var ghosts=document.querySelectorAll(".gh-ghost");'+
+            'ghosts.forEach(function(g){'+
+            'g.style.cssText="display:block;text-align:center;padding:14px 24px;border-radius:100px;'+
+            'font-size:15px;text-decoration:none;margin-bottom:8px;border:1.5px solid rgba(255,255,255,.32);'+
+            'background:transparent;color:#fff;font-weight:600;position:relative;overflow:hidden;";'+
+            '});'+
+            'var compare=document.querySelectorAll(".gh-ghost--compare");'+
+            'compare.forEach(function(g){g.style.borderColor="rgba(75,156,211,.6)";g.style.background="rgba(75,156,211,.1)";});'+
+            'var call=document.querySelectorAll(".gh-ghost--call");'+
+            'call.forEach(function(g){g.style.borderColor="rgba(22,163,74,.6)";});'+
+            'var cal=document.querySelectorAll(".gh-ghost--calendly");'+
+            'cal.forEach(function(g){g.style.borderColor="rgba(245,158,11,.6)";});'+
+            'var modals=document.querySelectorAll(".gh-cta-modal");'+
+            'modals.forEach(function(m){'+
+            'm.style.cssText="background:linear-gradient(135deg,#1a3a6b 0%,#003D73 60%,#002B54 100%);'+
+            'border-radius:24px;padding:52px 44px;margin:56px 0;position:relative;overflow:hidden;";'+
+            '});'+
+            '}'+
+            'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",applyGHStyles);}'+
+            'else{applyGHStyles();}'+
+            '})();'+
+            '<\/script>';
+          shimmerFix = shimmerFix + cardScript;
+
           // Fix ALL compare/sunfire URLs comprehensively
           var SF_URL = "https://www.sunfirematrix.com/app/consumer/medicareadvocates/10447418/#/";
           // Old sunfire without #/
