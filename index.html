@@ -2433,6 +2433,188 @@ article li::before{content:'';position:absolute;left:0;top:10px;width:8px;height
           
 </style>
 
+<script>
+async function generateFromTemplate(){
+  if(!pbApiKey.trim()){alert("Add your Claude API key — click ⚙️ above.");return;}
+  if(!pbNewKeyword.trim()){alert("Enter a keyword/topic first.");return;}
+  setPbNewGenerating(true); setPbNewHTML("");
+  try{
+    var topic=pbNewKeyword.trim();
+    var slug2=pbNewSlug.trim()||topic.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
+    var today=new Date().toISOString().split("T")[0];
+    var mn=["January","February","March","April","May","June","July","August","September","October","November","December"];
+    var dd=new Date(); var monthDD=mn[dd.getMonth()]+" "+dd.getDate()+", "+dd.getFullYear();
+    var isACA=(pbProductType==="ACA");
+    var sys="You are a senior content strategist for GenerationHealth.me — licensed independent Medicare and ACA brokerage in Durham/Wake County, NC. Run by Rob Simm (NC License #10447418, AHIP Certified, 12+ years, 500+ families, 5.0 Google, (828) 761-3326).\n\nNEPQ FRAMEWORK: Surface PAIN before SOLUTION. Consequence-gap or question headlines. Rob is the specific local answer — never a call center.\n\n2026 MEDICARE FIGURES (exact):\n- Part B premium: $202.90/mo | Part B deductible: $257\n- Part A deductible: $1,676 | HD-G deductible: $2,870\n- Part D OOP cap: $2,100 | Insulin cap: $35/mo | MA OOP max: $9,350\n\nCTA: \'Talk to Rob\', \'Let\'s figure out what\'s right for you\' — NEVER \'Get a Free Quote\'\nP1 opener: \'Here\'s what most people...\'\nVOICE: Always NC-local (Durham, Wake, Triangle, specific county). Rob in first person.\n\nOUTPUT: Return ONLY valid JSON. No markdown, no backticks, no preamble. All values JSON-escaped strings.";
+    var usr="Generate all page content for a GenerationHealth.me v5.2 NEPQ page.\nTopic: \""+topic+"\"\nSlug: /"+slug2+"\nProduct: "+(isACA?"ACA Marketplace":"Medicare")+"\nDate: "+today+"\n\nReturn ONLY a JSON object with these exact string keys:\n{\"pageTitle\":\"topic | GenerationHealth\",\"metaDesc\":\"150-160 char meta. Keyword+NC/county+CTA.\",\"h1Line1\":\"NEPQ Formula 1/3/4 first line (white)\",\"h1Line2\":\"Completes formula (carolina blue)\",\"eyebrow\":\"Durham & Wake County · 2026 · No SSN Required\",\"heroSubtitle\":\"Specific pain/risk, max 22 words\",\"primaryCtaText\":\"Talk to Rob\",\"secondaryCtaText\":\"Compare Plans Side by Side\",\"primaryH2\":\"Question-format H2\",\"instantAnswer\":\"2-4 sentences, problem first, one 2026 figure\",\"introP1\":\"NEPQ Problem Para starting Here\'s what most people...\",\"introP2\":\"Vision bridge + Rob + phone link <a href=\\\"tel:828-761-3326\\\" class=\\\"gh-inline\\\">828-761-3326</a>\",\"costTitle\":\"2026 cost strip title\",\"costSubtitle\":\"What your quotes will show · Source: CMS.gov\",\"cost1label\":\"\",\"cost1value\":\"$202.90/mo\",\"cost1note\":\"Part B 2026 standard\",\"cost2label\":\"\",\"cost2value\":\"\",\"cost2note\":\"\",\"cost3label\":\"\",\"cost3value\":\"\",\"cost3note\":\"\",\"cost4label\":\"\",\"cost4value\":\"\",\"cost4note\":\"\",\"formulaLabel\":\"The Total Annual Cost Formula\",\"formulaEq\":\"(Monthly premiums x 12) + deductibles + copays + drug costs = Total\",\"formulaExpl\":\"\",\"gridH2\":\"\",\"gridIntro\":\"\",\"card1title\":\"\",\"card1body\":\"\",\"card2title\":\"\",\"card2body\":\"\",\"card3title\":\"\",\"card3body\":\"\",\"card4title\":\"\",\"card4body\":\"\",\"card5title\":\"\",\"card5body\":\"\",\"card6title\":\"\",\"card6body\":\"\",\"tipText\":\"First-person Rob tip 2-4 sentences\",\"warningTitle\":\"Important Enrollment Deadline\",\"warningBody\":\"\",\"cta1Headline\":\"Let\'s Make Sure You Get This Right.\",\"cta1Sub\":\"\",\"quizTitle\":\"Where Are You with Medicare Right Now?\",\"q1text\":\"\",\"q1a\":\"\",\"q1b\":\"\",\"q1c\":\"\",\"q1d\":\"\",\"q2text\":\"\",\"q2a\":\"\",\"q2b\":\"\",\"q2c\":\"\",\"q2d\":\"\",\"q3text\":\"\",\"q3a\":\"\",\"q3b\":\"\",\"q3c\":\"\",\"q3d\":\"\",\"scenarioH2\":\"\",\"sc1title\":\"\",\"sc1setup\":\"\",\"sc1resolution\":\"\",\"sc1verdict\":\"\",\"sc2title\":\"\",\"sc2setup\":\"\",\"sc2resolution\":\"\",\"sc2verdict\":\"\",\"sc3title\":\"\",\"sc3setup\":\"\",\"sc3resolution\":\"\",\"sc3verdict\":\"\",\"sbsH2\":\"\",\"planALabel\":\"Medicare Advantage ($0 Premium)\",\"planBLabel\":\"Medigap Plan G + Part D\",\"planALine1label\":\"\",\"planALine1val\":\"\",\"planALine2label\":\"\",\"planALine2val\":\"\",\"planALine3label\":\"\",\"planALine3val\":\"\",\"planALine4label\":\"\",\"planALine4val\":\"\",\"planALine5label\":\"\",\"planALine5val\":\"\",\"planATotal\":\"\",\"planAWinPill\":\"\",\"planBLine1label\":\"\",\"planBLine1val\":\"\",\"planBLine2label\":\"\",\"planBLine2val\":\"\",\"planBLine3label\":\"\",\"planBLine3val\":\"\",\"planBLine4label\":\"\",\"planBLine4val\":\"\",\"planBLine5label\":\"\",\"planBLine5val\":\"\",\"planBTotal\":\"\",\"planBWinPill\":\"\",\"sbsVerdict\":\"One sentence which plan wins and why\",\"howtoTitle\":\"How to Work With Rob\",\"howtoSub\":\"The right process takes about 20 minutes.\",\"step1title\":\"\",\"step1body\":\"\",\"step2title\":\"\",\"step2body\":\"\",\"step3title\":\"\",\"step3body\":\"\",\"step4title\":\"\",\"step4body\":\"\",\"ladderTitle\":\"What Happens When You Work With Rob\",\"ladder1\":\"You Tell Me Your Situation\",\"ladder1desc\":\"\",\"ladder2\":\"I Check Your Doctors and Drugs\",\"ladder2desc\":\"\",\"ladder3\":\"We Look at Real Numbers Together\",\"ladder3desc\":\"\",\"ladder4\":\"You Make a Confident Decision\",\"ladder4desc\":\"\",\"cta2Headline\":\"Questions? Let\'s Talk.\",\"cta2Sub\":\"\",\"faqSubtitle\":\"Common questions in Durham and Wake County.\",\"faq1q\":\"\",\"faq1a\":\"\",\"faq2q\":\"\",\"faq2a\":\"\",\"faq3q\":\"\",\"faq3a\":\"\",\"faq4q\":\"\",\"faq4a\":\"\",\"faq5q\":\"\",\"faq5a\":\"\",\"faq6q\":\"\",\"faq6a\":\"\",\"chartTitle\":\"\",\"chartSub\":\"\",\"bar1label\":\"\",\"bar1pct\":\"0\",\"bar1desc\":\"\",\"bar2label\":\"\",\"bar2pct\":\"0\",\"bar2desc\":\"\",\"bar3label\":\"\",\"bar3pct\":\"0\",\"bar3desc\":\"\",\"rel1title\":\"Medicare Quotes Near Me NC\",\"rel1slug\":\"medicare-quotes-near-me-north-carolina\",\"rel2title\":\"Medicare Advantage Quotes NC\",\"rel2slug\":\"medicare-advantage-quotes-nc\",\"rel3title\":\"Medigap Quotes NC\",\"rel3slug\":\"medigap-quotes-nc\",\"rel4title\":\"Part D Quotes NC\",\"rel4slug\":\"part-d-quotes-nc\",\"rel5title\":\"Local Medicare Agents in NC\",\"rel5slug\":\"local-medicare-agents-in-nc\",\"rel6title\":\"Cost Comparison NC\",\"rel6slug\":\"medicare-cost-comparison-nc\",\"rel7title\":\"Turning 65 NC\",\"rel7slug\":\"turning-65-medicare-north-carolina\",\"rel8title\":\"Enrollment Help NC\",\"rel8slug\":\"medicare-enrollment-help-nc\",\"timingH2\":\"When to Enroll — Key Windows\",\"window1name\":\"Initial Enrollment Period\",\"window1dates\":\"3 months before + month of + 3 months after 65th birthday\",\"window1desc\":\"Your primary window. Missing it triggers a permanent penalty.\",\"window2name\":\"\",\"window2dates\":\"\",\"window2desc\":\"\",\"window3name\":\"\",\"window3dates\":\"\",\"window3desc\":\"\",\"urgentName\":\"Act Now\",\"urgentDesc\":\"\",\"review1text\":\"Rob saved me hundreds every year by finding a plan that actually covered my doctors.\",\"review1name\":\"Carol, Durham County\",\"review2text\":\"I had no idea what I was doing until I called Rob. He made it simple.\",\"review2name\":\"Mike, Wake County\",\"review3text\":\"Best decision I made — no pressure, just honest advice.\",\"review3name\":\"Susan, Orange County\",\"testimonialQuote\":\"Rob found a plan that covered all my doctors and saved me $200 a month.\",\"serviceDesc\":\"\",\"serviceName\":\"\",\"articleHeadline\":\"\",\"keyFactClaim\":\"\",\"catSlug\":\"medicare-nc\",\"catLabel\":\"Medicare NC\"}";
+    var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":pbApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:8000,system:sys,messages:[{role:"user",content:usr}]})
+    });
+    var rdata=await resp.json();
+    if(rdata.error){throw new Error(rdata.error.message);}
+    var raw=(rdata.content&&rdata.content[0]&&rdata.content[0].text)||"";
+    var clean=raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/```\s*$/,"").trim();
+    var v=JSON.parse(clean);
+    if(!window.GH_MASTER_TEMPLATE){throw new Error("Master template not loaded.");}
+    var html=window.GH_MASTER_TEMPLATE;
+    function rp(s,val){if(val==null||val===undefined)return;html=html.split(s).join(String(val));}
+    rp("[PAGE TITLE]",v.pageTitle);rp("[PAGE-SLUG]",v.canonicalSlug||slug2);
+    rp("[PAGE META DESCRIPTION — 150-160 chars. Include primary keyword, county if applicable, and a call to action.]",v.metaDesc);
+    rp("[PAGE META DESCRIPTION]",v.metaDesc);
+    rp("[ARTICLE HEADLINE — matches H1, max 110 chars]",v.articleHeadline||(v.h1Line1+" "+v.h1Line2));
+    rp("[KEY FACTUAL CLAIM ON THIS PAGE — e.g. Medicare agents are paid by carriers, not by you]",v.keyFactClaim||"");
+    rp("[SERVICE NAME — e.g. Medicare Plan Comparison in Durham County NC]",v.serviceName||"");
+    rp("[SERVICE DESCRIPTION — what Rob does for clients on this page topic]",v.serviceDesc||"");
+    rp("[YYYY-MM-DD]",today);rp("[MONTH DD, YYYY]",monthDD);
+    rp("[CATEGORY-SLUG]",v.catSlug||"medicare-nc");rp("[BREADCRUMB CATEGORY — e.g. Medicare NC]",v.catLabel||"Medicare NC");
+    rp("[BREADCRUMB PAGE]",v.pageTitle||topic);
+    rp("[ANNOUNCEMENT TITLE — e.g. 2026 Medicare Plan Changes Now in Effect]","2026 Medicare Plan Changes Now in Effect");
+    rp("[EYEBROW — e.g. \"Durham &amp; Wake County &middot; 2026 &middot; No SSN Required\"]",v.eyebrow||"Durham &amp; Wake County &middot; 2026 &middot; No SSN Required");
+    rp("[H1 LINE 1 — white]",v.h1Line1);rp("[H1 LINE 2 — carolina blue accent]",v.h1Line2);
+    rp("[HERO SUBTITLE — name the specific pain, not the service. Max 22 words.]",v.heroSubtitle);
+    rp("[PRIMARY CTA — e.g. \"Talk to Rob\" or \"Let\'s Figure Out What\'s Right for You\"]",v.primaryCtaText||"Talk to Rob");
+    rp("[SECONDARY CTA — e.g. \"Compare Plans Side by Side\"]",v.secondaryCtaText||"Compare Plans Side by Side");
+    rp("[PRIMARY H2 — question format, e.g. \"What Happens If You Miss Your Medicare Enrollment Window?\"]",v.primaryH2);
+    rp("[INSTANT ANSWER — 2–4 sentences. Lead with the problem fact, not the service. Cite one 2026 figure. e.g. \"If you delay Part B enrollment without qualifying employer coverage, you owe a 10% surcharge per year of delay — permanently. In 2026, the standard Part B premium is $185/month, so each year of unqualified delay adds $18.50/month forever. The 8-month Special Enrollment Period starts when employer coverage ends, not when you retire.\"]",v.instantAnswer);
+    rp("[INTRO P1 — NEPQ Problem Paragraph. Start with \"Here\'s what most people...\" or name the specific risk. DO NOT start with \"Medicare is...\" or \"In North Carolina...\"]",v.introP1);
+    rp("[INTRO P2 — Brief vision bridge: what happens when this goes right. Close with Rob. e.g. \"That\'s the conversation Rob has with every client before making a single recommendation. Call <a href=\"tel:828-761-3326\" class=\"gh-inline\">828-761-3326</a> or keep reading to understand what\'s at stake.\"]",v.introP2);
+    rp("[COST STRIP TITLE — e.g. \"2026 Medicare Plan Costs — North Carolina\"]",v.costTitle||"2026 Medicare Costs — North Carolina");
+    rp("[COST STRIP SUBTITLE — e.g. \"What your quotes will show · Source: CMS.gov\"]",v.costSubtitle||"What your quotes will show · Source: CMS.gov");
+    rp("[LABEL 1]",v.cost1label||"Part B Premium");rp("[VALUE 1]",v.cost1value||"$202.90/mo");rp("[NOTE 1]",v.cost1note||"Standard 2026");
+    rp("[LABEL 2]",v.cost2label||"Part B Deductible");rp("[VALUE 2]",v.cost2value||"$257");rp("[NOTE 2]",v.cost2note||"Annual");
+    rp("[LABEL 3]",v.cost3label||"Part A Deductible");rp("[VALUE 3]",v.cost3value||"$1,676");rp("[NOTE 3]",v.cost3note||"Per benefit period");
+    rp("[LABEL 4]",v.cost4label||"MA OOP Max");rp("[VALUE 4]",v.cost4value||"$9,350");rp("[NOTE 4]",v.cost4note||"2026 federal cap");
+    rp("[FORMULA LABEL — e.g. \"The Total Cost Formula\"]",v.formulaLabel||"The Total Annual Cost Formula");
+    rp("[FORMULA — e.g. \"(Monthly premiums × 12) + deductibles + copays + drug costs = Total annual cost\"]",v.formulaEq);
+    rp("[FORMULA EXPLANATION — 1–2 sentences contextualizing what the formula means for this page.]",v.formulaExpl);
+    rp("[6-GRID SECTION H2]",v.gridH2);rp("[INTRO SENTENCE for the grid.]",v.gridIntro);
+    rp("[CARD 1 TITLE]",v.card1title);rp("[CARD 1 BODY — 2 sentences max.]",v.card1body);
+    rp("[CARD 2 TITLE]",v.card2title);rp("[CARD 2 BODY]",v.card2body);
+    rp("[CARD 3 TITLE]",v.card3title);rp("[CARD 3 BODY]",v.card3body);
+    rp("[CARD 4 TITLE]",v.card4title);rp("[CARD 4 BODY]",v.card4body);
+    rp("[CARD 5 TITLE]",v.card5title);rp("[CARD 5 BODY]",v.card5body);
+    rp("[CARD 6 TITLE]",v.card6title);rp("[CARD 6 BODY]",v.card6body);
+    rp("[TIP TEXT — First-person. Practical insight Rob wouldn\'t find on Medicare.gov. 2–4 sentences.]",v.tipText);
+    rp("[WARNING TITLE — e.g. \"Important Enrollment Deadline\"]",v.warningTitle||"Important Enrollment Deadline");
+    rp("[WARNING BODY — Factual, specific. Cite dates or dollar amounts where possible.]",v.warningBody);
+    rp("[CTA 1 HEADLINE — vision bridge or question. e.g. \"Let\'s Make Sure You Get This Right.\"]",v.cta1Headline||"Let\'s Make Sure You Get This Right.");
+    rp("[INTRO — note these use 2026 figures and typical NC plan costs.]",v.cta1Sub||"");
+    rp("[QUIZ TITLE — e.g. \"Where Are You with Medicare Right Now?\"]",v.quizTitle||"Where Are You with Medicare Right Now?");
+    rp("[Q1 — CONNECTING: current situation. e.g. \"Where are you right now with Medicare?\"]",v.q1text);
+    rp("[Q3 — CONSEQUENCE: decision stakes. e.g. \"Have you compared Medicare Advantage and Medigap?\"]",v.q3text);
+    rp("[val-a]>[OPTION A — e.g. \"Turning 65 soon\"]","turning-65>"+v.q1a);
+    rp("[val-b]>[OPTION B — e.g. \"Still on employer plan at 65+\"]","employer-65>"+v.q1b);
+    rp("[val-c]>[OPTION C — e.g. \"Already enrolled, need review\"]","enrolled-review>"+v.q1c);
+    rp("[val-d]>[OPTION D — e.g. \"Just starting to research\"]","researching>"+v.q1d);
+    rp("[val-a]>[OPTION A — e.g. \"Not yet\"]","not-yet>"+v.q2a);
+    rp("[val-b]>[OPTION B — e.g. \"I\'ve tried but I\'m confused\"]","confused>"+v.q2b);
+    rp("[val-c]>[OPTION C — e.g. \"Yes — want a second opinion\"]","second-opinion>"+v.q2c);
+    rp("[val-d]>[OPTION D — e.g. \"Not sure of the difference\"]","unsure>"+v.q2d);
+    rp("[val-a]>[OPTION A — e.g. \"Keeping my current doctors\"]","keep-doctors>"+v.q3a);
+    rp("[val-b]>[OPTION B — e.g. \"Unexpected out-of-pocket costs\"]","oop-costs>"+v.q3b);
+    rp("[val-c]>[OPTION C — e.g. \"Missing an enrollment deadline\"]","deadline>"+v.q3c);
+    rp("[val-d]>[OPTION D — e.g. \"Understanding my plan options\"]","plan-options>"+v.q3d);
+    rp("[SCENARIO H2 — e.g. \"Three Situations Where Getting Medicare Wrong Is Easy — and Expensive\"]",v.scenarioH2);
+    rp("[SCENARIO 1 TITLE — e.g. \"Stayed on Employer Plan — But Employer Has 12 Employees\"]",v.sc1title);
+    rp("[BLOCK 1 BADGE — e.g. \"Scenario 1 — Light Use\"]","Scenario 1");
+    rp("[BLOCK 1 PROFILE — e.g. \"2 generics · 4 PCP visits/year · No hospitalization\"]",v.sc1setup);
+    rp("[BLOCK 1 TITLE — e.g. \"Healthy, Rarely Uses Healthcare\"]",v.sc1title);
+    rp("[SCENARIO 2 TITLE]",v.sc2title);rp("[SCENARIO 2 SETUP — NEPQ Problem Paragraph]",v.sc2setup);
+    rp("[SCENARIO 2 RESOLUTION — NEPQ Vision Bridge]",v.sc2resolution);
+    rp("[BLOCK 2 BADGE]","Scenario 2");rp("[BLOCK 2 TITLE]",v.sc2title);rp("[BLOCK 2 PROFILE]",v.sc2setup);
+    rp("[SCENARIO 3 TITLE]",v.sc3title);rp("[SCENARIO 3 SETUP — NEPQ Problem Paragraph]",v.sc3setup);
+    rp("[SCENARIO 3 RESOLUTION — NEPQ Vision Bridge]",v.sc3resolution);
+    rp("[BLOCK 3 BADGE]","Scenario 3");rp("[BLOCK 3 TITLE]",v.sc3title);rp("[BLOCK 3 PROFILE]",v.sc3setup);
+    rp("[VERDICT — e.g. \"The right question: How many people work at your employer?\"]",v.sc1verdict);
+    rp("[VERDICT — specific outcome or insight]",v.sc2verdict);rp("[VERDICT TEXT]",v.sc3verdict);
+    rp("[WINNER PILL — e.g. \"MA wins — light use\"]",v.planAWinPill);rp("[WINNER PILL]",v.planBWinPill);
+    rp("[SIDE-BY-SIDE SECTION H2 — e.g. \"Three NC Scenarios — Real 2026 Numbers\"]",v.sbsH2);
+    rp("[PLAN A LABEL — e.g. \"Medicare Advantage ($0 Premium Plan)\"]",v.planALabel||"Medicare Advantage");
+    rp("[PLAN A LABEL]",v.planALabel||"Medicare Advantage");
+    rp("[PLAN B LABEL — e.g. \"Medigap Plan G + Part D\"]",v.planBLabel||"Medigap Plan G + Part D");
+    rp("[PLAN B LABEL]",v.planBLabel||"Medigap Plan G + Part D");
+    rp("[PLAN TYPE A — e.g. Original Medicare]",v.planALabel||"Medicare Advantage");
+    rp("[PLAN TYPE B — e.g. Medicare Advantage]",v.planBLabel||"Medigap Plan G");
+    rp("[LINE ITEM]",v.planALine1label||"Monthly Premium");rp("[LINE ITEM 2]",v.planALine2label||"Deductible");
+    rp("[LINE ITEM 3]",v.planALine3label||"Copays");rp("[LINE ITEM 4]",v.planALine4label||"Drug Coverage");
+    rp("[LINE ITEM 5]",v.planALine5label||"OOP Max");
+    rp("[TOTAL RANGE]",v.planATotal||"");rp("[TOTAL]",v.planBTotal||"");
+    rp("[VERDICT TEXT — concise summary of which plan wins and why]",v.sbsVerdict||"");
+    rp("[HOW-TO TITLE — e.g. \"How to Get Accurate Medicare Quotes in NC\"]",v.howtoTitle||"How to Work With Rob");
+    rp("[HOW-TO SUBTITLE — e.g. \"The right process takes about 20 minutes.\"]",v.howtoSub||"The right process takes about 20 minutes.");
+    rp("[STEP 1 TITLE]",v.step1title||"You Tell Me Your Situation");rp("[STEP 1 BODY — 2–3 sentences.]",v.step1body||"");
+    rp("[STEP 2 TITLE]",v.step2title||"I Check Your Doctors and Drugs");rp("[STEP 2 BODY]",v.step2body||"");
+    rp("[STEP 3 TITLE]",v.step3title||"We Look at Real Numbers Together");rp("[STEP 3 BODY]",v.step3body||"");
+    rp("[STEP 4 TITLE]",v.step4title||"You Make a Confident Decision");rp("[STEP 4 BODY]",v.step4body||"");
+    rp("[STEP 1 DESC — what Rob asks, what the reader shares. 2 sentences. No jargon.]",v.ladder1desc||"");
+    rp("[STEP 2 DESC — the specific work Rob does. Name the tool or action.]",v.ladder2desc||"");
+    rp("[STEP 3 DESC — specific outcome: total annual cost, not just premium.]",v.ladder3desc||"");
+    rp("[STEP 4 DESC — the feeling of the outcome. No pressure. Your choice.]",v.ladder4desc||"");
+    rp("[STEP 1 — e.g. \"You Tell Me Your Situation\"]",v.ladder1||"You Tell Me Your Situation");
+    rp("[STEP 2 — e.g. \"I Check Your Doctors and Drugs\"]",v.ladder2||"I Check Your Doctors and Drugs");
+    rp("[STEP 3 — e.g. \"We Look at Real Numbers Together\"]",v.ladder3||"We Look at Real Numbers Together");
+    rp("[STEP 4 — e.g. \"You Make a Confident Decision\"]",v.ladder4||"You Make a Confident Decision");
+    rp("[LADDER TITLE — e.g. \"What Happens When You Work With Rob\"]",v.ladderTitle||"What Happens When You Work With Rob");
+    rp("[TIMING SECTION H2 — e.g. \"When to Enroll in Medicare in NC\"]",v.timingH2||"When to Enroll — Key Windows");
+    rp("[WINDOW NAME]",v.window1name||"Initial Enrollment Period");rp("[DATES]",v.window1dates||"3 months before to 3 months after 65th birthday");
+    rp("[WINDOW DESCRIPTION]",v.window1desc||"Your primary enrollment window.");
+    rp("[URGENT WINDOW NAME]",v.urgentName||"Act Now");rp("[URGENT DESCRIPTION]",v.urgentDesc||"");
+    rp("[REVIEW 1 TEXT — pull from Google reviews]",v.review1text||"Rob saved me hundreds every year by finding a plan that covered my doctors.");
+    rp("[REVIEW 2 TEXT]",v.review2text||"I had no idea what I was doing until I called Rob.");
+    rp("[REVIEW 3 TEXT]",v.review3text||"Best decision I made — no pressure, just honest advice.");
+    rp("[REVIEWER 1 FIRST NAME + COUNTY — e.g. Carol, Durham County]",v.review1name||"Carol, Durham County");
+    rp("[REVIEWER 2 FIRST NAME + COUNTY]",v.review2name||"Mike, Wake County");
+    rp("[REVIEWER 3 FIRST NAME + COUNTY]",v.review3name||"Susan, Orange County");
+    rp("[TESTIMONIAL QUOTE — pulled from Google review. Attribute to county, not full name.]",v.testimonialQuote||"Rob found a plan that covered all my doctors and saved me $200 a month.");
+    rp("[FIRST NAME OR INITIALS], [COUNTY]",v.review1name||"Carol, Durham County");
+    rp("[FAQ SUBTITLE — e.g. \"Common questions about Medicare in Durham County.\"]",v.faqSubtitle||"Common questions in Durham and Wake County.");
+    rp("[FAQ QUESTION 1]",v.faq1q||"");rp("[FAQ ANSWER 1]",v.faq1a||"");
+    rp("[FAQ QUESTION 2]",v.faq2q||"");rp("[FAQ ANSWER 2]",v.faq2a||"");
+    rp("[FAQ QUESTION 3]",v.faq3q||"");rp("[FAQ ANSWER 3]",v.faq3a||"");
+    rp("[FAQ QUESTION 4]",v.faq4q||"");rp("[FAQ ANSWER 4]",v.faq4a||"");
+    rp("[FAQ QUESTION 5]",v.faq5q||"");rp("[FAQ ANSWER 5]",v.faq5a||"");
+    rp("[FAQ QUESTION 6]",v.faq6q||"");rp("[FAQ ANSWER 6]",v.faq6a||"");
+    rp("[CHART TITLE]",v.chartTitle||"");rp("[CHART SUBTITLE]",v.chartSub||"");
+    rp("[BAR LABEL]",v.bar1label||"");rp("[XX]",v.bar1pct||"0");rp("[BAR DESCRIPTION]",v.bar1desc||"");
+    rp("[RELATED-SLUG-1]",v.rel1slug||"medicare-quotes-near-me-north-carolina");rp("[RELATED GUIDE 1]",v.rel1title||"Medicare Quotes Near Me NC");
+    rp("[RELATED-SLUG-2]",v.rel2slug||"medicare-advantage-quotes-nc");rp("[RELATED GUIDE 2]",v.rel2title||"Medicare Advantage Quotes NC");
+    rp("[RELATED-SLUG-3]",v.rel3slug||"medigap-quotes-nc");rp("[RELATED GUIDE 3]",v.rel3title||"Medigap Quotes NC");
+    rp("[RELATED-SLUG-4]",v.rel4slug||"part-d-quotes-nc");rp("[RELATED GUIDE 4]",v.rel4title||"Part D Quotes NC");
+    rp("[RELATED-SLUG-5]",v.rel5slug||"local-medicare-agents-in-nc");rp("[RELATED GUIDE 5]",v.rel5title||"Local Medicare Agents in NC");
+    rp("[RELATED-SLUG-6]",v.rel6slug||"medicare-cost-comparison-nc");rp("[RELATED GUIDE 6]",v.rel6title||"Cost Comparison NC");
+    rp("[RELATED-SLUG-7]",v.rel7slug||"turning-65-medicare-north-carolina");rp("[RELATED GUIDE 7]",v.rel7title||"Turning 65 NC");
+    rp("[RELATED-SLUG-8]",v.rel8slug||"medicare-enrollment-help-nc");rp("[RELATED GUIDE 8]",v.rel8title||"Enrollment Help NC");
+    rp("[RELATED-SLUG]","medicare-quotes-near-me-north-carolina");
+    rp("[CTA 2 HEADLINE — conversational. e.g. \"Questions About [Topic] in Durham or Wake County?\"]",v.cta2Headline||"Questions? Let\'s Talk.");
+    rp("[COL CARD 1 TITLE]","Why Work With Rob");rp("[COL CARD 2 TITLE]","What You Get");
+    rp("[ITEM 1]","Licensed NC broker — not a call center");
+    rp("[ITEM 2]","$0 fee — carriers pay Rob directly");
+    rp("[ITEM 3]","Every plan on the market compared");
+    rp("[ITEM 4]","Your doctors + drugs checked first");
+    rp("[ITEM 5]","One person, one number: (828) 761-3326");
+    rp("[BADGE 1 — e.g. \"Working Past 65\" or \"New to Medicare\"]","New to Medicare");
+    rp("[BADGE 2]","Turning 65");rp("[BADGE 3]","Reviewing Coverage");
+    rp("[TITLE]",v.pageTitle||topic);
+    rp("[SOURCE CITATION]","Medicare.gov · CMS.gov 2026");
+    rp("[BRACKET]","");
+    rp("[email\u00a0protected]","robert@generationhealth.me");
+    setPbNewHTML(html);
+    alert("\u2705 Page generated from v5.2 master template!\n\nAll placeholders filled. Click \'Save as Page\' or \'Copy HTML\'.");
+  }catch(e){alert("Generation error: "+e.message+"\n\nCheck your API key and try again.");}
+  finally{setPbNewGenerating(false);}
+}
+function pbHandleKwChange(e, pbNewKeyword, setPbNewKeyword, pbNewSlug, setPbNewSlug) {
+  var kw = e.target.value;
+  setPbNewKeyword(kw);
+  var auto = pbNewKeyword.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-");
+  if (!pbNewSlug || pbNewSlug === auto) {
+    setPbNewSlug(kw.toLowerCase().replace(/[^a-z0-9\s-]/g,"").replace(/\s+/g,"-"));
+  }
+}
+
+</script>
+
 <script type="text/babel">
 const BAKED_DATA = window.BAKED_DATA;
 const clusters = window.clusters;
@@ -6258,176 +6440,7 @@ function App() {
         }
 
 
-        async function generateFromTemplate(){
-          if(!pbApiKey.trim()){alert("Add your Claude API key — click ⚙️ above.");return;}
-          if(!pbNewKeyword.trim()){alert("Enter a keyword/topic first.");return;}
-          setPbNewGenerating(true); setPbNewHTML("");
-          try{
-            var topic=pbNewKeyword.trim();
-            var slug2=pbNewSlug.trim()||topic.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
-            var today=new Date().toISOString().split("T")[0];
-            var mn=["January","February","March","April","May","June","July","August","September","October","November","December"];
-            var dd=new Date(); var monthDD=mn[dd.getMonth()]+" "+dd.getDate()+", "+dd.getFullYear();
-            var isACA=(pbProductType==="ACA");
-            var sys="You are a senior content strategist for GenerationHealth.me — licensed independent Medicare and ACA brokerage in Durham/Wake County, NC. Run by Rob Simm (NC License #10447418, AHIP Certified, 12+ years, 500+ families, 5.0 Google, (828) 761-3326).\n\nNEPQ FRAMEWORK: Surface PAIN before SOLUTION. Consequence-gap or question headlines. Rob is the specific local answer — never a call center.\n\n2026 MEDICARE FIGURES (exact):\n- Part B premium: $202.90/mo | Part B deductible: $257\n- Part A deductible: $1,676 | HD-G deductible: $2,870\n- Part D OOP cap: $2,100 | Insulin cap: $35/mo | MA OOP max: $9,350\n\nCTA: \'Talk to Rob\', \'Let\'s figure out what\'s right for you\' — NEVER \'Get a Free Quote\'\nP1 opener: \'Here\'s what most people...\'\nVOICE: Always NC-local (Durham, Wake, Triangle, specific county). Rob in first person.\n\nOUTPUT: Return ONLY valid JSON. No markdown, no backticks, no preamble. All values JSON-escaped strings.";
-            var usr="Generate all page content for a GenerationHealth.me v5.2 NEPQ page.\nTopic: \""+topic+"\"\nSlug: /"+slug2+"\nProduct: "+(isACA?"ACA Marketplace":"Medicare")+"\nDate: "+today+"\n\nReturn ONLY a JSON object with these exact string keys:\n{\"pageTitle\":\"topic | GenerationHealth\",\"metaDesc\":\"150-160 char meta. Keyword+NC/county+CTA.\",\"h1Line1\":\"NEPQ Formula 1/3/4 first line (white)\",\"h1Line2\":\"Completes formula (carolina blue)\",\"eyebrow\":\"Durham & Wake County · 2026 · No SSN Required\",\"heroSubtitle\":\"Specific pain/risk, max 22 words\",\"primaryCtaText\":\"Talk to Rob\",\"secondaryCtaText\":\"Compare Plans Side by Side\",\"primaryH2\":\"Question-format H2\",\"instantAnswer\":\"2-4 sentences, problem first, one 2026 figure\",\"introP1\":\"NEPQ Problem Para starting Here\'s what most people...\",\"introP2\":\"Vision bridge + Rob + phone link <a href=\\\"tel:828-761-3326\\\" class=\\\"gh-inline\\\">828-761-3326</a>\",\"costTitle\":\"2026 cost strip title\",\"costSubtitle\":\"What your quotes will show · Source: CMS.gov\",\"cost1label\":\"\",\"cost1value\":\"$202.90/mo\",\"cost1note\":\"Part B 2026 standard\",\"cost2label\":\"\",\"cost2value\":\"\",\"cost2note\":\"\",\"cost3label\":\"\",\"cost3value\":\"\",\"cost3note\":\"\",\"cost4label\":\"\",\"cost4value\":\"\",\"cost4note\":\"\",\"formulaLabel\":\"The Total Annual Cost Formula\",\"formulaEq\":\"(Monthly premiums x 12) + deductibles + copays + drug costs = Total\",\"formulaExpl\":\"\",\"gridH2\":\"\",\"gridIntro\":\"\",\"card1title\":\"\",\"card1body\":\"\",\"card2title\":\"\",\"card2body\":\"\",\"card3title\":\"\",\"card3body\":\"\",\"card4title\":\"\",\"card4body\":\"\",\"card5title\":\"\",\"card5body\":\"\",\"card6title\":\"\",\"card6body\":\"\",\"tipText\":\"First-person Rob tip 2-4 sentences\",\"warningTitle\":\"Important Enrollment Deadline\",\"warningBody\":\"\",\"cta1Headline\":\"Let\'s Make Sure You Get This Right.\",\"cta1Sub\":\"\",\"quizTitle\":\"Where Are You with Medicare Right Now?\",\"q1text\":\"\",\"q1a\":\"\",\"q1b\":\"\",\"q1c\":\"\",\"q1d\":\"\",\"q2text\":\"\",\"q2a\":\"\",\"q2b\":\"\",\"q2c\":\"\",\"q2d\":\"\",\"q3text\":\"\",\"q3a\":\"\",\"q3b\":\"\",\"q3c\":\"\",\"q3d\":\"\",\"scenarioH2\":\"\",\"sc1title\":\"\",\"sc1setup\":\"\",\"sc1resolution\":\"\",\"sc1verdict\":\"\",\"sc2title\":\"\",\"sc2setup\":\"\",\"sc2resolution\":\"\",\"sc2verdict\":\"\",\"sc3title\":\"\",\"sc3setup\":\"\",\"sc3resolution\":\"\",\"sc3verdict\":\"\",\"sbsH2\":\"\",\"planALabel\":\"Medicare Advantage ($0 Premium)\",\"planBLabel\":\"Medigap Plan G + Part D\",\"planALine1label\":\"\",\"planALine1val\":\"\",\"planALine2label\":\"\",\"planALine2val\":\"\",\"planALine3label\":\"\",\"planALine3val\":\"\",\"planALine4label\":\"\",\"planALine4val\":\"\",\"planALine5label\":\"\",\"planALine5val\":\"\",\"planATotal\":\"\",\"planAWinPill\":\"\",\"planBLine1label\":\"\",\"planBLine1val\":\"\",\"planBLine2label\":\"\",\"planBLine2val\":\"\",\"planBLine3label\":\"\",\"planBLine3val\":\"\",\"planBLine4label\":\"\",\"planBLine4val\":\"\",\"planBLine5label\":\"\",\"planBLine5val\":\"\",\"planBTotal\":\"\",\"planBWinPill\":\"\",\"sbsVerdict\":\"One sentence which plan wins and why\",\"howtoTitle\":\"How to Work With Rob\",\"howtoSub\":\"The right process takes about 20 minutes.\",\"step1title\":\"\",\"step1body\":\"\",\"step2title\":\"\",\"step2body\":\"\",\"step3title\":\"\",\"step3body\":\"\",\"step4title\":\"\",\"step4body\":\"\",\"ladderTitle\":\"What Happens When You Work With Rob\",\"ladder1\":\"You Tell Me Your Situation\",\"ladder1desc\":\"\",\"ladder2\":\"I Check Your Doctors and Drugs\",\"ladder2desc\":\"\",\"ladder3\":\"We Look at Real Numbers Together\",\"ladder3desc\":\"\",\"ladder4\":\"You Make a Confident Decision\",\"ladder4desc\":\"\",\"cta2Headline\":\"Questions? Let\'s Talk.\",\"cta2Sub\":\"\",\"faqSubtitle\":\"Common questions in Durham and Wake County.\",\"faq1q\":\"\",\"faq1a\":\"\",\"faq2q\":\"\",\"faq2a\":\"\",\"faq3q\":\"\",\"faq3a\":\"\",\"faq4q\":\"\",\"faq4a\":\"\",\"faq5q\":\"\",\"faq5a\":\"\",\"faq6q\":\"\",\"faq6a\":\"\",\"chartTitle\":\"\",\"chartSub\":\"\",\"bar1label\":\"\",\"bar1pct\":\"0\",\"bar1desc\":\"\",\"bar2label\":\"\",\"bar2pct\":\"0\",\"bar2desc\":\"\",\"bar3label\":\"\",\"bar3pct\":\"0\",\"bar3desc\":\"\",\"rel1title\":\"Medicare Quotes Near Me NC\",\"rel1slug\":\"medicare-quotes-near-me-north-carolina\",\"rel2title\":\"Medicare Advantage Quotes NC\",\"rel2slug\":\"medicare-advantage-quotes-nc\",\"rel3title\":\"Medigap Quotes NC\",\"rel3slug\":\"medigap-quotes-nc\",\"rel4title\":\"Part D Quotes NC\",\"rel4slug\":\"part-d-quotes-nc\",\"rel5title\":\"Local Medicare Agents in NC\",\"rel5slug\":\"local-medicare-agents-in-nc\",\"rel6title\":\"Cost Comparison NC\",\"rel6slug\":\"medicare-cost-comparison-nc\",\"rel7title\":\"Turning 65 NC\",\"rel7slug\":\"turning-65-medicare-north-carolina\",\"rel8title\":\"Enrollment Help NC\",\"rel8slug\":\"medicare-enrollment-help-nc\",\"timingH2\":\"When to Enroll — Key Windows\",\"window1name\":\"Initial Enrollment Period\",\"window1dates\":\"3 months before + month of + 3 months after 65th birthday\",\"window1desc\":\"Your primary window. Missing it triggers a permanent penalty.\",\"window2name\":\"\",\"window2dates\":\"\",\"window2desc\":\"\",\"window3name\":\"\",\"window3dates\":\"\",\"window3desc\":\"\",\"urgentName\":\"Act Now\",\"urgentDesc\":\"\",\"review1text\":\"Rob saved me hundreds every year by finding a plan that actually covered my doctors.\",\"review1name\":\"Carol, Durham County\",\"review2text\":\"I had no idea what I was doing until I called Rob. He made it simple.\",\"review2name\":\"Mike, Wake County\",\"review3text\":\"Best decision I made — no pressure, just honest advice.\",\"review3name\":\"Susan, Orange County\",\"testimonialQuote\":\"Rob found a plan that covered all my doctors and saved me $200 a month.\",\"serviceDesc\":\"\",\"serviceName\":\"\",\"articleHeadline\":\"\",\"keyFactClaim\":\"\",\"catSlug\":\"medicare-nc\",\"catLabel\":\"Medicare NC\"}";
-            var resp=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",
-              headers:{"Content-Type":"application/json","x-api-key":pbApiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
-              body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:8000,system:sys,messages:[{role:"user",content:usr}]})
-            });
-            var rdata=await resp.json();
-            if(rdata.error){throw new Error(rdata.error.message);}
-            var raw=(rdata.content&&rdata.content[0]&&rdata.content[0].text)||"";
-            var clean=raw.replace(/^```json\s*/,"").replace(/^```\s*/,"").replace(/```\s*$/,"").trim();
-            var v=JSON.parse(clean);
-            if(!window.GH_MASTER_TEMPLATE){throw new Error("Master template not loaded.");}
-            var html=window.GH_MASTER_TEMPLATE;
-            function rp(s,val){if(val==null||val===undefined)return;html=html.split(s).join(String(val));}
-            rp("[PAGE TITLE]",v.pageTitle);rp("[PAGE-SLUG]",v.canonicalSlug||slug2);
-            rp("[PAGE META DESCRIPTION — 150-160 chars. Include primary keyword, county if applicable, and a call to action.]",v.metaDesc);
-            rp("[PAGE META DESCRIPTION]",v.metaDesc);
-            rp("[ARTICLE HEADLINE — matches H1, max 110 chars]",v.articleHeadline||(v.h1Line1+" "+v.h1Line2));
-            rp("[KEY FACTUAL CLAIM ON THIS PAGE — e.g. Medicare agents are paid by carriers, not by you]",v.keyFactClaim||"");
-            rp("[SERVICE NAME — e.g. Medicare Plan Comparison in Durham County NC]",v.serviceName||"");
-            rp("[SERVICE DESCRIPTION — what Rob does for clients on this page topic]",v.serviceDesc||"");
-            rp("[YYYY-MM-DD]",today);rp("[MONTH DD, YYYY]",monthDD);
-            rp("[CATEGORY-SLUG]",v.catSlug||"medicare-nc");rp("[BREADCRUMB CATEGORY — e.g. Medicare NC]",v.catLabel||"Medicare NC");
-            rp("[BREADCRUMB PAGE]",v.pageTitle||topic);
-            rp("[ANNOUNCEMENT TITLE — e.g. 2026 Medicare Plan Changes Now in Effect]","2026 Medicare Plan Changes Now in Effect");
-            rp("[EYEBROW — e.g. \"Durham &amp; Wake County &middot; 2026 &middot; No SSN Required\"]",v.eyebrow||"Durham &amp; Wake County &middot; 2026 &middot; No SSN Required");
-            rp("[H1 LINE 1 — white]",v.h1Line1);rp("[H1 LINE 2 — carolina blue accent]",v.h1Line2);
-            rp("[HERO SUBTITLE — name the specific pain, not the service. Max 22 words.]",v.heroSubtitle);
-            rp("[PRIMARY CTA — e.g. \"Talk to Rob\" or \"Let\'s Figure Out What\'s Right for You\"]",v.primaryCtaText||"Talk to Rob");
-            rp("[SECONDARY CTA — e.g. \"Compare Plans Side by Side\"]",v.secondaryCtaText||"Compare Plans Side by Side");
-            rp("[PRIMARY H2 — question format, e.g. \"What Happens If You Miss Your Medicare Enrollment Window?\"]",v.primaryH2);
-            rp("[INSTANT ANSWER — 2–4 sentences. Lead with the problem fact, not the service. Cite one 2026 figure. e.g. \"If you delay Part B enrollment without qualifying employer coverage, you owe a 10% surcharge per year of delay — permanently. In 2026, the standard Part B premium is $185/month, so each year of unqualified delay adds $18.50/month forever. The 8-month Special Enrollment Period starts when employer coverage ends, not when you retire.\"]",v.instantAnswer);
-            rp("[INTRO P1 — NEPQ Problem Paragraph. Start with \"Here\'s what most people...\" or name the specific risk. DO NOT start with \"Medicare is...\" or \"In North Carolina...\"]",v.introP1);
-            rp("[INTRO P2 — Brief vision bridge: what happens when this goes right. Close with Rob. e.g. \"That\'s the conversation Rob has with every client before making a single recommendation. Call <a href=\"tel:828-761-3326\" class=\"gh-inline\">828-761-3326</a> or keep reading to understand what\'s at stake.\"]",v.introP2);
-            rp("[COST STRIP TITLE — e.g. \"2026 Medicare Plan Costs — North Carolina\"]",v.costTitle||"2026 Medicare Costs — North Carolina");
-            rp("[COST STRIP SUBTITLE — e.g. \"What your quotes will show · Source: CMS.gov\"]",v.costSubtitle||"What your quotes will show · Source: CMS.gov");
-            rp("[LABEL 1]",v.cost1label||"Part B Premium");rp("[VALUE 1]",v.cost1value||"$202.90/mo");rp("[NOTE 1]",v.cost1note||"Standard 2026");
-            rp("[LABEL 2]",v.cost2label||"Part B Deductible");rp("[VALUE 2]",v.cost2value||"$257");rp("[NOTE 2]",v.cost2note||"Annual");
-            rp("[LABEL 3]",v.cost3label||"Part A Deductible");rp("[VALUE 3]",v.cost3value||"$1,676");rp("[NOTE 3]",v.cost3note||"Per benefit period");
-            rp("[LABEL 4]",v.cost4label||"MA OOP Max");rp("[VALUE 4]",v.cost4value||"$9,350");rp("[NOTE 4]",v.cost4note||"2026 federal cap");
-            rp("[FORMULA LABEL — e.g. \"The Total Cost Formula\"]",v.formulaLabel||"The Total Annual Cost Formula");
-            rp("[FORMULA — e.g. \"(Monthly premiums × 12) + deductibles + copays + drug costs = Total annual cost\"]",v.formulaEq);
-            rp("[FORMULA EXPLANATION — 1–2 sentences contextualizing what the formula means for this page.]",v.formulaExpl);
-            rp("[6-GRID SECTION H2]",v.gridH2);rp("[INTRO SENTENCE for the grid.]",v.gridIntro);
-            rp("[CARD 1 TITLE]",v.card1title);rp("[CARD 1 BODY — 2 sentences max.]",v.card1body);
-            rp("[CARD 2 TITLE]",v.card2title);rp("[CARD 2 BODY]",v.card2body);
-            rp("[CARD 3 TITLE]",v.card3title);rp("[CARD 3 BODY]",v.card3body);
-            rp("[CARD 4 TITLE]",v.card4title);rp("[CARD 4 BODY]",v.card4body);
-            rp("[CARD 5 TITLE]",v.card5title);rp("[CARD 5 BODY]",v.card5body);
-            rp("[CARD 6 TITLE]",v.card6title);rp("[CARD 6 BODY]",v.card6body);
-            rp("[TIP TEXT — First-person. Practical insight Rob wouldn\'t find on Medicare.gov. 2–4 sentences.]",v.tipText);
-            rp("[WARNING TITLE — e.g. \"Important Enrollment Deadline\"]",v.warningTitle||"Important Enrollment Deadline");
-            rp("[WARNING BODY — Factual, specific. Cite dates or dollar amounts where possible.]",v.warningBody);
-            rp("[CTA 1 HEADLINE — vision bridge or question. e.g. \"Let\'s Make Sure You Get This Right.\"]",v.cta1Headline||"Let\'s Make Sure You Get This Right.");
-            rp("[INTRO — note these use 2026 figures and typical NC plan costs.]",v.cta1Sub||"");
-            rp("[QUIZ TITLE — e.g. \"Where Are You with Medicare Right Now?\"]",v.quizTitle||"Where Are You with Medicare Right Now?");
-            rp("[Q1 — CONNECTING: current situation. e.g. \"Where are you right now with Medicare?\"]",v.q1text);
-            rp("[Q3 — CONSEQUENCE: decision stakes. e.g. \"Have you compared Medicare Advantage and Medigap?\"]",v.q3text);
-            rp("[val-a]>[OPTION A — e.g. \"Turning 65 soon\"]","turning-65>"+v.q1a);
-            rp("[val-b]>[OPTION B — e.g. \"Still on employer plan at 65+\"]","employer-65>"+v.q1b);
-            rp("[val-c]>[OPTION C — e.g. \"Already enrolled, need review\"]","enrolled-review>"+v.q1c);
-            rp("[val-d]>[OPTION D — e.g. \"Just starting to research\"]","researching>"+v.q1d);
-            rp("[val-a]>[OPTION A — e.g. \"Not yet\"]","not-yet>"+v.q2a);
-            rp("[val-b]>[OPTION B — e.g. \"I\'ve tried but I\'m confused\"]","confused>"+v.q2b);
-            rp("[val-c]>[OPTION C — e.g. \"Yes — want a second opinion\"]","second-opinion>"+v.q2c);
-            rp("[val-d]>[OPTION D — e.g. \"Not sure of the difference\"]","unsure>"+v.q2d);
-            rp("[val-a]>[OPTION A — e.g. \"Keeping my current doctors\"]","keep-doctors>"+v.q3a);
-            rp("[val-b]>[OPTION B — e.g. \"Unexpected out-of-pocket costs\"]","oop-costs>"+v.q3b);
-            rp("[val-c]>[OPTION C — e.g. \"Missing an enrollment deadline\"]","deadline>"+v.q3c);
-            rp("[val-d]>[OPTION D — e.g. \"Understanding my plan options\"]","plan-options>"+v.q3d);
-            rp("[SCENARIO H2 — e.g. \"Three Situations Where Getting Medicare Wrong Is Easy — and Expensive\"]",v.scenarioH2);
-            rp("[SCENARIO 1 TITLE — e.g. \"Stayed on Employer Plan — But Employer Has 12 Employees\"]",v.sc1title);
-            rp("[BLOCK 1 BADGE — e.g. \"Scenario 1 — Light Use\"]","Scenario 1");
-            rp("[BLOCK 1 PROFILE — e.g. \"2 generics · 4 PCP visits/year · No hospitalization\"]",v.sc1setup);
-            rp("[BLOCK 1 TITLE — e.g. \"Healthy, Rarely Uses Healthcare\"]",v.sc1title);
-            rp("[SCENARIO 2 TITLE]",v.sc2title);rp("[SCENARIO 2 SETUP — NEPQ Problem Paragraph]",v.sc2setup);
-            rp("[SCENARIO 2 RESOLUTION — NEPQ Vision Bridge]",v.sc2resolution);
-            rp("[BLOCK 2 BADGE]","Scenario 2");rp("[BLOCK 2 TITLE]",v.sc2title);rp("[BLOCK 2 PROFILE]",v.sc2setup);
-            rp("[SCENARIO 3 TITLE]",v.sc3title);rp("[SCENARIO 3 SETUP — NEPQ Problem Paragraph]",v.sc3setup);
-            rp("[SCENARIO 3 RESOLUTION — NEPQ Vision Bridge]",v.sc3resolution);
-            rp("[BLOCK 3 BADGE]","Scenario 3");rp("[BLOCK 3 TITLE]",v.sc3title);rp("[BLOCK 3 PROFILE]",v.sc3setup);
-            rp("[VERDICT — e.g. \"The right question: How many people work at your employer?\"]",v.sc1verdict);
-            rp("[VERDICT — specific outcome or insight]",v.sc2verdict);rp("[VERDICT TEXT]",v.sc3verdict);
-            rp("[WINNER PILL — e.g. \"MA wins — light use\"]",v.planAWinPill);rp("[WINNER PILL]",v.planBWinPill);
-            rp("[SIDE-BY-SIDE SECTION H2 — e.g. \"Three NC Scenarios — Real 2026 Numbers\"]",v.sbsH2);
-            rp("[PLAN A LABEL — e.g. \"Medicare Advantage ($0 Premium Plan)\"]",v.planALabel||"Medicare Advantage");
-            rp("[PLAN A LABEL]",v.planALabel||"Medicare Advantage");
-            rp("[PLAN B LABEL — e.g. \"Medigap Plan G + Part D\"]",v.planBLabel||"Medigap Plan G + Part D");
-            rp("[PLAN B LABEL]",v.planBLabel||"Medigap Plan G + Part D");
-            rp("[PLAN TYPE A — e.g. Original Medicare]",v.planALabel||"Medicare Advantage");
-            rp("[PLAN TYPE B — e.g. Medicare Advantage]",v.planBLabel||"Medigap Plan G");
-            rp("[LINE ITEM]",v.planALine1label||"Monthly Premium");rp("[LINE ITEM 2]",v.planALine2label||"Deductible");
-            rp("[LINE ITEM 3]",v.planALine3label||"Copays");rp("[LINE ITEM 4]",v.planALine4label||"Drug Coverage");
-            rp("[LINE ITEM 5]",v.planALine5label||"OOP Max");
-            rp("[TOTAL RANGE]",v.planATotal||"");rp("[TOTAL]",v.planBTotal||"");
-            rp("[VERDICT TEXT — concise summary of which plan wins and why]",v.sbsVerdict||"");
-            rp("[HOW-TO TITLE — e.g. \"How to Get Accurate Medicare Quotes in NC\"]",v.howtoTitle||"How to Work With Rob");
-            rp("[HOW-TO SUBTITLE — e.g. \"The right process takes about 20 minutes.\"]",v.howtoSub||"The right process takes about 20 minutes.");
-            rp("[STEP 1 TITLE]",v.step1title||"You Tell Me Your Situation");rp("[STEP 1 BODY — 2–3 sentences.]",v.step1body||"");
-            rp("[STEP 2 TITLE]",v.step2title||"I Check Your Doctors and Drugs");rp("[STEP 2 BODY]",v.step2body||"");
-            rp("[STEP 3 TITLE]",v.step3title||"We Look at Real Numbers Together");rp("[STEP 3 BODY]",v.step3body||"");
-            rp("[STEP 4 TITLE]",v.step4title||"You Make a Confident Decision");rp("[STEP 4 BODY]",v.step4body||"");
-            rp("[STEP 1 DESC — what Rob asks, what the reader shares. 2 sentences. No jargon.]",v.ladder1desc||"");
-            rp("[STEP 2 DESC — the specific work Rob does. Name the tool or action.]",v.ladder2desc||"");
-            rp("[STEP 3 DESC — specific outcome: total annual cost, not just premium.]",v.ladder3desc||"");
-            rp("[STEP 4 DESC — the feeling of the outcome. No pressure. Your choice.]",v.ladder4desc||"");
-            rp("[STEP 1 — e.g. \"You Tell Me Your Situation\"]",v.ladder1||"You Tell Me Your Situation");
-            rp("[STEP 2 — e.g. \"I Check Your Doctors and Drugs\"]",v.ladder2||"I Check Your Doctors and Drugs");
-            rp("[STEP 3 — e.g. \"We Look at Real Numbers Together\"]",v.ladder3||"We Look at Real Numbers Together");
-            rp("[STEP 4 — e.g. \"You Make a Confident Decision\"]",v.ladder4||"You Make a Confident Decision");
-            rp("[LADDER TITLE — e.g. \"What Happens When You Work With Rob\"]",v.ladderTitle||"What Happens When You Work With Rob");
-            rp("[TIMING SECTION H2 — e.g. \"When to Enroll in Medicare in NC\"]",v.timingH2||"When to Enroll — Key Windows");
-            rp("[WINDOW NAME]",v.window1name||"Initial Enrollment Period");rp("[DATES]",v.window1dates||"3 months before to 3 months after 65th birthday");
-            rp("[WINDOW DESCRIPTION]",v.window1desc||"Your primary enrollment window.");
-            rp("[URGENT WINDOW NAME]",v.urgentName||"Act Now");rp("[URGENT DESCRIPTION]",v.urgentDesc||"");
-            rp("[REVIEW 1 TEXT — pull from Google reviews]",v.review1text||"Rob saved me hundreds every year by finding a plan that covered my doctors.");
-            rp("[REVIEW 2 TEXT]",v.review2text||"I had no idea what I was doing until I called Rob.");
-            rp("[REVIEW 3 TEXT]",v.review3text||"Best decision I made — no pressure, just honest advice.");
-            rp("[REVIEWER 1 FIRST NAME + COUNTY — e.g. Carol, Durham County]",v.review1name||"Carol, Durham County");
-            rp("[REVIEWER 2 FIRST NAME + COUNTY]",v.review2name||"Mike, Wake County");
-            rp("[REVIEWER 3 FIRST NAME + COUNTY]",v.review3name||"Susan, Orange County");
-            rp("[TESTIMONIAL QUOTE — pulled from Google review. Attribute to county, not full name.]",v.testimonialQuote||"Rob found a plan that covered all my doctors and saved me $200 a month.");
-            rp("[FIRST NAME OR INITIALS], [COUNTY]",v.review1name||"Carol, Durham County");
-            rp("[FAQ SUBTITLE — e.g. \"Common questions about Medicare in Durham County.\"]",v.faqSubtitle||"Common questions in Durham and Wake County.");
-            rp("[FAQ QUESTION 1]",v.faq1q||"");rp("[FAQ ANSWER 1]",v.faq1a||"");
-            rp("[FAQ QUESTION 2]",v.faq2q||"");rp("[FAQ ANSWER 2]",v.faq2a||"");
-            rp("[FAQ QUESTION 3]",v.faq3q||"");rp("[FAQ ANSWER 3]",v.faq3a||"");
-            rp("[FAQ QUESTION 4]",v.faq4q||"");rp("[FAQ ANSWER 4]",v.faq4a||"");
-            rp("[FAQ QUESTION 5]",v.faq5q||"");rp("[FAQ ANSWER 5]",v.faq5a||"");
-            rp("[FAQ QUESTION 6]",v.faq6q||"");rp("[FAQ ANSWER 6]",v.faq6a||"");
-            rp("[CHART TITLE]",v.chartTitle||"");rp("[CHART SUBTITLE]",v.chartSub||"");
-            rp("[BAR LABEL]",v.bar1label||"");rp("[XX]",v.bar1pct||"0");rp("[BAR DESCRIPTION]",v.bar1desc||"");
-            rp("[RELATED-SLUG-1]",v.rel1slug||"medicare-quotes-near-me-north-carolina");rp("[RELATED GUIDE 1]",v.rel1title||"Medicare Quotes Near Me NC");
-            rp("[RELATED-SLUG-2]",v.rel2slug||"medicare-advantage-quotes-nc");rp("[RELATED GUIDE 2]",v.rel2title||"Medicare Advantage Quotes NC");
-            rp("[RELATED-SLUG-3]",v.rel3slug||"medigap-quotes-nc");rp("[RELATED GUIDE 3]",v.rel3title||"Medigap Quotes NC");
-            rp("[RELATED-SLUG-4]",v.rel4slug||"part-d-quotes-nc");rp("[RELATED GUIDE 4]",v.rel4title||"Part D Quotes NC");
-            rp("[RELATED-SLUG-5]",v.rel5slug||"local-medicare-agents-in-nc");rp("[RELATED GUIDE 5]",v.rel5title||"Local Medicare Agents in NC");
-            rp("[RELATED-SLUG-6]",v.rel6slug||"medicare-cost-comparison-nc");rp("[RELATED GUIDE 6]",v.rel6title||"Cost Comparison NC");
-            rp("[RELATED-SLUG-7]",v.rel7slug||"turning-65-medicare-north-carolina");rp("[RELATED GUIDE 7]",v.rel7title||"Turning 65 NC");
-            rp("[RELATED-SLUG-8]",v.rel8slug||"medicare-enrollment-help-nc");rp("[RELATED GUIDE 8]",v.rel8title||"Enrollment Help NC");
-            rp("[RELATED-SLUG]","medicare-quotes-near-me-north-carolina");
-            rp("[CTA 2 HEADLINE — conversational. e.g. \"Questions About [Topic] in Durham or Wake County?\"]",v.cta2Headline||"Questions? Let\'s Talk.");
-            rp("[COL CARD 1 TITLE]","Why Work With Rob");rp("[COL CARD 2 TITLE]","What You Get");
-            rp("[ITEM 1]","Licensed NC broker — not a call center");
-            rp("[ITEM 2]","$0 fee — carriers pay Rob directly");
-            rp("[ITEM 3]","Every plan on the market compared");
-            rp("[ITEM 4]","Your doctors + drugs checked first");
-            rp("[ITEM 5]","One person, one number: (828) 761-3326");
-            rp("[BADGE 1 — e.g. \"Working Past 65\" or \"New to Medicare\"]","New to Medicare");
-            rp("[BADGE 2]","Turning 65");rp("[BADGE 3]","Reviewing Coverage");
-            rp("[TITLE]",v.pageTitle||topic);
-            rp("[SOURCE CITATION]","Medicare.gov · CMS.gov 2026");
-            rp("[BRACKET]","");
-            rp("[email\u00a0protected]","robert@generationhealth.me");
-            setPbNewHTML(html);
-            alert("\u2705 Page generated from v5.2 master template!\n\nAll placeholders filled. Click \'Save as Page\' or \'Copy HTML\'.");
-          }catch(e){alert("Generation error: "+e.message+"\n\nCheck your API key and try again.");}
-          finally{setPbNewGenerating(false);}
-        }
+
 
 
                 function copyOutput(){
@@ -6684,11 +6697,11 @@ function App() {
                 React.createElement("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
                   React.createElement("div",null,
                     React.createElement("div",{style:{fontSize:10,fontWeight:700,color:mc,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:5}},"Keyword / Topic"),
-                    React.createElement("input",{value:pbNewKeyword,onChange:function(e){var kw=e.target.value;setPbNewKeyword(kw);if(!pbNewSlug||pbNewSlug===(pbNewKeyword.toLowerCase().replace(/\\s+/g,"-").replace(/[^a-z0-9-]/g,"")))setPbNewSlug(kw.toLowerCase().replace(/\\s+/g,"-").replace(/[^a-z0-9-]/g,""));},placeholder:"e.g. medicare quotes near me north carolina",style:{width:"100%",padding:"10px 12px",borderRadius:9,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.03)",color:tc,fontSize:13,outline:"none",boxSizing:"border-box"}})
+                    React.createElement("input",{value:pbNewKeyword,onChange:function(e){pbHandleKwChange(e,pbNewKeyword,setPbNewKeyword,pbNewSlug,setPbNewSlug);},placeholder:"e.g. medicare quotes near me north carolina",style:{width:"100%",padding:"10px 12px",borderRadius:9,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.03)",color:tc,fontSize:13,outline:"none",boxSizing:"border-box"}})
                   ),
                   React.createElement("div",null,
                     React.createElement("div",{style:{fontSize:10,fontWeight:700,color:mc,textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:5}},"URL Slug"),
-                    React.createElement("input",{value:pbNewSlug,onChange:function(e){setPbNewSlug(e.target.value.toLowerCase().replace(/\\s+/g,"-").replace(/[^a-z0-9-]/g,""));},placeholder:"e.g. medicare-quotes-near-me-north-carolina",style:{width:"100%",padding:"10px 12px",borderRadius:9,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.03)",color:tc,fontSize:13,outline:"none",boxSizing:"border-box"}})
+                    React.createElement("input",{value:pbNewSlug,onChange:function(e){setPbNewSlug(e.target.value.toLowerCase().replace(/[^a-z0-9 -]/g,"").replace(/ /g,"-"));},placeholder:"e.g. medicare-quotes-near-me-north-carolina",style:{width:"100%",padding:"10px 12px",borderRadius:9,border:br,background:isDark?"rgba(255,255,255,0.05)":"rgba(0,0,0,0.03)",color:tc,fontSize:13,outline:"none",boxSizing:"border-box"}})
                   )
                 ),
                 React.createElement("div",{style:{display:"flex",alignItems:"center",gap:10}},
