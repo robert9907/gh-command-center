@@ -3526,14 +3526,26 @@ function App() {
 
         // ── Content cards ─────────────────────────────────────────────────────
         var MC=[
-          {id:"mc-seed",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",q:"Every plan on the market was built with a weakness.",a:"Medicare salespeople won\u2019t tell you which one you\u2019re in. I will."},
-          {id:"mc-water",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",q:"Here\u2019s what Medicare Advantage actually costs when something goes wrong.",a:"Your $0 premium plan isn\u2019t free \u2014 you\u2019ll find that out the hard way, or you won\u2019t."},
-          {id:"mc-harvest",tag:"HARVEST",tagline:"Close \u2014 20-minute plan analysis",q:"Every plan I\u2019ve ever reviewed has a weakness.",a:"Most people don\u2019t know theirs until they need it most. Let\u2019s find yours before that happens."},
+          {id:"mc-seed",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",
+           q:"Every plan on the market was built with a weakness.",
+           a:"Medicare salespeople won\u2019t tell you which one you\u2019re in. I will. Every plan \u2014 Medicare Advantage, Medigap, Part D \u2014 was designed with trade-offs. A $0 premium plan isn\u2019t free. A plan with a big name on the card isn\u2019t necessarily the best plan in your county. The weakness isn\u2019t in the brochure. It shows up when you need the plan to actually work."},
+          {id:"mc-water",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",
+           q:"Here\u2019s what Medicare Advantage actually costs when something goes wrong.",
+           a:"Your PCP visit is $0. Your blood work is $0. Then you have a cardiac event. A cancer diagnosis. A surgery that requires a specialist who isn\u2019t in your network. Now you\u2019re looking at an $8,300 out-of-pocket maximum, prior authorization delays, and a facility bill you didn\u2019t expect. The $0 premium plan isn\u2019t free \u2014 you\u2019ll find that out the hard way, or you won\u2019t."},
+          {id:"mc-harvest",tag:"HARVEST",tagline:"Close \u2014 20-minute plan analysis",
+           q:"Every plan I\u2019ve ever reviewed has a weakness.",
+           a:"Most people don\u2019t know theirs until they need it most. Here\u2019s what I do: I pull every plan available in your county, run your doctors and prescriptions through each one, and show you the total annual cost side by side \u2014 not just the monthly premium. One free call, 20 minutes. You leave knowing exactly which plan fits your life and exactly why. No pressure. No obligation. Just the full picture, finally."},
         ];
         var AC=[
-          {id:"ac-seed",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",q:"If you\u2019re buying insurance on your own, the plan you picked probably wasn\u2019t built for you.",a:"It was built for the healthiest version of you."},
-          {id:"ac-water",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",q:"When you call the number on the letterhead, you\u2019re not talking to someone who knows your doctors.",a:"You\u2019re talking to a call center."},
-          {id:"ac-harvest",tag:"HARVEST",tagline:"Close \u2014 free plan review",q:"I can show you in 15 minutes whether your current plan is costing you more than it should.",a:"No obligation, no sales pressure."},
+          {id:"ac-seed",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",
+           q:"If you\u2019re buying insurance on your own, the plan you picked probably wasn\u2019t built for you.",
+           a:"It was built for the healthiest version of you. The marketplace makes it easy to pick a premium and move on. What it doesn\u2019t show you is the deductible you\u2019ll face before coverage kicks in, whether your doctors are actually in-network, or what your prescriptions will cost under that formulary. The plan that looks affordable in January can cost you thousands by June."},
+          {id:"ac-water",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",
+           q:"When you call the number on the letterhead, you\u2019re not talking to someone who knows your doctors.",
+           a:"You\u2019re talking to a call center. They don\u2019t know your preferred hospital, your specialist, or whether your medications are covered. They know the plan options on their screen. A local independent broker knows the networks, knows the carriers, and has no incentive to steer you toward the more expensive plan. That\u2019s a different conversation entirely."},
+          {id:"ac-harvest",tag:"HARVEST",tagline:"Close \u2014 free plan review",
+           q:"I can show you in 15 minutes whether your current plan is costing you more than it should.",
+           a:"We look at your actual subsidy based on your real income, run your doctors and prescriptions through every plan available to you, and compare total annual cost \u2014 not just the monthly premium. Most people find they\u2019re either overpaying or underprotected. Either way, 15 minutes gives you the full picture. No obligation. No follow-up calls from strangers. Just clarity."},
         ];
         var NQ=[
           {id:"nq-situation",tag:"SITUATION",tagline:"Where are they right now?",q:"Are you actually sure you understand what you\u2019re signing up for?",a:"Most people turning 65 get buried in Medicare mail, carrier calls, and TV ads \u2014 all saying the same thing. Nobody\u2019s sitting down with you and walking through what your plan actually covers, what it doesn\u2019t, and what it costs when something goes wrong. That\u2019s the conversation that\u2019s missing."},
@@ -3617,7 +3629,37 @@ function App() {
             if(check.id==="aeo-table"&&apiKey){
               setPbFixProgress({msg:"Generating comparison table...",done:done,total:total});
               var rows=await generateFixContent("aeo-table",topic,apiKey);
-              if(rows){var tbS=html.indexOf("<tbody>");var tbE=html.indexOf("</tbody>");if(tbS>-1&&tbE>-1){html=html.slice(0,tbS+7)+rows+html.slice(tbE);}else{html+="\n"+FIX_SNIPPETS[check.id];}}
+              if(rows){
+                // Try tbody first
+                var tbS=html.indexOf("<tbody>");var tbE=html.indexOf("</tbody>");
+                if(tbS>-1&&tbE>-1){
+                  html=html.slice(0,tbS+7)+rows+html.slice(tbE);
+                } else {
+                  // Try finding table and replacing everything after first </tr> (header row)
+                  var tblS=html.indexOf("<table");var tblE=html.indexOf("</table>");
+                  if(tblS>-1&&tblE>-1){
+                    var firstRowEnd=html.indexOf("</tr>",tblS);
+                    if(firstRowEnd>-1&&firstRowEnd<tblE){
+                      var lastRowEnd=html.lastIndexOf("</tr>",tblE);
+                      if(lastRowEnd>firstRowEnd){
+                        html=html.slice(0,firstRowEnd+5)+"\n"+rows+html.slice(lastRowEnd+5);
+                      } else { html+="\n"+FIX_SNIPPETS[check.id]; }
+                    } else { html+="\n"+FIX_SNIPPETS[check.id]; }
+                  } else {
+                    // No table found at all — look for gh-compare class or append
+                    var ghC=html.indexOf("gh-compare");
+                    if(ghC>-1){
+                      var nextTbl=html.indexOf("<table",ghC);
+                      var nextTblE=html.indexOf("</table>",nextTbl);
+                      if(nextTbl>-1&&nextTblE>-1){
+                        var hdrEnd=html.indexOf("</tr>",nextTbl);
+                        if(hdrEnd>-1){html=html.slice(0,hdrEnd+5)+"\n"+rows+html.slice(hdrEnd+5);}
+                        else html+="\n"+FIX_SNIPPETS[check.id];
+                      } else html+="\n"+FIX_SNIPPETS[check.id];
+                    } else html+="\n"+FIX_SNIPPETS[check.id];
+                  }
+                }
+              }
               else html+="\n"+FIX_SNIPPETS[check.id];
             } else if(check.id==="aeo-howto"&&apiKey){
               setPbFixProgress({msg:"Generating HowTo steps...",done:done,total:total});
@@ -3666,7 +3708,7 @@ function App() {
           var appliedData=JSON.stringify(applied||{});
           var OT='<'+'script>';
           var CT='<'+'/'+'script>';
-          var inject="\n<style>\n.gh-zone-box{margin:0;padding:20px 24px;border-radius:10px;cursor:pointer;transition:box-shadow .2s,transform .15s;min-height:80px;display:flex;flex-direction:column;justify-content:center;}\n.gh-zone-box:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.15);}\n.gh-zone-active{outline:3px solid;outline-offset:2px;}\n.gh-zone-lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}\n.gh-zone-cta{font-size:12px;opacity:.6;margin-top:4px;}\n.gh-zone-q{font-size:14px;font-weight:700;font-style:italic;color:#1A2332;margin-bottom:8px;line-height:1.5;}\n.gh-zone-a{font-size:14px;line-height:1.65;color:#3A4553;}\n.gh-zone-tag{margin-top:8px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-block;color:#fff;}\n</style>\n"+OT+"\n(function(){\nvar ZONES="+zonesData+";\nvar applied="+appliedData+";\nvar BAD_TAGS=['button','a','input','select','textarea','svg','img','script','style','noscript'];\nvar BAD_ANC_TAGS=['button','nav','header','footer','form','select'];\nvar BAD_ANC_CLS=['gh-hero','gh-cta-modal','gh-cta-card','gh-cta-grid','gh-float-call','gh-header','gh-header-inner','elementor-widget-call-to-action','wp-block-button','wp-block-buttons','site-header'];\nfunction hasBadAnc(el){var n=el.parentNode,d=0;while(n&&n.tagName&&n.tagName.toLowerCase()!=='body'&&d<12){var t=n.tagName.toLowerCase();if(BAD_ANC_TAGS.indexOf(t)>-1)return true;if(n.classList){for(var i=0;i<BAD_ANC_CLS.length;i++){if(n.classList.contains(BAD_ANC_CLS[i]))return true;}}n=n.parentNode;d++;}return false;}\nfunction isOk(el){if(!el||!el.parentNode)return false;if(el.classList&&el.classList.contains('gh-zone-box'))return false;var t=el.tagName.toLowerCase();if(BAD_TAGS.indexOf(t)>-1)return false;if(el.offsetHeight<10)return false;if(!el.offsetParent&&t!=='body')return false;return !hasBadAnc(el);}\nfunction mkBox(z){var d=document.createElement('div');d.className='gh-zone-box';d.id='ghz-'+z.id;d.style.background=z.bg;d.style.border='2px dashed '+z.border;d.style.margin='8px 0';\nvar lbl=document.createElement('div');lbl.className='gh-zone-lbl';lbl.style.color=z.color;lbl.textContent=z.label+' \\u2014 '+z.desc;d.appendChild(lbl);\nif(applied[z.id]){var q=document.createElement('div');q.className='gh-zone-q';q.textContent='\\u201c'+applied[z.id].q+'\\u201d';d.appendChild(q);var a=document.createElement('div');a.className='gh-zone-a';a.textContent=applied[z.id].a;d.appendChild(a);var tg=document.createElement('span');tg.className='gh-zone-tag';tg.style.background=z.color;tg.textContent='\\u2713 '+applied[z.id].tag;d.appendChild(tg);}else{var ct=document.createElement('div');ct.className='gh-zone-cta';ct.style.color=z.color;ct.textContent='+ Click to activate this zone';d.appendChild(ct);}\nd.addEventListener('click',function(){document.querySelectorAll('.gh-zone-box').forEach(function(b){b.classList.remove('gh-zone-active');b.style.outlineColor='';});d.classList.add('gh-zone-active');d.style.outlineColor=z.color;window.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');});return d;}\nfunction getHeadings(){\n// Collect H2s, H3s and major section landmarks — prefer these over body text\nvar sel='h2,h3,.gh-related,.gh-faq,.gh-author,.gh-trust-strip,.gh-last-updated,.gh-cta-modal,.gh-footer-trust';\nvar all=Array.from(document.querySelectorAll(sel));\n// Filter out anything inside blocked containers\nreturn all.filter(function(el){\n  if(!el||!el.parentNode)return false;\n  if(el.offsetHeight<4)return false;\n  if(!el.offsetParent)return false;\n  return !hasBadAnc(el);\n});\n}\nfunction init(){\nvar headings=getHeadings();\nif(!headings.length){document.body.appendChild(mkBox(ZONES[0]));return;}\n// Distribute 8 zones across the heading list evenly\n// Zone i gets inserted before headings[Math.floor(i/(ZONES.length)*headings.length)]\nvar used=[];\nZONES.forEach(function(z,i){\n  var idx=Math.floor(i/ZONES.length*headings.length);\n  // Find nearest unused heading at or after idx\n  var el=null;\n  for(var j=idx;j<headings.length;j++){\n    if(used.indexOf(headings[j])===-1){el=headings[j];break;}\n  }\n  // Fallback: search backwards\n  if(!el){for(var k=idx-1;k>=0;k--){if(used.indexOf(headings[k])===-1){el=headings[k];break;}}}\n  if(el&&el.parentNode){\n    used.push(el);\n    el.parentNode.insertBefore(mkBox(z),el);\n  }else{\n    document.body.appendChild(mkBox(z));\n  }\n});\n}\nif(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});}else{setTimeout(init,300);}\n})();\n"+CT;
+          var inject="\n<style>\n.gh-zone-box{margin:0;padding:20px 24px;border-radius:10px;cursor:pointer;transition:box-shadow .2s,transform .15s;min-height:80px;display:flex;flex-direction:column;justify-content:center;}\n.gh-zone-box:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.15);}\n.gh-zone-active{outline:3px solid;outline-offset:2px;}\n.gh-zone-lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}\n.gh-zone-cta{font-size:12px;opacity:.6;margin-top:4px;}\n.gh-zone-q{font-size:14px;font-weight:700;font-style:italic;color:#1A2332;margin-bottom:8px;line-height:1.5;}\n.gh-zone-a{font-size:14px;line-height:1.65;color:#3A4553;}\n.gh-zone-tag{margin-top:8px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-block;color:#fff;}\n</style>\n"+OT+"\n(function(){\nvar ZONES="+zonesData+";\nvar applied="+appliedData+";\nvar BAD_TAGS=['button','a','input','select','textarea','svg','img','script','style','noscript'];\nvar BAD_ANC_TAGS=['button','nav','header','footer','form','select'];\nvar BAD_ANC_CLS=['gh-hero','gh-cta-modal','gh-cta-card','gh-cta-grid','gh-float-call','gh-header','gh-header-inner','elementor-widget-call-to-action','wp-block-button','wp-block-buttons','site-header'];\nfunction hasBadAnc(el){var n=el.parentNode,d=0;while(n&&n.tagName&&n.tagName.toLowerCase()!=='body'&&d<12){var t=n.tagName.toLowerCase();if(BAD_ANC_TAGS.indexOf(t)>-1)return true;if(n.classList){for(var i=0;i<BAD_ANC_CLS.length;i++){if(n.classList.contains(BAD_ANC_CLS[i]))return true;}}n=n.parentNode;d++;}return false;}\nfunction isOk(el){if(!el||!el.parentNode)return false;if(el.classList&&el.classList.contains('gh-zone-box'))return false;var t=el.tagName.toLowerCase();if(BAD_TAGS.indexOf(t)>-1)return false;if(el.offsetHeight<10)return false;if(!el.offsetParent&&t!=='body')return false;return !hasBadAnc(el);}\nfunction mkBox(z){var d=document.createElement('div');d.className='gh-zone-box';d.id='ghz-'+z.id;d.style.background=z.bg;d.style.border='2px dashed '+z.border;d.style.margin='8px 0';\nvar lbl=document.createElement('div');lbl.className='gh-zone-lbl';lbl.style.color=z.color;lbl.textContent=z.label+' \\u2014 '+z.desc;d.appendChild(lbl);\nif(applied[z.id]){var q=document.createElement('div');q.className='gh-zone-q';q.textContent='\\u201c'+applied[z.id].q+'\\u201d';d.appendChild(q);var a=document.createElement('div');a.className='gh-zone-a';a.textContent=applied[z.id].a;d.appendChild(a);var tg=document.createElement('span');tg.className='gh-zone-tag';tg.style.background=z.color;tg.textContent='\\u2713 '+applied[z.id].tag;d.appendChild(tg);}else{var ct=document.createElement('div');ct.className='gh-zone-cta';ct.style.color=z.color;ct.textContent='+ Click to activate this zone';d.appendChild(ct);}\nd.addEventListener('click',function(){document.querySelectorAll('.gh-zone-box').forEach(function(b){b.classList.remove('gh-zone-active');b.style.outlineColor='';});d.classList.add('gh-zone-active');d.style.outlineColor=z.color;window.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');});return d;}\nfunction getHeadings(){\n// Collect H2s, H3s and major section landmarks — prefer these over body text\nvar sel='h2,h3,.gh-related,.gh-faq,.gh-author,.gh-trust-strip,.gh-last-updated,.gh-cta-modal,.gh-footer-trust';\nvar all=Array.from(document.querySelectorAll(sel));\n// Filter out anything inside blocked containers\nreturn all.filter(function(el){\n  if(!el||!el.parentNode)return false;\n  if(el.offsetHeight<4)return false;\n  if(!el.offsetParent)return false;\n  return !hasBadAnc(el);\n});\n}\nfunction init(){\nvar headings=getHeadings();\nif(!headings.length){document.body.appendChild(mkBox(ZONES[0]));return;}\n// Distribute 8 zones across the heading list evenly\n// Zone i gets inserted before headings[Math.floor(i/(ZONES.length)*headings.length)]\nvar used=[];\nZONES.forEach(function(z,i){\n  var idx=Math.floor(i/ZONES.length*headings.length);\n  // Find nearest unused heading at or after idx\n  var el=null;\n  for(var j=idx;j<headings.length;j++){\n    if(used.indexOf(headings[j])===-1){el=headings[j];break;}\n  }\n  // Fallback: search backwards\n  if(!el){for(var k=idx-1;k>=0;k--){if(used.indexOf(headings[k])===-1){el=headings[k];break;}}}\n  if(el&&el.parentNode){\n    used.push(el);\n    el.parentNode.insertBefore(mkBox(z),el);\n  }else{\n    document.body.appendChild(mkBox(z));\n  }\n});\n}\n// Listen for zone updates from parent\nwindow.addEventListener('message',function(e){\n  if(!e||!e.data||e.data.type!=='gh-pb-zone-update')return;\n  var zid=e.data.zoneId,newApp=e.data.applied||{};\n  var box=document.getElementById('ghz-'+zid);\n  if(!box)return;\n  var z=null;for(var zi=0;zi<ZONES.length;zi++){if(ZONES[zi].id===zid){z=ZONES[zi];break;}}\n  if(!z)return;\n  while(box.firstChild)box.removeChild(box.firstChild);\n  var lbl=document.createElement('div');lbl.className='gh-zone-lbl';lbl.style.color=z.color;lbl.textContent=z.label+' \u2014 '+z.desc;box.appendChild(lbl);\n  if(newApp[zid]){\n    var q=document.createElement('div');q.className='gh-zone-q';q.textContent='\u201c'+newApp[zid].q+'\u201d';box.appendChild(q);\n    var a=document.createElement('div');a.className='gh-zone-a';a.textContent=newApp[zid].a;box.appendChild(a);\n    var tg=document.createElement('span');tg.className='gh-zone-tag';tg.style.background=z.color;tg.textContent='\u2713 '+newApp[zid].tag;box.appendChild(tg);\n    box.style.border='2px solid '+z.color;\n    box.scrollIntoView({behavior:'smooth',block:'center'});\n  }else{\n    var ct=document.createElement('div');ct.className='gh-zone-cta';ct.style.color=z.color;ct.textContent='+ Click to activate this zone';box.appendChild(ct);\n    box.style.border='2px dashed '+z.border;\n  }\n});\nif(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});}else{setTimeout(init,300);}\n})();\n"+CT;
           return rawHtml.replace(/<\/body>\s*<\/html>\s*$/i,'')+inject+'\n</body></html>';
         }
 
@@ -3676,6 +3718,17 @@ function App() {
           if(!card) return;
           setPbZoneApplied(function(prev){var n=Object.assign({},prev);n[pbActiveZone]={tag:card.tag,q:card.q,a:card.a,html:'<div style="padding:24px 28px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;border-radius:0 8px 8px 0;margin:0"><p style="font-size:16px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 10px;line-height:1.6">\u201c'+card.q+'\u201d</p><p style="font-size:16px;line-height:1.72;color:#3A4553;margin:0">'+card.a+'</p><span style="margin-top:10px;display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:100px;background:#0D9488;color:#fff">'+card.tag+'</span></div>'};return n;});
           setPbSelectedCard(null);
+          // Update the zone box in place via postMessage — no iframe reload
+          setTimeout(function(){
+            var iframeEl = document.querySelector('iframe[title="Page Preview"]');
+            if(iframeEl && iframeEl.contentWindow){
+              iframeEl.contentWindow.postMessage({
+                type:'gh-pb-zone-update',
+                zoneId:pbActiveZone,
+                applied:Object.assign({},pbZoneApplied)
+              },'*');
+            }
+          },50);
         }
 
         function buildWP(){
@@ -3901,7 +3954,7 @@ function App() {
                   </div>
                 )}
                 {pbPage&&pageHtml&&(
-                  <iframe key={pageKey+"|"+JSON.stringify(pbZoneApplied)} srcDoc={srcdoc} title="Page Preview"
+                  <iframe key={pageKey} srcDoc={srcdoc} title="Page Preview"
                     style={{width:"100%",height:"100%",border:"none"}} sandbox="allow-scripts"/>
                 )}
               </div>
