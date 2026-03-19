@@ -3507,17 +3507,16 @@ function App() {
       {/* ═══ PAGE BUILDER TAB ═══ */}
       {view==="pageBuilder"&&(()=>{
         const ZONES=[
-          {id:"z1",color:"#3B82F6",bg:"rgba(59,130,246,0.07)",border:"rgba(59,130,246,0.5)",label:"Zone 1",desc:"Below Instant Answers",anchor:"gh-answer",pos:"after"},
-          {id:"z2",color:"#16A34A",bg:"rgba(22,163,74,0.07)",border:"rgba(22,163,74,0.5)",label:"Zone 2",desc:"Above CTA Modal",anchor:"gh-cta-modal",pos:"before"},
-          {id:"z3",color:"#7C3AED",bg:"rgba(124,58,237,0.07)",border:"rgba(124,58,237,0.5)",label:"Zone 3",desc:"On Image / Mid Page",anchor:"gh-costs",pos:"after"},
-          {id:"z4",color:"#D97706",bg:"rgba(217,119,6,0.07)",border:"rgba(217,119,6,0.5)",label:"Zone 4",desc:"Above Trust Strip",anchor:"gh-trust-strip",pos:"before"},
-          {id:"z5",color:"#DC2626",bg:"rgba(220,38,38,0.07)",border:"rgba(220,38,38,0.5)",label:"Zone 5",desc:"Below Tip Block",anchor:"gh-tip",pos:"after"},
-          {id:"z6",color:"#0D9488",bg:"rgba(13,148,136,0.07)",border:"rgba(13,148,136,0.5)",label:"Zone 6",desc:"Above Author Card",anchor:"gh-author",pos:"before"},
-          {id:"z7",color:"#DB2777",bg:"rgba(219,39,119,0.07)",border:"rgba(219,39,119,0.5)",label:"Zone 7",desc:"Above FAQ",anchor:"gh-faq",pos:"before"},
-          {id:"z8",color:"#EA580C",bg:"rgba(234,88,12,0.07)",border:"rgba(234,88,12,0.5)",label:"Zone 8",desc:"Below FAQ",anchor:"gh-faq",pos:"after"},
+          {id:"z1",color:"#3B82F6",bg:"rgba(59,130,246,0.07)",border:"rgba(59,130,246,0.5)",label:"Zone 1",desc:"Top of Page",pct:0.10},
+          {id:"z2",color:"#16A34A",bg:"rgba(22,163,74,0.07)",border:"rgba(22,163,74,0.5)",label:"Zone 2",desc:"Upper Section",pct:0.22},
+          {id:"z3",color:"#7C3AED",bg:"rgba(124,58,237,0.07)",border:"rgba(124,58,237,0.5)",label:"Zone 3",desc:"Mid-Upper",pct:0.34},
+          {id:"z4",color:"#D97706",bg:"rgba(217,119,6,0.07)",border:"rgba(217,119,6,0.5)",label:"Zone 4",desc:"Middle",pct:0.46},
+          {id:"z5",color:"#DC2626",bg:"rgba(220,38,38,0.07)",border:"rgba(220,38,38,0.5)",label:"Zone 5",desc:"Mid-Lower",pct:0.57},
+          {id:"z6",color:"#0D9488",bg:"rgba(13,148,136,0.07)",border:"rgba(13,148,136,0.5)",label:"Zone 6",desc:"Lower Section",pct:0.68},
+          {id:"z7",color:"#DB2777",bg:"rgba(219,39,119,0.07)",border:"rgba(219,39,119,0.5)",label:"Zone 7",desc:"Near Bottom",pct:0.78},
+          {id:"z8",color:"#EA580C",bg:"rgba(234,88,12,0.07)",border:"rgba(234,88,12,0.5)",label:"Zone 8",desc:"Bottom of Page",pct:0.88},
         ];
 
-        // ── MEDICARE SEED / WATER / HARVEST ──────────────────────────────
         const MC=[
           {id:"mc-seed",tab:"medicare",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",
            q:"Every plan on the market was built with a weakness.",
@@ -3530,7 +3529,6 @@ function App() {
            a:"Most people don\u2019t know theirs until they need it most. Let\u2019s find yours before that happens."},
         ];
 
-        // ── ACA SEED / WATER / HARVEST ────────────────────────────────────
         const AC=[
           {id:"ac-seed",tab:"aca",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",
            q:"If you\u2019re buying insurance on your own, the plan you picked probably wasn\u2019t built for you.",
@@ -3543,7 +3541,6 @@ function App() {
            a:"No obligation, no sales pressure."},
         ];
 
-        // ── NEPQ (unified \u2014 works for both Medicare & ACA) ─────────────────
         const NQ=[
           {id:"nq-situation",tab:"nepq",tag:"SITUATION",tagline:"Where are they right now?",
            q:"Are you actually sure you understand what you\u2019re signing up for?",
@@ -3601,55 +3598,75 @@ ${OT}
 var ZONES=${zonesData};
 var applied=${appliedData};
 function mkBox(z){
-var d=document.createElement('div');
-d.className='gh-zone-box';
-d.id='ghz-'+z.id;
-d.style.background=z.bg;
-d.style.border='2px dashed '+z.border;
-d.style.margin='8px 0';
-var lbl=document.createElement('div');
-lbl.className='gh-zone-lbl';
-lbl.style.color=z.color;
-lbl.textContent=z.label+' \u2014 '+z.desc;
-d.appendChild(lbl);
-if(applied[z.id]){
-var q=document.createElement('div');
-q.className='gh-zone-q';
-q.textContent='\u201c'+applied[z.id].q+'\u201d';
-d.appendChild(q);
-var a=document.createElement('div');
-a.className='gh-zone-a';
-a.textContent=applied[z.id].a;
-d.appendChild(a);
-var tg=document.createElement('span');
-tg.className='gh-zone-tag';
-tg.style.background=z.color;
-tg.textContent='\u2713 '+applied[z.id].tag;
-d.appendChild(tg);
-}else{
-var ct=document.createElement('div');
-ct.className='gh-zone-cta';
-ct.style.color=z.color;
-ct.textContent='+ Click to activate this zone';
-d.appendChild(ct);
+  var d=document.createElement('div');
+  d.className='gh-zone-box';
+  d.id='ghz-'+z.id;
+  d.style.background=z.bg;
+  d.style.border='2px dashed '+z.border;
+  d.style.margin='8px 0';
+  var lbl=document.createElement('div');
+  lbl.className='gh-zone-lbl';
+  lbl.style.color=z.color;
+  lbl.textContent=z.label+' \u2014 '+z.desc;
+  d.appendChild(lbl);
+  if(applied[z.id]){
+    var q=document.createElement('div');
+    q.className='gh-zone-q';
+    q.textContent='\u201c'+applied[z.id].q+'\u201d';
+    d.appendChild(q);
+    var a=document.createElement('div');
+    a.className='gh-zone-a';
+    a.textContent=applied[z.id].a;
+    d.appendChild(a);
+    var tg=document.createElement('span');
+    tg.className='gh-zone-tag';
+    tg.style.background=z.color;
+    tg.textContent='\u2713 '+applied[z.id].tag;
+    d.appendChild(tg);
+  }else{
+    var ct=document.createElement('div');
+    ct.className='gh-zone-cta';
+    ct.style.color=z.color;
+    ct.textContent='+ Click to activate this zone';
+    d.appendChild(ct);
+  }
+  d.addEventListener('click',function(){
+    document.querySelectorAll('.gh-zone-box').forEach(function(b){b.classList.remove('gh-zone-active');b.style.outlineColor='';});
+    d.classList.add('gh-zone-active');
+    d.style.outlineColor=z.color;
+    window.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');
+  });
+  return d;
 }
-d.addEventListener('click',function(){
-document.querySelectorAll('.gh-zone-box').forEach(function(b){b.classList.remove('gh-zone-active');b.style.outlineColor='';});
-d.classList.add('gh-zone-active');
-d.style.outlineColor=z.color;
-window.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');
-});
-return d;
+function findInsertPoint(pct){
+  var totalH=Math.max(document.body.scrollHeight,document.body.offsetHeight,2000);
+  var targetY=totalH*pct;
+  var candidates=Array.from(document.querySelectorAll('p,h1,h2,h3,h4,li,section,article,div.gh-container,div.entry-content>div'));
+  candidates=candidates.filter(function(el){
+    return el.offsetHeight>10 && el.offsetParent!==null && !el.classList.contains('gh-zone-box');
+  });
+  var best=null,bestDist=Infinity;
+  candidates.forEach(function(el){
+    var rect=el.getBoundingClientRect();
+    var top=rect.top+window.pageYOffset;
+    var dist=Math.abs(top-targetY);
+    if(dist<bestDist){bestDist=dist;best=el;}
+  });
+  return best;
 }
-function ins(z){
-var nodes=document.querySelectorAll('.'+z.anchor);
-if(!nodes.length){var fb=document.querySelector('main,article,#main-content')||document.body;fb.appendChild(mkBox(z));return;}
-var el=(z.pos==='after')?nodes[nodes.length-1]:nodes[0];
-var ref=(z.pos==='after')?el.nextSibling:el;
-el.parentNode.insertBefore(mkBox(z),ref||null);
+function init(){
+  var totalH=Math.max(document.body.scrollHeight,document.body.offsetHeight,2000);
+  ZONES.forEach(function(z){
+    var el=findInsertPoint(z.pct);
+    if(el&&el.parentNode){
+      el.parentNode.insertBefore(mkBox(z),el);
+    }else{
+      document.body.appendChild(mkBox(z));
+    }
+  });
 }
-function init(){ZONES.forEach(ins);}
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{setTimeout(init,150);}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,200);});}
+else{setTimeout(init,200);}
 })();
 ${CT}`;
           return rawHtml.replace(/<\/body>\s*<\/html>\s*$/i,'')+inject+'\n</body></html>';
@@ -3787,7 +3804,6 @@ ${CT}`;
 
                 {pbActiveZone?(
                   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-                    {/* 3 tabs: MEDICARE | ACA | NEPQ */}
                     <div style={{display:"flex",borderBottom:bdr,flexShrink:0}}>
                       {[{id:"medicare",label:"MEDICARE"},{id:"aca",label:"ACA"},{id:"nepq",label:"NEPQ"}].map(t=>(
                         <button key={t.id} onClick={()=>{setPbActiveTab(t.id);setPbSelectedCard(null);}}
@@ -3805,7 +3821,7 @@ ${CT}`;
                             background:pbSelectedCard===card.id?"rgba(75,156,211,0.14)":bg,
                             border:`1.5px solid ${pbSelectedCard===card.id?"rgba(75,156,211,0.45)":"rgba(255,255,255,0.07)"}`,transition:"all .12s"}}>
                           <div style={{fontSize:10,fontWeight:800,letterSpacing:".1em",color:"#0D9488",marginBottom:3}}>{card.tag}</div>
-                          <div style={{fontSize:11,color:mc,marginBottom:6,fontStyle:"italic"}}>{card.tagline}</div>
+                          <div style={{fontSize:11,color:mc,marginBottom:5,fontStyle:"italic"}}>{card.tagline}</div>
                           <div style={{fontSize:12,fontWeight:700,color:isDark?"#E8ECF0":"#1A2332",marginBottom:5,lineHeight:1.5}}>&ldquo;{card.q}&rdquo;</div>
                           <div style={{fontSize:12,lineHeight:1.6,color:mc}}>{card.a}</div>
                         </div>
