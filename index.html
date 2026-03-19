@@ -3517,25 +3517,21 @@ function App() {
           {id:"z7",color:"#DB2777",bg:"rgba(219,39,119,0.07)",border:"rgba(219,39,119,0.5)",label:"Zone 7",desc:"Above FAQ",anchor:"gh-faq",pos:"before"},
           {id:"z8",color:"#EA580C",bg:"rgba(234,88,12,0.07)",border:"rgba(234,88,12,0.5)",label:"Zone 8",desc:"Below FAQ",anchor:"gh-faq",pos:"after"},
         ];
+
         const MC=[
-          {id:"seed",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",body:"Every plan on the market was built with a weakness. Medicare salespeople won\u2019t tell you which one you\u2019re in. I will."},
-          {id:"water",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",body:"Here\u2019s what Medicare Advantage actually costs when something goes wrong. Your $0 premium plan isn\u2019t free \u2014 you\u2019ll find that out the hard way, or you won\u2019t."},
-          {id:"harvest",tag:"HARVEST",tagline:"Close \u2014 20-minute plan analysis",body:"Every plan I\u2019ve ever reviewed has a weakness. Most people don\u2019t know theirs until they need it most. Let\u2019s find yours before that happens."},
+          {id:"m-situation",tag:"SITUATION",q:"Are you actually sure you understand what you\u2019re signing up for?",a:"Most people turning 65 get buried in Medicare mail, carrier calls, and TV ads \u2014 all saying the same thing. Nobody\u2019s sitting down with you and walking through what your plan actually covers, what it doesn\u2019t, and what it costs when something goes wrong. That\u2019s the conversation that\u2019s missing."},
+          {id:"m-problem",tag:"PROBLEM AWARENESS",q:"Do you know what your Medicare plan\u2019s weakness is?",a:"Every plan on the market was built with one. Medicare Advantage plans look great on paper \u2014 $0 premium, dental, vision, gym membership. What doesn\u2019t come up in the sales conversation is the $8,300 out-of-pocket maximum, the prior authorization requirements, or what happens when your specialist isn\u2019t in network. You won\u2019t find the weakness until you need the plan to work."},
+          {id:"m-consequence",tag:"CONSEQUENCE",q:"What happens if you\u2019re on the wrong Medicare plan when something serious comes up?",a:"Nothing \u2014 until it does. A cancer diagnosis. A surgery. A specialist your plan doesn\u2019t cover. That\u2019s when the $0 premium plan starts costing you thousands. And the part nobody mentions is that by the time you find out, the enrollment window is usually closed. You\u2019re locked in. That\u2019s not a hypothetical \u2014 that\u2019s what happens to people every year in North Carolina."},
+          {id:"m-solution",tag:"SOLUTION AWARENESS",q:"What if you could see exactly what every Medicare plan in your county costs before you ever enrolled?",a:"Not just the premium. The total \u2014 doctors verified, drugs priced, out-of-pocket maximum calculated, side by side across every plan available to you. That\u2019s how the decision should be made. Most people never get shown their plan this way. When you do, the right choice becomes obvious. That\u2019s exactly what I do in a free 20-minute review."},
+          {id:"m-commit",tag:"COMMITTING",q:"What would it mean to go into Medicare enrollment knowing exactly where you stand?",a:"No stack of mail. No guessing. No finding out later that your plan has a gap you didn\u2019t know about. Here\u2019s what I do: I pull every plan available in your county, run your doctors and drugs through each one, and show you the total annual cost side by side. One call, 20 minutes, no obligation. You leave knowing exactly what to do \u2014 and exactly why."},
         ];
+
         const AC=[
-          {id:"seed",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",body:"If you\u2019re buying insurance on your own, the plan you picked probably wasn\u2019t built for you. It was built for the healthiest version of you."},
-          {id:"water",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",body:"When you call the number on the letterhead, you\u2019re not talking to someone who knows your doctors. You\u2019re talking to a call center."},
-          {id:"harvest",tag:"HARVEST",tagline:"Close \u2014 free plan review",body:"I can show you in 15 minutes whether your current plan is costing you more than it should. No obligation, no sales pressure."},
-        ];
-        const NC=[
-          {id:"consequence",tag:"CONSEQUENCE",tagline:"What happens if nothing changes?"},
-          {id:"problem",tag:"PROBLEM AWARENESS",tagline:"Do they know there\u2019s a problem?"},
-          {id:"situation",tag:"SITUATION",tagline:"Where are they right now?"},
-          {id:"solution",tag:"SOLUTION AWARENESS",tagline:"Do they see the better path?"},
-          {id:"qualifying",tag:"QUALIFYING",tagline:"Are they the right fit?"},
-          {id:"transition",tag:"TRANSITION",tagline:"Move from talking to deciding"},
-          {id:"committing",tag:"COMMITTING",tagline:"Lock in the next step"},
-          {id:"quote",tag:"QUOTE ACCESS",tagline:"Get permission to show numbers"},
+          {id:"a-situation",tag:"SITUATION",q:"Do you know what your health insurance actually costs \u2014 not the premium, the real cost?",a:"Most people on marketplace coverage picked based on the monthly premium and moved on. What they didn\u2019t look at was the deductible, the network, or the out-of-pocket maximum. The premium is just the entry fee. The real number is what you\u2019d pay in a bad year."},
+          {id:"a-problem",tag:"PROBLEM AWARENESS",q:"Has anyone actually checked whether your doctors take your plan?",a:"Most people assume their doctor is covered. They picked a plan, paid the premium, and never verified the network. Then they get a bill marked out-of-network for a doctor they\u2019ve seen for years. The marketplace makes it easy to enroll. It doesn\u2019t make it easy to understand what you actually bought."},
+          {id:"a-consequence",tag:"CONSEQUENCE",q:"What does your current plan actually cost you if you have a bad year health-wise?",a:"Add it up. Premium, deductible, copays, any prescriptions not on the formulary. Most people have never done that math. They see the subsidized premium and assume they\u2019re covered. The deductible alone on some marketplace plans is $7,000 or higher. If you haven\u2019t looked at the full picture, you don\u2019t actually know what your insurance costs."},
+          {id:"a-solution",tag:"SOLUTION AWARENESS",q:"What if you knew your real subsidy number and your actual out-of-pocket exposure before you picked a plan?",a:"Most people guess on both. They estimate income, pick a premium that looks affordable, and hope for the best. When you calculate the real subsidy, run the actual drugs and doctors through each plan, and look at what a real year costs \u2014 not just the monthly payment \u2014 the right plan becomes clear. That\u2019s a conversation most people never have. It takes 20 minutes."},
+          {id:"a-commit",tag:"COMMITTING",q:"What would it be worth to know you\u2019re on the right plan and not overpaying?",a:"Most people never find out \u2014 they just renew what they had and hope it still works. Here\u2019s what I do: I calculate your actual subsidy, run your income and your healthcare needs against every plan on the marketplace, and show you the real number for the year. One call, 20 minutes, no obligation, no follow-up calls from strangers. You leave knowing whether you\u2019re overpaying, underprotected, or both."},
         ];
 
         const allPages=clusters.flatMap(cl=>(cl.posts||[]).map((p,i)=>({...p,clusterName:cl.name,clusterId:cl.id,key:cl.id+"-"+i,idx:i}))).filter(p=>p.slug);
@@ -3554,29 +3550,91 @@ function App() {
           setPbFetching(false);
         };
 
-        const getSrcdoc=(html,applied)=>{
-          if(!html)return"<html><body style='font-family:sans-serif;padding:40px;text-align:center;color:#6B7B8D'><p>No HTML fetched yet</p></body></html>";
+        const getSrcdoc=(rawHtml,applied)=>{
+          if(!rawHtml)return"<html><body style='font-family:sans-serif;padding:40px;text-align:center;color:#6B7B8D'><p>No HTML fetched yet</p></body></html>";
           const zonesData=JSON.stringify(ZONES);
           const appliedData=JSON.stringify(applied||{});
           const OT='<'+'script>';
           const CT='<'+'/'+'script>';
-          const inject=`\n<style>\n.gh-zone-box{margin:0;padding:18px 24px;border-radius:10px;cursor:pointer;transition:box-shadow .2s,transform .15s;min-height:76px;display:flex;flex-direction:column;justify-content:center;position:relative;}\n.gh-zone-box:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.12);}\n.gh-zone-active{outline:3px solid;outline-offset:2px;}\n.gh-zone-lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:5px;}\n.gh-zone-cta{font-size:12px;opacity:.55;margin-top:3px;}\n.gh-zone-content{font-size:14px;line-height:1.65;color:#1A2332;margin-top:6px;}\n.gh-zone-tag{margin-top:8px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-block;color:#fff;}\n</style>\n${OT}\n(function(){\nvar ZONES=${zonesData};\nvar applied=${appliedData};\nfunction mkBox(z){\nvar d=document.createElement('div');\nd.className='gh-zone-box';\nd.id='ghz-'+z.id;\nd.style.background=z.bg;\nd.style.border='2px dashed '+z.border;\nvar lbl=document.createElement('div');\nlbl.className='gh-zone-lbl';\nlbl.style.color=z.color;\nlbl.textContent=z.label+' \u2014 '+z.desc;\nd.appendChild(lbl);\nif(applied[z.id]){\nvar cv=document.createElement('div');\ncv.className='gh-zone-content';\ncv.innerHTML=applied[z.id].html||'';\nd.appendChild(cv);\nvar tg=document.createElement('span');\ntg.className='gh-zone-tag';\ntg.style.background=z.color;\ntg.textContent='\u2713 '+z.id.toUpperCase()+' applied';\nd.appendChild(tg);\n}else{\nvar ct=document.createElement('div');\nct.className='gh-zone-cta';\nct.style.color=z.color;\nct.textContent='+ Click to activate this zone';\nd.appendChild(ct);\n}\nd.addEventListener('click',function(){\ndocument.querySelectorAll('.gh-zone-box').forEach(function(b){b.classList.remove('gh-zone-active');});\nd.classList.add('gh-zone-active');\nwindow.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');\n});\nreturn d;\n}\nfunction ins(z){\nvar nodes=document.querySelectorAll('.'+z.anchor);\nif(!nodes.length){var fb=document.querySelector('main,article,#main-content')||document.body;fb.appendChild(mkBox(z));return;}\nvar el=(z.pos==='after')?nodes[nodes.length-1]:nodes[0];\nvar ref=(z.pos==='after')?el.nextSibling:el;\nel.parentNode.insertBefore(mkBox(z),ref);\n}\nfunction init(){ZONES.forEach(ins);}\nif(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{setTimeout(init,120);}\n})();\n${CT}`;
-          return html.replace(/<\/body>\s*<\/html>\s*$/i,'')+inject+'\n</body></html>';
+          const inject=`\n<style>
+.gh-zone-box{margin:0;padding:20px 24px;border-radius:10px;cursor:pointer;transition:box-shadow .2s,transform .15s;min-height:80px;display:flex;flex-direction:column;justify-content:center;position:relative;}
+.gh-zone-box:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.15);}
+.gh-zone-active{outline:3px solid;outline-offset:2px;}
+.gh-zone-lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.gh-zone-cta{font-size:12px;opacity:.6;margin-top:4px;}
+.gh-zone-q{font-size:13px;font-weight:700;font-style:italic;color:#1A2332;margin-bottom:6px;line-height:1.5;}
+.gh-zone-a{font-size:13px;line-height:1.65;color:#3A4553;}
+.gh-zone-tag{margin-top:8px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-block;color:#fff;}
+</style>
+${OT}
+(function(){
+var ZONES=${zonesData};
+var applied=${appliedData};
+function mkBox(z){
+var d=document.createElement('div');
+d.className='gh-zone-box';
+d.id='ghz-'+z.id;
+d.style.background=z.bg;
+d.style.border='2px dashed '+z.border;
+d.style.margin='8px 0';
+var lbl=document.createElement('div');
+lbl.className='gh-zone-lbl';
+lbl.style.color=z.color;
+lbl.textContent=z.label+' \u2014 '+z.desc;
+d.appendChild(lbl);
+if(applied[z.id]){
+var q=document.createElement('div');
+q.className='gh-zone-q';
+q.textContent='\u201c'+applied[z.id].q+'\u201d';
+d.appendChild(q);
+var a=document.createElement('div');
+a.className='gh-zone-a';
+a.textContent=applied[z.id].a;
+d.appendChild(a);
+var tg=document.createElement('span');
+tg.className='gh-zone-tag';
+tg.style.background=z.color;
+tg.textContent='\u2713 '+applied[z.id].tag;
+d.appendChild(tg);
+}else{
+var ct=document.createElement('div');
+ct.className='gh-zone-cta';
+ct.style.color=z.color;
+ct.textContent='+ Click to activate this zone';
+d.appendChild(ct);
+}
+d.addEventListener('click',function(){
+document.querySelectorAll('.gh-zone-box').forEach(function(b){b.classList.remove('gh-zone-active');b.style.outlineColor='';});
+d.classList.add('gh-zone-active');
+d.style.outlineColor=z.color;
+window.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');
+});
+return d;
+}
+function ins(z){
+var nodes=document.querySelectorAll('.'+z.anchor);
+if(!nodes.length){var fb=document.querySelector('main,article,#main-content')||document.body;fb.appendChild(mkBox(z));return;}
+var el=(z.pos==='after')?nodes[nodes.length-1]:nodes[0];
+var ref=(z.pos==='after')?el.nextSibling:el;
+el.parentNode.insertBefore(mkBox(z),ref||null);
+}
+function init(){ZONES.forEach(ins);}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{setTimeout(init,150);}
+})();
+${CT}`;
+          return rawHtml.replace(/<\/body>\s*<\/html>\s*$/i,'')+inject+'\n</body></html>';
         };
 
         const applyCard=()=>{
           if(!pbActiveZone||!pbSelectedCard)return;
-          const wrap=(tag,body)=>({tag,html:`<div style="padding:20px 24px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;border-radius:0 8px 8px 0;margin:0"><strong style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:#0D9488">${tag}</strong><p style="margin:8px 0 0;font-size:15px;line-height:1.72;color:#1A2332">${body}</p></div>`});
-          let content=null;
-          if(pbActiveTab==="medicare"){const c=MC.find(x=>x.id===pbSelectedCard);if(c)content=wrap(c.tag,c.body);}
-          else if(pbActiveTab==="aca"){const c=AC.find(x=>x.id===pbSelectedCard);if(c)content=wrap(c.tag,c.body);}
-          else if(pbActiveTab==="nepq"){const draft=pbNepqDrafts[pbSelectedCard]||"";const c=NC.find(x=>x.id===pbSelectedCard);if(c&&draft.length>5)content=wrap(c.tag,draft);}
-          if(!content)return;
-          setPbZoneApplied(prev=>({...prev,[pbActiveZone]:content}));
+          const allCards=[...MC,...AC];
+          const card=allCards.find(c=>c.id===pbSelectedCard);
+          if(!card)return;
+          setPbZoneApplied(prev=>({...prev,[pbActiveZone]:{tag:card.tag,q:card.q,a:card.a,html:`<div style="padding:24px 28px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;border-radius:0 8px 8px 0;margin:0"><p style="font-size:15px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 10px;line-height:1.6">\u201c${card.q}\u201d</p><p style="font-size:15px;line-height:1.72;color:#3A4553;margin:0">${card.a}</p><span style="margin-top:10px;display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:100px;background:#0D9488;color:#fff">${card.tag}</span></div>`}}));
           setPbSelectedCard(null);
         };
 
-        const buildWP=()=>ZONES.filter(z=>pbZoneApplied[z.id]).sort((a,b)=>parseInt(a.id.slice(1))-parseInt(b.id.slice(1))).map(z=>`<div class="gh-nepq-block" style="padding:28px 32px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;margin:32px 0">${pbZoneApplied[z.id].html}</div>`).join('\n\n');
+        const buildWP=()=>ZONES.filter(z=>pbZoneApplied[z.id]).sort((a,b)=>parseInt(a.id.slice(1))-parseInt(b.id.slice(1))).map(z=>`<div class="gh-nepq-block" style="padding:28px 32px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;margin:32px 0"><p style="font-size:17px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 12px;line-height:1.6">\u201c${pbZoneApplied[z.id].q}\u201d</p><p style="font-size:17px;line-height:1.78;color:#3A4553;margin:0">${pbZoneApplied[z.id].a}</p></div>`).join('\n\n');
 
         const pageKey=pbPage?pbPage.clusterId+"-"+pbPage.idx:null;
         const pageHtml=pageKey&&savedHTML[pageKey]?savedHTML[pageKey]:null;
@@ -3587,11 +3645,12 @@ function App() {
         const bdr=isDark?"1px solid rgba(255,255,255,0.08)":"1px solid rgba(0,0,0,0.08)";
         const tc=isDark?"#E8ECF0":"#1A2332";
         const mc=isDark?"#6B7B8D":"#718096";
+        const activeCards=pbActiveTab==="medicare"?MC:AC;
 
         return (
           <div style={{height:"calc(100vh - 116px)",display:"flex",flexDirection:"column",overflow:"hidden"}}>
 
-            {/* Header */}
+            {/* Header bar */}
             <div style={{padding:"10px 20px",borderBottom:bdr,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,background:isDark?"rgba(255,255,255,0.02)":"rgba(0,0,0,0.02)"}}>
               <div style={{display:"flex",alignItems:"center",gap:14}}>
                 <div>
@@ -3628,10 +3687,9 @@ function App() {
 
               {/* LEFT — page list */}
               <div style={{borderRight:bdr,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-                <div style={{padding:"10px 12px",borderBottom:bdr}}>
+                <div style={{padding:"10px 12px",borderBottom:bdr,flexShrink:0}}>
                   <input value={pbSearch} onChange={e=>setPbSearch(e.target.value)} placeholder="Search pages..."
-                    style={{width:"100%",padding:"7px 11px",borderRadius:8,border:bdr,background:bg,color:tc,fontSize:12,outline:"none"}}
-                  />
+                    style={{width:"100%",padding:"7px 11px",borderRadius:8,border:bdr,background:bg,color:tc,fontSize:12,outline:"none"}}/>
                   <div style={{fontSize:10,color:mc,marginTop:5,textAlign:"right"}}>{filteredPages.length} pages</div>
                 </div>
                 <div style={{flex:1,overflowY:"auto",padding:8}}>
@@ -3641,19 +3699,17 @@ function App() {
                     const isSel=pbPage&&pbPage.key===key;
                     const isFetchingThis=pbFetching&&pbPage&&pbPage.key===key;
                     return (
-                      <div key={key}
-                        onClick={()=>{setPbPage(page);setPbActiveZone(null);setPbSelectedCard(null);setPbZoneApplied({});setPbApproved(false);}}
+                      <div key={key} onClick={()=>{setPbPage(page);setPbActiveZone(null);setPbSelectedCard(null);setPbZoneApplied({});setPbApproved(false);}}
                         style={{padding:"9px 11px",borderRadius:8,marginBottom:3,cursor:"pointer",
                           background:isSel?"rgba(75,156,211,0.12)":"transparent",
-                          border:`1px solid ${isSel?"rgba(75,156,211,0.3)":"transparent"}`,transition:"all .12s"}}
-                      >
+                          border:`1px solid ${isSel?"rgba(75,156,211,0.3)":"transparent"}`,transition:"all .12s"}}>
                         <div style={{fontSize:12,fontWeight:600,color:isSel?"#4B9CD3":tc,marginBottom:2,lineHeight:1.4}}>{page.name}</div>
                         <div style={{fontSize:10,color:"#4B5C6E",marginBottom:5}}>/{page.slug}</div>
                         {hasHtml
                           ?<span style={{fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:100,background:"rgba(22,163,74,0.12)",color:"#16A34A"}}>✓ Ready</span>
                           :<button onClick={e=>{e.stopPropagation();setPbPage(page);handleFetch(page);}}
-                            style={{fontSize:10,fontWeight:700,padding:"2px 9px",borderRadius:100,border:"1px solid rgba(255,199,44,0.4)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",cursor:"pointer"}}
-                          >{isFetchingThis?"Fetching…":"⬇ Fetch HTML"}</button>
+                            style={{fontSize:10,fontWeight:700,padding:"2px 9px",borderRadius:100,border:"1px solid rgba(255,199,44,0.4)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",cursor:"pointer"}}>
+                            {isFetchingThis?"Fetching…":"⬇ Fetch HTML"}</button>
                         }
                       </div>
                     );
@@ -3674,20 +3730,15 @@ function App() {
                   <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:14,color:mc}}>
                     <div style={{fontSize:40}}>📄</div>
                     <div style={{fontSize:15,fontWeight:700,color:tc}}>{pbPage.name}</div>
-                    <div style={{fontSize:12,color:mc,textAlign:"center",maxWidth:320}}>Fetch the live page HTML to see it here with the 8 zone boxes in their correct positions.</div>
+                    <div style={{fontSize:12,color:mc,textAlign:"center",maxWidth:320}}>Fetch the live page HTML to see it here with the 8 colored zone boxes in their correct positions.</div>
                     <button onClick={()=>handleFetch(pbPage)} disabled={pbFetching}
-                      style={{padding:"10px 28px",borderRadius:10,border:"none",background:"#4B9CD3",color:"#fff",fontSize:14,fontWeight:700,cursor:pbFetching?"wait":"pointer",opacity:pbFetching?.6:1}}
-                    >{pbFetching?"Fetching…":"⬇ Fetch Page HTML"}</button>
+                      style={{padding:"10px 28px",borderRadius:10,border:"none",background:"#4B9CD3",color:"#fff",fontSize:14,fontWeight:700,cursor:pbFetching?"wait":"pointer",opacity:pbFetching?.6:1}}>
+                      {pbFetching?"Fetching…":"⬇ Fetch Page HTML"}</button>
                   </div>
                 )}
                 {pbPage&&pageHtml&&(
-                  <iframe
-                    key={pageKey+"|"+JSON.stringify(pbZoneApplied)}
-                    srcDoc={srcdoc}
-                    title="Page Preview"
-                    style={{width:"100%",height:"100%",border:"none"}}
-                    sandbox="allow-scripts"
-                  />
+                  <iframe key={pageKey+"|"+JSON.stringify(pbZoneApplied)} srcDoc={srcdoc} title="Page Preview"
+                    style={{width:"100%",height:"100%",border:"none"}} sandbox="allow-scripts"/>
                 )}
               </div>
 
@@ -3698,74 +3749,39 @@ function App() {
                   <div style={{fontSize:11,color:mc,marginTop:2,lineHeight:1.5}}>
                     {pbActiveZone
                       ?(()=>{const z=ZONES.find(x=>x.id===pbActiveZone);return z?z.label+" \u2014 "+z.desc+" activated":"Zone active";})()
-                      :"Click a colored zone on the page to activate"
-                    }
+                      :"Click a colored zone on the page to activate"}
                   </div>
                 </div>
 
                 {pbActiveZone?(
                   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
                     <div style={{display:"flex",borderBottom:bdr,flexShrink:0}}>
-                      {[{id:"medicare",label:"MEDICARE"},{id:"aca",label:"ACA"},{id:"nepq",label:"NEPQ"}].map(t=>(
+                      {[{id:"medicare",label:"MEDICARE"},{id:"aca",label:"ACA"}].map(t=>(
                         <button key={t.id} onClick={()=>{setPbActiveTab(t.id);setPbSelectedCard(null);}}
                           style={{flex:1,padding:"9px 0",border:"none",background:"transparent",
                             color:pbActiveTab===t.id?(isDark?"#fff":"#1A2332"):mc,
                             fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:".06em",
-                            borderBottom:pbActiveTab===t.id?"2px solid #4B9CD3":"2px solid transparent"}}
-                        >{t.label}</button>
+                            borderBottom:pbActiveTab===t.id?"2px solid #4B9CD3":"2px solid transparent"}}>
+                          {t.label}</button>
                       ))}
                     </div>
                     <div style={{flex:1,overflowY:"auto",padding:10}}>
-                      {pbActiveTab==="medicare"&&MC.map(card=>(
+                      {activeCards.map(card=>(
                         <div key={card.id} onClick={()=>setPbSelectedCard(card.id)}
-                          style={{padding:"13px",borderRadius:10,marginBottom:7,cursor:"pointer",
+                          style={{padding:"13px",borderRadius:10,marginBottom:8,cursor:"pointer",
                             background:pbSelectedCard===card.id?"rgba(75,156,211,0.14)":bg,
-                            border:`1.5px solid ${pbSelectedCard===card.id?"rgba(75,156,211,0.45)":"rgba(255,255,255,0.07)"}`,transition:"all .12s"}}
-                        >
-                          <div style={{fontSize:10,fontWeight:800,letterSpacing:".1em",color:"#0D9488",marginBottom:3}}>{card.tag}</div>
-                          <div style={{fontSize:12,fontWeight:600,color:isDark?"#C4CDD5":"#374151",marginBottom:5}}>{card.tagline}</div>
-                          <div style={{fontSize:12,lineHeight:1.6,color:mc}}>{card.body}</div>
-                        </div>
-                      ))}
-                      {pbActiveTab==="aca"&&AC.map(card=>(
-                        <div key={card.id} onClick={()=>setPbSelectedCard(card.id)}
-                          style={{padding:"13px",borderRadius:10,marginBottom:7,cursor:"pointer",
-                            background:pbSelectedCard===card.id?"rgba(75,156,211,0.14)":bg,
-                            border:`1.5px solid ${pbSelectedCard===card.id?"rgba(75,156,211,0.45)":"rgba(255,255,255,0.07)"}`,transition:"all .12s"}}
-                        >
-                          <div style={{fontSize:10,fontWeight:800,letterSpacing:".1em",color:"#0D9488",marginBottom:3}}>{card.tag}</div>
-                          <div style={{fontSize:12,fontWeight:600,color:isDark?"#C4CDD5":"#374151",marginBottom:5}}>{card.tagline}</div>
-                          <div style={{fontSize:12,lineHeight:1.6,color:mc}}>{card.body}</div>
-                        </div>
-                      ))}
-                      {pbActiveTab==="nepq"&&NC.map(card=>(
-                        <div key={card.id} style={{marginBottom:10}}>
-                          <div onClick={()=>setPbSelectedCard(card.id)}
-                            style={{padding:"9px 12px",borderRadius:"8px 8px 0 0",cursor:"pointer",
-                              background:pbSelectedCard===card.id?"rgba(75,156,211,0.14)":bg,
-                              border:`1.5px solid ${pbSelectedCard===card.id?"rgba(75,156,211,0.45)":"rgba(255,255,255,0.07)"}`,borderBottom:"none"}}
-                          >
-                            <div style={{fontSize:10,fontWeight:800,letterSpacing:".1em",color:"#0D9488"}}>{card.tag}</div>
-                            <div style={{fontSize:11,color:mc,marginTop:2}}>{card.tagline}</div>
-                          </div>
-                          <textarea
-                            placeholder="Write your NEPQ copy here\u2026"
-                            value={pbNepqDrafts[card.id]||""}
-                            onChange={e=>{setPbNepqDrafts(prev=>({...prev,[card.id]:e.target.value}));if(pbSelectedCard!==card.id)setPbSelectedCard(card.id);}}
-                            style={{width:"100%",padding:"9px 12px",borderRadius:"0 0 8px 8px",
-                              border:`1.5px solid ${pbSelectedCard===card.id?"rgba(75,156,211,0.45)":"rgba(255,255,255,0.07)"}`,borderTop:"1px solid rgba(255,255,255,0.04)",
-                              background:isDark?"rgba(255,255,255,0.03)":"rgba(0,0,0,0.02)",
-                              color:tc,fontSize:12,lineHeight:1.6,resize:"vertical",minHeight:68,outline:"none",fontFamily:"inherit"}}
-                            rows={3}
-                          />
+                            border:`1.5px solid ${pbSelectedCard===card.id?"rgba(75,156,211,0.45)":"rgba(255,255,255,0.07)"}`,transition:"all .12s"}}>
+                          <div style={{fontSize:10,fontWeight:800,letterSpacing:".1em",color:"#0D9488",marginBottom:4}}>{card.tag}</div>
+                          <div style={{fontSize:13,fontWeight:700,fontStyle:"italic",color:isDark?"#E8ECF0":"#1A2332",marginBottom:6,lineHeight:1.5}}>&ldquo;{card.q}&rdquo;</div>
+                          <div style={{fontSize:12,lineHeight:1.6,color:mc}}>{card.a}</div>
                         </div>
                       ))}
                     </div>
                     {pbSelectedCard&&(
                       <div style={{padding:"10px 12px",borderTop:bdr,flexShrink:0}}>
                         <button onClick={applyCard}
-                          style={{width:"100%",padding:"11px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#0D9488,#14B8A6)",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}
-                        >&#10003; Apply to {(ZONES.find(z=>z.id===pbActiveZone)||{}).label||pbActiveZone.toUpperCase()}</button>
+                          style={{width:"100%",padding:"11px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#0D9488,#14B8A6)",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>
+                          &#10003; Apply to {(ZONES.find(z=>z.id===pbActiveZone)||{}).label||pbActiveZone.toUpperCase()}</button>
                         {pbZoneApplied[pbActiveZone]&&(
                           <div style={{marginTop:5,fontSize:11,color:"#16A34A",textAlign:"center"}}>Zone has content \u2014 applying will replace it</div>
                         )}
@@ -3779,8 +3795,7 @@ function App() {
                     </div>
                     {ZONES.map(z=>(
                       <div key={z.id} onClick={()=>{setPbActiveZone(z.id);setPbSelectedCard(null);}}
-                        style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,marginBottom:4,cursor:"pointer",background:bg,border:bdr,transition:"all .12s"}}
-                      >
+                        style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,marginBottom:4,cursor:"pointer",background:bg,border:bdr,transition:"all .12s"}}>
                         <div style={{width:10,height:10,borderRadius:"50%",background:z.color,flexShrink:0}}/>
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{fontSize:11,fontWeight:700,color:tc}}>{z.label}</div>
