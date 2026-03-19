@@ -3598,50 +3598,42 @@ ${OT}
 var ZONES=${zonesData};
 var applied=${appliedData};
 
-// Classes/tags that are off-limits for injection
-var SKIP_CLASSES=['gh-hero','gh-cta-modal','gh-cta-card','gh-quiz','gh-float-call',
-  'gh-costs','gh-header','elementor-widget','nav','header','footer',
-  'wp-block-buttons','wp-block-button','gh-trust-badge','gh-author-header'];
-var SKIP_TAGS=['button','a','input','select','textarea','svg','img','form','nav','header','footer'];
+// Tags and classes that are NEVER eligible for injection next to
+var BAD_TAGS=['button','a','input','select','textarea','svg','img','script','style','noscript'];
+var BAD_ANCESTOR_TAGS=['button','nav','header','footer','form','select'];
+var BAD_ANCESTOR_CLASSES=['gh-hero','gh-cta-modal','gh-cta-card','gh-cta-grid',
+  'elementor-widget-call-to-action','wp-block-button','gh-float-call',
+  'gh-header','gh-header-inner','site-header','wp-block-buttons'];
 
-function isInsideSkipped(el){
+function hasBlockedAncestor(el){
   var node=el.parentNode;
-  while(node&&node!==document.body){
-    // Skip by tag
-    if(node.tagName&&SKIP_TAGS.indexOf(node.tagName.toLowerCase())>-1) return true;
-    // Skip by class
+  var depth=0;
+  while(node&&node.tagName&&node.tagName.toLowerCase()!=='body'&&depth<12){
+    var tag=node.tagName.toLowerCase();
+    if(BAD_ANCESTOR_TAGS.indexOf(tag)>-1) return true;
     if(node.classList){
-      for(var i=0;i<SKIP_CLASSES.length;i++){
-        if(node.classList.contains(SKIP_CLASSES[i])) return true;
+      for(var i=0;i<BAD_ANCESTOR_CLASSES.length;i++){
+        if(node.classList.contains(BAD_ANCESTOR_CLASSES[i])) return true;
       }
     }
-    // Skip dark/colored background sections (CTA blocks, quiz, etc.)
-    var bg=node.style&&node.style.background||'';
-    var bgc=node.style&&node.style.backgroundColor||'';
-    // Skip elements inside anything with a dark background (rgb values < 80 avg)
-    if(bg.indexOf('linear-gradient')>-1&&(bg.indexOf('#0B25')>-1||bg.indexOf('#162')>-1||bg.indexOf('#00529')>-1||bg.indexOf('0,82,')>-1)) return true;
     node=node.parentNode;
+    depth++;
   }
   return false;
 }
 
-function isGoodCandidate(el){
+function isEligible(el){
   if(!el||!el.parentNode) return false;
   if(el.classList&&el.classList.contains('gh-zone-box')) return false;
-  if(SKIP_TAGS.indexOf(el.tagName.toLowerCase())>-1) return false;
-  if(el.offsetHeight<8||!el.offsetParent) return false;
-  if(isInsideSkipped(el)) return false;
-  // Must be a direct content element
   var tag=el.tagName.toLowerCase();
-  var goodTags=['p','h1','h2','h3','h4','h5','li','blockquote','details'];
-  var goodClasses=['gh-answer','gh-tip','gh-warning','gh-related','gh-faq','gh-last-updated','gh-footer-trust'];
-  if(goodTags.indexOf(tag)>-1) return true;
-  if(el.classList){
-    for(var i=0;i<goodClasses.length;i++){
-      if(el.classList.contains(goodClasses[i])) return true;
-    }
-  }
-  return false;
+  if(BAD_TAGS.indexOf(tag)>-1) return false;
+  // Must have some rendered height
+  if(el.offsetHeight<10) return false;
+  // Must be visible
+  if(!el.offsetParent&&tag!=='body') return false;
+  // Walk ancestors — reject if inside a blocked container
+  if(hasBlockedAncestor(el)) return false;
+  return true;
 }
 
 function mkBox(z){
@@ -3678,7 +3670,10 @@ function mkBox(z){
     d.appendChild(ct);
   }
   d.addEventListener('click',function(){
-    document.querySelectorAll('.gh-zone-box').forEach(function(b){b.classList.remove('gh-zone-active');b.style.outlineColor='';});
+    document.querySelectorAll('.gh-zone-box').forEach(function(b){
+      b.classList.remove('gh-zone-active');
+      b.style.outlineColor='';
+    });
     d.classList.add('gh-zone-active');
     d.style.outlineColor=z.color;
     window.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');
@@ -3686,35 +3681,42 @@ function mkBox(z){
   return d;
 }
 
-function findInsertPoint(pct){
+function buildCandidateList(){
+  // Grab a wide set of block-level elements
+  var sel='p,h1,h2,h3,h4,h5,li,blockquote,td,section,article,aside,'+
+          'div.gh-answer,div.gh-tip,div.gh-warning,div.gh-related,'+
+          'div.gh-faq,div.gh-last-updated,div.entry-content > div,'+
+          'div.wp-block-group,div.elementor-widget-container > p';
+  var all=Array.from(document.querySelectorAll(sel));
+  return all.filter(isEligible);
+}
+
+function findInsertPoint(pct,candidates){
   var totalH=Math.max(document.body.scrollHeight,document.body.offsetHeight,2000);
   var targetY=totalH*pct;
-  // Get all good candidates sorted by their distance from target
-  var all=Array.from(document.querySelectorAll('p,h2,h3,h4,li,.gh-answer,.gh-tip,.gh-warning,.gh-related,.gh-faq,.gh-last-updated'));
-  var good=all.filter(isGoodCandidate);
-  if(!good.length) return null;
-  // Sort by distance to target position
-  good.sort(function(a,b){
-    var ay=a.getBoundingClientRect().top+window.pageYOffset;
-    var by=b.getBoundingClientRect().top+window.pageYOffset;
-    return Math.abs(ay-targetY)-Math.abs(by-targetY);
-  });
-  return good[0]||null;
+  var best=null,bestDist=Infinity;
+  for(var i=0;i<candidates.length;i++){
+    var el=candidates[i];
+    var rect=el.getBoundingClientRect();
+    var top=rect.top+window.pageYOffset;
+    var dist=Math.abs(top-targetY);
+    if(dist<bestDist){bestDist=dist;best=el;}
+  }
+  return best;
 }
 
 function init(){
+  var candidates=buildCandidateList();
+  var used=[];
   ZONES.forEach(function(z){
-    var el=findInsertPoint(z.pct);
+    // Filter out already-used elements so no two zones land on the same element
+    var avail=candidates.filter(function(c){return used.indexOf(c)===-1;});
+    var el=findInsertPoint(z.pct,avail);
     if(el&&el.parentNode){
+      used.push(el);
       el.parentNode.insertBefore(mkBox(z),el);
-    } else {
-      // Last resort: find any paragraph in the main content area
-      var fallback=document.querySelector('article p, main p, .entry-content p');
-      if(fallback&&fallback.parentNode){
-        fallback.parentNode.appendChild(mkBox(z));
-      } else {
-        document.body.appendChild(mkBox(z));
-      }
+    }else{
+      document.body.appendChild(mkBox(z));
     }
   });
 }
