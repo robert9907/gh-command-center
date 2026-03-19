@@ -1534,7 +1534,6 @@ function App() {
     try { window.location.href = authUrl; } catch(e) { setGa4Error("Cannot redirect in sandboxed preview. Download the Command Center HTML file and open it in a regular browser tab."); }
   }, [ga4ClientId]);
 
-  // Page Builder zone click listener
   useEffect(()=>{
     function onMsg(e){if(e&&e.data&&e.data.type==="gh-pb-zone"&&e.data.zoneId){setPbActiveZone(e.data.zoneId);setPbSelectedCard(null);}}
     window.addEventListener("message",onMsg);
@@ -3506,7 +3505,15 @@ function App() {
 
       {/* ═══ PAGE BUILDER TAB ═══ */}
       {view==="pageBuilder"&&(()=>{
-        const ZONES=[
+        var isDark = theme==="dark";
+        var bg  = isDark?"rgba(255,255,255,0.03)":"rgba(255,255,255,0.9)";
+        var br  = isDark?"1px solid rgba(255,255,255,0.08)":"1px solid rgba(0,0,0,0.08)";
+        var tc  = isDark?"#E8ECF0":"#1a1a2e";
+        var mc  = isDark?"#6B7B8D":"#888";
+        var bdr = isDark?"1px solid rgba(255,255,255,0.08)":"1px solid rgba(0,0,0,0.08)";
+
+        // ── Zones (percentage-based) ──────────────────────────────────────────
+        var ZONES=[
           {id:"z1",color:"#3B82F6",bg:"rgba(59,130,246,0.07)",border:"rgba(59,130,246,0.5)",label:"Zone 1",desc:"Top of Page",pct:0.10},
           {id:"z2",color:"#16A34A",bg:"rgba(22,163,74,0.07)",border:"rgba(22,163,74,0.5)",label:"Zone 2",desc:"Upper Section",pct:0.22},
           {id:"z3",color:"#7C3AED",bg:"rgba(124,58,237,0.07)",border:"rgba(124,58,237,0.5)",label:"Zone 3",desc:"Mid-Upper",pct:0.34},
@@ -3517,256 +3524,193 @@ function App() {
           {id:"z8",color:"#EA580C",bg:"rgba(234,88,12,0.07)",border:"rgba(234,88,12,0.5)",label:"Zone 8",desc:"Bottom of Page",pct:0.88},
         ];
 
-        const MC=[
-          {id:"mc-seed",tab:"medicare",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",
-           q:"Every plan on the market was built with a weakness.",
-           a:"Medicare salespeople won\u2019t tell you which one you\u2019re in. I will."},
-          {id:"mc-water",tab:"medicare",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",
-           q:"Here\u2019s what Medicare Advantage actually costs when something goes wrong.",
-           a:"Your $0 premium plan isn\u2019t free \u2014 you\u2019ll find that out the hard way, or you won\u2019t."},
-          {id:"mc-harvest",tab:"medicare",tag:"HARVEST",tagline:"Close \u2014 20-minute plan analysis",
-           q:"Every plan I\u2019ve ever reviewed has a weakness.",
-           a:"Most people don\u2019t know theirs until they need it most. Let\u2019s find yours before that happens."},
+        // ── Content cards ─────────────────────────────────────────────────────
+        var MC=[
+          {id:"mc-seed",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",q:"Every plan on the market was built with a weakness.",a:"Medicare salespeople won\u2019t tell you which one you\u2019re in. I will."},
+          {id:"mc-water",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",q:"Here\u2019s what Medicare Advantage actually costs when something goes wrong.",a:"Your $0 premium plan isn\u2019t free \u2014 you\u2019ll find that out the hard way, or you won\u2019t."},
+          {id:"mc-harvest",tag:"HARVEST",tagline:"Close \u2014 20-minute plan analysis",q:"Every plan I\u2019ve ever reviewed has a weakness.",a:"Most people don\u2019t know theirs until they need it most. Let\u2019s find yours before that happens."},
         ];
-
-        const AC=[
-          {id:"ac-seed",tab:"aca",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",
-           q:"If you\u2019re buying insurance on your own, the plan you picked probably wasn\u2019t built for you.",
-           a:"It was built for the healthiest version of you."},
-          {id:"ac-water",tab:"aca",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",
-           q:"When you call the number on the letterhead, you\u2019re not talking to someone who knows your doctors.",
-           a:"You\u2019re talking to a call center."},
-          {id:"ac-harvest",tab:"aca",tag:"HARVEST",tagline:"Close \u2014 free plan review",
-           q:"I can show you in 15 minutes whether your current plan is costing you more than it should.",
-           a:"No obligation, no sales pressure."},
+        var AC=[
+          {id:"ac-seed",tag:"SEED",tagline:"Plant the idea \u2014 plan weakness",q:"If you\u2019re buying insurance on your own, the plan you picked probably wasn\u2019t built for you.",a:"It was built for the healthiest version of you."},
+          {id:"ac-water",tag:"WATER",tagline:"Raise the stakes \u2014 real costs",q:"When you call the number on the letterhead, you\u2019re not talking to someone who knows your doctors.",a:"You\u2019re talking to a call center."},
+          {id:"ac-harvest",tag:"HARVEST",tagline:"Close \u2014 free plan review",q:"I can show you in 15 minutes whether your current plan is costing you more than it should.",a:"No obligation, no sales pressure."},
         ];
-
-        const NQ=[
-          {id:"nq-situation",tab:"nepq",tag:"SITUATION",tagline:"Where are they right now?",
-           q:"Are you actually sure you understand what you\u2019re signing up for?",
-           a:"Most people turning 65 get buried in Medicare mail, carrier calls, and TV ads \u2014 all saying the same thing. Nobody\u2019s sitting down with you and walking through what your plan actually covers, what it doesn\u2019t, and what it costs when something goes wrong. That\u2019s the conversation that\u2019s missing."},
-          {id:"nq-problem",tab:"nepq",tag:"PROBLEM AWARENESS",tagline:"Do they know there\u2019s a problem?",
-           q:"Do you know what your plan\u2019s weakness is?",
-           a:"Every plan on the market was built with one. The $0 premium, the low monthly cost \u2014 those numbers look great until something goes wrong. Most people never find the weakness in their plan. They find it when they need the plan to work."},
-          {id:"nq-consequence",tab:"nepq",tag:"CONSEQUENCE",tagline:"What happens if nothing changes?",
-           q:"What happens if you\u2019re on the wrong plan when something serious comes up?",
-           a:"Nothing \u2014 until it does. A diagnosis. A surgery. A specialist that isn\u2019t covered. That\u2019s when the affordable plan starts costing you thousands. And by the time you find out, the enrollment window is usually closed. That\u2019s not a hypothetical \u2014 that\u2019s what happens to people every year in North Carolina."},
-          {id:"nq-solution",tab:"nepq",tag:"SOLUTION AWARENESS",tagline:"Do they see the better path?",
-           q:"What if you could see exactly what your plan costs before you ever needed it?",
-           a:"Not just the premium. The total \u2014 doctors verified, drugs priced, out-of-pocket maximum calculated. That\u2019s how this decision should be made. Most people never get shown their plan this way. When you do, the right choice becomes obvious. That\u2019s exactly what I do in a free 20-minute review."},
-          {id:"nq-commit",tab:"nepq",tag:"COMMITTING",tagline:"Lock in the next step",
-           q:"What would it mean to make this decision knowing exactly where you stand?",
-           a:"No stack of mail. No guessing. No finding out later that your plan has a gap you didn\u2019t know about. Here\u2019s what I do: I pull every plan available in your county, run your doctors and drugs through each one, and show you the total annual cost side by side. One call, 20 minutes, no obligation. You leave knowing exactly what to do \u2014 and exactly why."},
+        var NQ=[
+          {id:"nq-situation",tag:"SITUATION",tagline:"Where are they right now?",q:"Are you actually sure you understand what you\u2019re signing up for?",a:"Most people turning 65 get buried in Medicare mail, carrier calls, and TV ads \u2014 all saying the same thing. Nobody\u2019s sitting down with you and walking through what your plan actually covers, what it doesn\u2019t, and what it costs when something goes wrong. That\u2019s the conversation that\u2019s missing."},
+          {id:"nq-problem",tag:"PROBLEM AWARENESS",tagline:"Do they know there\u2019s a problem?",q:"Do you know what your plan\u2019s weakness is?",a:"Every plan on the market was built with one. The $0 premium, the low monthly cost \u2014 those numbers look great until something goes wrong. Most people never find the weakness in their plan. They find it when they need the plan to work."},
+          {id:"nq-consequence",tag:"CONSEQUENCE",tagline:"What happens if nothing changes?",q:"What happens if you\u2019re on the wrong plan when something serious comes up?",a:"Nothing \u2014 until it does. A diagnosis. A surgery. A specialist that isn\u2019t covered. That\u2019s when the affordable plan starts costing you thousands. And by the time you find out, the enrollment window is usually closed. That\u2019s not a hypothetical \u2014 that\u2019s what happens to people every year in North Carolina."},
+          {id:"nq-solution",tag:"SOLUTION AWARENESS",tagline:"Do they see the better path?",q:"What if you could see exactly what your plan costs before you ever needed it?",a:"Not just the premium. The total \u2014 doctors verified, drugs priced, out-of-pocket maximum calculated. That\u2019s how this decision should be made. Most people never get shown their plan this way. When you do, the right choice becomes obvious. That\u2019s exactly what I do in a free 20-minute review."},
+          {id:"nq-commit",tag:"COMMITTING",tagline:"Lock in the next step",q:"What would it mean to make this decision knowing exactly where you stand?",a:"No stack of mail. No guessing. No finding out later that your plan has a gap you didn\u2019t know about. Here\u2019s what I do: I pull every plan available in your county, run your doctors and drugs through each one, and show you the total annual cost side by side. One call, 20 minutes, no obligation. You leave knowing exactly what to do \u2014 and exactly why."},
         ];
+        var ALL_CARDS=[...MC,...AC,...NQ];
 
-        const ALL_CARDS=[...MC,...AC,...NQ];
+        // ── scan17 ────────────────────────────────────────────────────────────
+        function scan17(html){
+          if(!html) return {score:0,total:17,checks:[]};
+          var txt=html.replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/\s+/g," ");
+          var words=txt.split(" ").filter(function(w){return w.trim().length>2;});
+          var checks=[
+            {id:"aeo-instant",label:"Instant answer block (first 100 words)",cat:"AEO",catColor:"#60A5FA",pass:words.slice(0,120).join(" ").length>200},
+            {id:"aeo-faq",label:"FAQ schema JSON-LD",cat:"AEO",catColor:"#60A5FA",pass:html.indexOf('"FAQPage"')>-1},
+            {id:"aeo-table",label:"Comparison table present",cat:"AEO",catColor:"#60A5FA",pass:html.indexOf("<table")>-1||html.indexOf("gh-compare")>-1},
+            {id:"aeo-howto",label:"HowTo schema or numbered steps",cat:"AEO",catColor:"#60A5FA",pass:html.indexOf("HowTo")>-1||html.indexOf("<ol")>-1},
+            {id:"seo-h1",label:"Single H1 with keyword",cat:"SEO",catColor:"#4ADE80",pass:(html.split("<h1").length-1)===1},
+            {id:"seo-h2",label:"H2 structure (3+ headings)",cat:"SEO",catColor:"#4ADE80",pass:(html.split("<h2").length-1)>=3},
+            {id:"seo-links",label:"Internal links (3+)",cat:"SEO",catColor:"#4ADE80",pass:html.indexOf("generationhealth")>-1&&(html.split("href").length-1)>=3},
+            {id:"seo-words",label:"Word count 1,500+",cat:"SEO",catColor:"#4ADE80",pass:words.length>=1500},
+            {id:"eeat-author",label:"Author byline + 2026 date",cat:"E-E-A-T",catColor:"#FFC72C",pass:(html.indexOf("Robert Simm")>-1||html.indexOf("Rob Simm")>-1)&&html.indexOf("2026")>-1},
+            {id:"eeat-gov",label:"Source citations (.gov 2+)",cat:"E-E-A-T",catColor:"#FFC72C",pass:(html.split(".gov").length-1)>=2},
+            {id:"eeat-license",label:"License/NPN #10447418",cat:"E-E-A-T",catColor:"#FFC72C",pass:html.indexOf("10447418")>-1},
+            {id:"geo-2026",label:"2026 figures ($202.90 Part B)",cat:"GEO",catColor:"#A78BFA",pass:html.indexOf("202.90")>-1||html.indexOf("202.9")>-1},
+            {id:"geo-local",label:"NC/local geographic signals",cat:"GEO",catColor:"#A78BFA",pass:html.toLowerCase().indexOf("north carolina")>-1||html.indexOf("durham")>-1||html.indexOf("wake county")>-1},
+            {id:"geo-ai",label:"AI-citation direct answer structure",cat:"GEO",catColor:"#A78BFA",pass:html.indexOf("gh-answer")>-1||html.indexOf("gh-faq-a")>-1||html.indexOf("gh-nepq")>-1},
+            {id:"conv-sunfire",label:"SunFire Matrix CTA link",cat:"CTA",catColor:"#FB923C",pass:html.indexOf("sunfirematrix.com")>-1},
+            {id:"conv-calendly",label:"Calendly booking link",cat:"CTA",catColor:"#FB923C",pass:html.indexOf("calendly.com")>-1},
+            {id:"conv-phone",label:"Phone (828) 761-3326",cat:"CTA",catColor:"#FB923C",pass:html.indexOf("761-3326")>-1||html.indexOf("(828)")>-1},
+          ];
+          return {score:checks.filter(function(c){return c.pass;}).length,total:17,checks:checks};
+        }
 
-        const allPages=clusters.flatMap(cl=>(cl.posts||[]).map((p,i)=>({...p,clusterName:cl.name,clusterId:cl.id,key:cl.id+"-"+i,idx:i}))).filter(p=>p.slug);
-        const filteredPages=pbSearch.trim()?allPages.filter(p=>(p.name+" "+p.slug+" "+p.clusterName).toLowerCase().includes(pbSearch.toLowerCase())):allPages;
+        function ScoreRing(props){
+          var score=props.score,total=props.total,size=props.size||60;
+          var r=size/2-6,circ=2*Math.PI*r,p=total>0?score/total:0;
+          var col=p>=0.85?"#4ADE80":p>=0.6?"#FFC72C":"#F87171";
+          return React.createElement("svg",{width:size,height:size,viewBox:"0 0 "+size+" "+size,style:{flexShrink:0,transform:"rotate(-90deg)"}},
+            React.createElement("circle",{cx:size/2,cy:size/2,r:r,fill:"none",stroke:"rgba(255,255,255,0.08)",strokeWidth:5}),
+            React.createElement("circle",{cx:size/2,cy:size/2,r:r,fill:"none",stroke:col,strokeWidth:5,strokeDasharray:circ,strokeDashoffset:circ*(1-p),strokeLinecap:"round",style:{transition:"stroke-dashoffset 0.8s ease"}}),
+            React.createElement("text",{x:size/2,y:size/2,textAnchor:"middle",dominantBaseline:"middle",fill:col,fontSize:size>50?12:9,fontWeight:800,transform:"rotate(90 "+(size/2)+" "+(size/2)+")"},score+"/"+total)
+          );
+        }
 
-        const handleFetch=async(page)=>{
+        // ── generateFixContent (AI) ───────────────────────────────────────────
+        async function generateFixContent(checkId,topic,apiKey){
+          var prompts={
+            "aeo-table":"Write a concise 3-row HTML comparison table for a Medicare page about '"+topic+"'. Use these exact three rows: (1) Medicare Advantage vs Medigap (2) $0 premium vs monthly premium (3) network vs nationwide. Only output the <tr> rows, no headers, no wrapper tags.",
+            "aeo-howto":"Write exactly 4 concise How-To steps for a Medicare page about '"+topic+"'. Each step: bold title (4-6 words) — description (1 sentence). Output as JSON array: [{\"title\":\"...\",\"desc\":\"...\"}]",
+            "aeo-faq":"Write exactly 3 FAQ question+answer pairs for a Medicare page about '"+topic+"'. Each answer 1-2 sentences. Output only valid JSON array: [{\"q\":\"...\",\"a\":\"...\"}]"
+          };
+          if(!prompts[checkId]||!apiKey) return null;
+          try{
+            var resp=await fetch("https://api.anthropic.com/v1/messages",{
+              method:"POST",
+              headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},
+              body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:600,messages:[{role:"user",content:prompts[checkId]}]})
+            });
+            var data=await resp.json();
+            return (data.content&&data.content[0]&&data.content[0].text)||null;
+          }catch(e){return null;}
+        }
+
+        async function fixAllIssues(){
+          if(!pbPage||!pbScanResults) return;
+          var FIX_SNIPPETS=window.GH_FIX_SNIPPETS||{};
+          var failing=pbScanResults.checks.filter(function(c){return !c.pass&&FIX_SNIPPETS[c.id];});
+          if(failing.length===0){alert("No auto-fixable issues found.");return;}
+          var apiKey=pbApiKey||"";
+          setPbFixing(true);
+          var html=pbPage.html||"";
+          var topic=(pbPage.slug||"").replace(/-/g," ");
+          var done=0,total=failing.length;
+          for(var i=0;i<failing.length;i++){
+            var check=failing[i];
+            setPbFixProgress({msg:"Fixing: "+check.label,done:done,total:total});
+            if(check.id==="aeo-table"&&apiKey){
+              setPbFixProgress({msg:"Generating comparison table...",done:done,total:total});
+              var rows=await generateFixContent("aeo-table",topic,apiKey);
+              if(rows){var tbS=html.indexOf("<tbody>");var tbE=html.indexOf("</tbody>");if(tbS>-1&&tbE>-1){html=html.slice(0,tbS+7)+rows+html.slice(tbE);}else{html+="\n"+FIX_SNIPPETS[check.id];}}
+              else html+="\n"+FIX_SNIPPETS[check.id];
+            } else if(check.id==="aeo-howto"&&apiKey){
+              setPbFixProgress({msg:"Generating HowTo steps...",done:done,total:total});
+              var stepsRaw=await generateFixContent("aeo-howto",topic,apiKey);
+              if(stepsRaw){try{var steps=JSON.parse(stepsRaw.replace(/```json|```/g,"").trim());var liItems=steps.slice(0,4).map(function(s){return "<li><strong>"+s.title+"</strong> \u2014 "+s.desc+"</li>";}).join("\n");var olS=html.indexOf("<ol");if(olS>-1){var olE=html.indexOf("</ol>");if(olE>-1){html=html.slice(0,olS)+html.slice(olE+5);}}html+="\n<ol>"+liItems+"</ol>";}catch(e){html+="\n"+FIX_SNIPPETS[check.id];}}
+              else html+="\n"+FIX_SNIPPETS[check.id];
+            } else if(check.id==="aeo-faq"&&apiKey){
+              setPbFixProgress({msg:"Generating FAQ content...",done:done,total:total});
+              var faqRaw=await generateFixContent("aeo-faq",topic,apiKey);
+              if(faqRaw){try{var faqs=JSON.parse(faqRaw.replace(/```json|```/g,"").trim());if(faqs&&faqs.length>=3){html=html.replace(/\[FAQ Q1\]/g,faqs[0].q).replace(/\[FAQ A1\]/g,faqs[0].a).replace(/\[FAQ Q2\]/g,faqs[1].q).replace(/\[FAQ A2\]/g,faqs[1].a).replace(/\[FAQ Q3\]/g,faqs[2].q).replace(/\[FAQ A3\]/g,faqs[2].a);}else html+="\n"+FIX_SNIPPETS[check.id];}catch(e){html+="\n"+FIX_SNIPPETS[check.id];}}
+              else html+="\n"+FIX_SNIPPETS[check.id];
+            } else {
+              html+="\n"+FIX_SNIPPETS[check.id];
+            }
+            done++;
+            setPbFixProgress({msg:"\u2705 "+check.label,done:done,total:total});
+          }
+          var key2=pbPage.clusterId+"-"+pbPage.idx;
+          setSavedHTML(function(prev){var n=Object.assign({},prev);n[key2]=html;return n;});
+          setPbPage(function(p){return Object.assign({},p,{html:html});});
+          setPbScanResults(scan17(html));
+          setPbFixProgress({msg:"\uD83C\uDFAF All fixes applied \u2014 "+total+" items resolved",done:total,total:total});
+          setTimeout(function(){setPbFixProgress(null);setPbFixing(false);},2500);
+        }
+
+        // ── Fetch page HTML ───────────────────────────────────────────────────
+        async function handleFetch(page){
           setPbFetching(true);
           try{
-            const resp=await fetch("https://generationhealth.me/"+page.slug+"/");
-            if(!resp.ok)throw new Error("HTTP "+resp.status);
-            const text=await resp.text();
-            const key=page.clusterId+"-"+page.idx;
-            setSavedHTML(prev=>({...prev,[key]:text}));
+            var resp=await fetch("https://generationhealth.me/"+page.slug+"/");
+            if(!resp.ok) throw new Error("HTTP "+resp.status);
+            var text=await resp.text();
+            var key=page.clusterId+"-"+page.idx;
+            setSavedHTML(function(prev){var n=Object.assign({},prev);n[key]=text;return n;});
+            setPbPage(function(p){return Object.assign({},p,{html:text});});
+            setPbScanResults(scan17(text));
             setHasChanges(true);
           }catch(e){alert("Fetch failed: "+e.message);}
           setPbFetching(false);
-        };
+        }
 
-        const getSrcdoc=(rawHtml,applied)=>{
-          if(!rawHtml)return"<html><body style='font-family:sans-serif;padding:40px;text-align:center;color:#6B7B8D'><p>No HTML fetched yet</p></body></html>";
-          const zonesData=JSON.stringify(ZONES);
-          const appliedData=JSON.stringify(applied||{});
-          const OT='<'+'script>';
-          const CT='<'+'/'+'script>';
-          const inject=`\n<style>
-.gh-zone-box{margin:0;padding:20px 24px;border-radius:10px;cursor:pointer;transition:box-shadow .2s,transform .15s;min-height:80px;display:flex;flex-direction:column;justify-content:center;position:relative;}
-.gh-zone-box:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.15);}
-.gh-zone-active{outline:3px solid;outline-offset:2px;}
-.gh-zone-lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
-.gh-zone-cta{font-size:12px;opacity:.6;margin-top:4px;}
-.gh-zone-q{font-size:14px;font-weight:700;font-style:italic;color:#1A2332;margin-bottom:8px;line-height:1.5;}
-.gh-zone-a{font-size:14px;line-height:1.65;color:#3A4553;}
-.gh-zone-tag{margin-top:8px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-block;color:#fff;}
-</style>
-${OT}
-(function(){
-var ZONES=${zonesData};
-var applied=${appliedData};
-
-// Tags and classes that are NEVER eligible for injection next to
-var BAD_TAGS=['button','a','input','select','textarea','svg','img','script','style','noscript'];
-var BAD_ANCESTOR_TAGS=['button','nav','header','footer','form','select'];
-var BAD_ANCESTOR_CLASSES=['gh-hero','gh-cta-modal','gh-cta-card','gh-cta-grid',
-  'elementor-widget-call-to-action','wp-block-button','gh-float-call',
-  'gh-header','gh-header-inner','site-header','wp-block-buttons'];
-
-function hasBlockedAncestor(el){
-  var node=el.parentNode;
-  var depth=0;
-  while(node&&node.tagName&&node.tagName.toLowerCase()!=='body'&&depth<12){
-    var tag=node.tagName.toLowerCase();
-    if(BAD_ANCESTOR_TAGS.indexOf(tag)>-1) return true;
-    if(node.classList){
-      for(var i=0;i<BAD_ANCESTOR_CLASSES.length;i++){
-        if(node.classList.contains(BAD_ANCESTOR_CLASSES[i])) return true;
-      }
-    }
-    node=node.parentNode;
-    depth++;
-  }
-  return false;
-}
-
-function isEligible(el){
-  if(!el||!el.parentNode) return false;
-  if(el.classList&&el.classList.contains('gh-zone-box')) return false;
-  var tag=el.tagName.toLowerCase();
-  if(BAD_TAGS.indexOf(tag)>-1) return false;
-  // Must have some rendered height
-  if(el.offsetHeight<10) return false;
-  // Must be visible
-  if(!el.offsetParent&&tag!=='body') return false;
-  // Walk ancestors — reject if inside a blocked container
-  if(hasBlockedAncestor(el)) return false;
-  return true;
-}
-
-function mkBox(z){
-  var d=document.createElement('div');
-  d.className='gh-zone-box';
-  d.id='ghz-'+z.id;
-  d.style.background=z.bg;
-  d.style.border='2px dashed '+z.border;
-  d.style.margin='8px 0';
-  var lbl=document.createElement('div');
-  lbl.className='gh-zone-lbl';
-  lbl.style.color=z.color;
-  lbl.textContent=z.label+' \u2014 '+z.desc;
-  d.appendChild(lbl);
-  if(applied[z.id]){
-    var q=document.createElement('div');
-    q.className='gh-zone-q';
-    q.textContent='\u201c'+applied[z.id].q+'\u201d';
-    d.appendChild(q);
-    var a=document.createElement('div');
-    a.className='gh-zone-a';
-    a.textContent=applied[z.id].a;
-    d.appendChild(a);
-    var tg=document.createElement('span');
-    tg.className='gh-zone-tag';
-    tg.style.background=z.color;
-    tg.textContent='\u2713 '+applied[z.id].tag;
-    d.appendChild(tg);
-  }else{
-    var ct=document.createElement('div');
-    ct.className='gh-zone-cta';
-    ct.style.color=z.color;
-    ct.textContent='+ Click to activate this zone';
-    d.appendChild(ct);
-  }
-  d.addEventListener('click',function(){
-    document.querySelectorAll('.gh-zone-box').forEach(function(b){
-      b.classList.remove('gh-zone-active');
-      b.style.outlineColor='';
-    });
-    d.classList.add('gh-zone-active');
-    d.style.outlineColor=z.color;
-    window.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');
-  });
-  return d;
-}
-
-function buildCandidateList(){
-  // Grab a wide set of block-level elements
-  var sel='p,h1,h2,h3,h4,h5,li,blockquote,td,section,article,aside,'+
-          'div.gh-answer,div.gh-tip,div.gh-warning,div.gh-related,'+
-          'div.gh-faq,div.gh-last-updated,div.entry-content > div,'+
-          'div.wp-block-group,div.elementor-widget-container > p';
-  var all=Array.from(document.querySelectorAll(sel));
-  return all.filter(isEligible);
-}
-
-function findInsertPoint(pct,candidates){
-  var totalH=Math.max(document.body.scrollHeight,document.body.offsetHeight,2000);
-  var targetY=totalH*pct;
-  var best=null,bestDist=Infinity;
-  for(var i=0;i<candidates.length;i++){
-    var el=candidates[i];
-    var rect=el.getBoundingClientRect();
-    var top=rect.top+window.pageYOffset;
-    var dist=Math.abs(top-targetY);
-    if(dist<bestDist){bestDist=dist;best=el;}
-  }
-  return best;
-}
-
-function init(){
-  var candidates=buildCandidateList();
-  var used=[];
-  ZONES.forEach(function(z){
-    // Filter out already-used elements so no two zones land on the same element
-    var avail=candidates.filter(function(c){return used.indexOf(c)===-1;});
-    var el=findInsertPoint(z.pct,avail);
-    if(el&&el.parentNode){
-      used.push(el);
-      el.parentNode.insertBefore(mkBox(z),el);
-    }else{
-      document.body.appendChild(mkBox(z));
-    }
-  });
-}
-
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});
-}else{
-  setTimeout(init,300);
-}
-})();
-${CT}`;
+        // ── getSrcdoc: inject zones at % positions ────────────────────────────
+        function getSrcdoc(rawHtml,applied){
+          if(!rawHtml) return "<html><body style='font-family:sans-serif;padding:40px;text-align:center;color:#6B7B8D'><p>No HTML fetched yet</p></body></html>";
+          var zonesData=JSON.stringify(ZONES);
+          var appliedData=JSON.stringify(applied||{});
+          var OT='<'+'script>';
+          var CT='<'+'/'+'script>';
+          var inject="\n<style>\n.gh-zone-box{margin:0;padding:20px 24px;border-radius:10px;cursor:pointer;transition:box-shadow .2s,transform .15s;min-height:80px;display:flex;flex-direction:column;justify-content:center;}\n.gh-zone-box:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,.15);}\n.gh-zone-active{outline:3px solid;outline-offset:2px;}\n.gh-zone-lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}\n.gh-zone-cta{font-size:12px;opacity:.6;margin-top:4px;}\n.gh-zone-q{font-size:14px;font-weight:700;font-style:italic;color:#1A2332;margin-bottom:8px;line-height:1.5;}\n.gh-zone-a{font-size:14px;line-height:1.65;color:#3A4553;}\n.gh-zone-tag{margin-top:8px;font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;display:inline-block;color:#fff;}\n</style>\n"+OT+"\n(function(){\nvar ZONES="+zonesData+";\nvar applied="+appliedData+";\nvar BAD_TAGS=['button','a','input','select','textarea','svg','img','script','style','noscript'];\nvar BAD_ANC_TAGS=['button','nav','header','footer','form','select'];\nvar BAD_ANC_CLS=['gh-hero','gh-cta-modal','gh-cta-card','gh-cta-grid','gh-float-call','gh-header','gh-header-inner','elementor-widget-call-to-action','wp-block-button','wp-block-buttons','site-header'];\nfunction hasBadAnc(el){var n=el.parentNode,d=0;while(n&&n.tagName&&n.tagName.toLowerCase()!=='body'&&d<12){var t=n.tagName.toLowerCase();if(BAD_ANC_TAGS.indexOf(t)>-1)return true;if(n.classList){for(var i=0;i<BAD_ANC_CLS.length;i++){if(n.classList.contains(BAD_ANC_CLS[i]))return true;}}n=n.parentNode;d++;}return false;}\nfunction isOk(el){if(!el||!el.parentNode)return false;if(el.classList&&el.classList.contains('gh-zone-box'))return false;var t=el.tagName.toLowerCase();if(BAD_TAGS.indexOf(t)>-1)return false;if(el.offsetHeight<10)return false;if(!el.offsetParent&&t!=='body')return false;return !hasBadAnc(el);}\nfunction mkBox(z){var d=document.createElement('div');d.className='gh-zone-box';d.id='ghz-'+z.id;d.style.background=z.bg;d.style.border='2px dashed '+z.border;d.style.margin='8px 0';\nvar lbl=document.createElement('div');lbl.className='gh-zone-lbl';lbl.style.color=z.color;lbl.textContent=z.label+' \\u2014 '+z.desc;d.appendChild(lbl);\nif(applied[z.id]){var q=document.createElement('div');q.className='gh-zone-q';q.textContent='\\u201c'+applied[z.id].q+'\\u201d';d.appendChild(q);var a=document.createElement('div');a.className='gh-zone-a';a.textContent=applied[z.id].a;d.appendChild(a);var tg=document.createElement('span');tg.className='gh-zone-tag';tg.style.background=z.color;tg.textContent='\\u2713 '+applied[z.id].tag;d.appendChild(tg);}else{var ct=document.createElement('div');ct.className='gh-zone-cta';ct.style.color=z.color;ct.textContent='+ Click to activate this zone';d.appendChild(ct);}\nd.addEventListener('click',function(){document.querySelectorAll('.gh-zone-box').forEach(function(b){b.classList.remove('gh-zone-active');b.style.outlineColor='';});d.classList.add('gh-zone-active');d.style.outlineColor=z.color;window.parent.postMessage({type:'gh-pb-zone',zoneId:z.id},'*');});return d;}\nfunction getCandidates(){var all=Array.from(document.querySelectorAll('p,h2,h3,h4,li,blockquote,div.gh-answer,div.gh-tip,div.gh-warning,div.gh-related,div.gh-faq,div.gh-last-updated'));return all.filter(isOk);}\nfunction findAt(pct,cands){var totalH=Math.max(document.body.scrollHeight,2000),targetY=totalH*pct,best=null,bestD=Infinity;for(var i=0;i<cands.length;i++){var rect=cands[i].getBoundingClientRect(),top=rect.top+window.pageYOffset,d=Math.abs(top-targetY);if(d<bestD){bestD=d;best=cands[i];}}return best;}\nfunction init(){var cands=getCandidates(),used=[];ZONES.forEach(function(z){var avail=cands.filter(function(c){return used.indexOf(c)===-1;});var el=findAt(z.pct,avail);if(el&&el.parentNode){used.push(el);el.parentNode.insertBefore(mkBox(z),el);}else{document.body.appendChild(mkBox(z));}});}\nif(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});}else{setTimeout(init,300);}\n})();\n"+CT;
           return rawHtml.replace(/<\/body>\s*<\/html>\s*$/i,'')+inject+'\n</body></html>';
-        };
+        }
 
-        const applyCard=()=>{
-          if(!pbActiveZone||!pbSelectedCard)return;
-          const card=ALL_CARDS.find(c=>c.id===pbSelectedCard);
-          if(!card)return;
-          setPbZoneApplied(prev=>({...prev,[pbActiveZone]:{
-            tag:card.tag,q:card.q,a:card.a,
-            html:`<div style="padding:24px 28px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;border-radius:0 8px 8px 0;margin:0"><p style="font-size:16px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 10px;line-height:1.6">\u201c${card.q}\u201d</p><p style="font-size:16px;line-height:1.72;color:#3A4553;margin:0">${card.a}</p><span style="margin-top:10px;display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:100px;background:#0D9488;color:#fff">${card.tag}</span></div>`
-          }}));
+        function applyCard(){
+          if(!pbActiveZone||!pbSelectedCard) return;
+          var card=ALL_CARDS.find(function(c){return c.id===pbSelectedCard;});
+          if(!card) return;
+          setPbZoneApplied(function(prev){var n=Object.assign({},prev);n[pbActiveZone]={tag:card.tag,q:card.q,a:card.a,html:'<div style="padding:24px 28px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;border-radius:0 8px 8px 0;margin:0"><p style="font-size:16px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 10px;line-height:1.6">\u201c'+card.q+'\u201d</p><p style="font-size:16px;line-height:1.72;color:#3A4553;margin:0">'+card.a+'</p><span style="margin-top:10px;display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:100px;background:#0D9488;color:#fff">'+card.tag+'</span></div>'};return n;});
           setPbSelectedCard(null);
-        };
+        }
 
-        const buildWP=()=>ZONES.filter(z=>pbZoneApplied[z.id]).sort((a,b)=>parseInt(a.id.slice(1))-parseInt(b.id.slice(1))).map(z=>`<div class="gh-nepq-block" style="padding:28px 32px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;margin:32px 0"><p style="font-size:17px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 12px;line-height:1.6">\u201c${pbZoneApplied[z.id].q}\u201d</p><p style="font-size:17px;line-height:1.78;color:#3A4553;margin:0">${pbZoneApplied[z.id].a}</p></div>`).join('\n\n');
+        function buildWP(){
+          return ZONES.filter(function(z){return pbZoneApplied[z.id];}).sort(function(a,b){return parseInt(a.id.slice(1))-parseInt(b.id.slice(1));}).map(function(z){return '<div class="gh-nepq-block" style="padding:28px 32px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;margin:32px 0"><p style="font-size:17px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 12px;line-height:1.6">\u201c'+pbZoneApplied[z.id].q+'\u201d</p><p style="font-size:17px;line-height:1.78;color:#3A4553;margin:0">'+pbZoneApplied[z.id].a+'</p></div>';}).join('\n\n');
+        }
 
-        const pageKey=pbPage?pbPage.clusterId+"-"+pbPage.idx:null;
-        const pageHtml=pageKey&&savedHTML[pageKey]?savedHTML[pageKey]:null;
-        const appliedCount=Object.keys(pbZoneApplied).length;
-        const srcdoc=pageHtml?getSrcdoc(pageHtml,pbZoneApplied):null;
-        const isDark=theme==="dark";
-        const bg=isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.03)";
-        const bdr=isDark?"1px solid rgba(255,255,255,0.08)":"1px solid rgba(0,0,0,0.08)";
-        const tc=isDark?"#E8ECF0":"#1A2332";
-        const mc=isDark?"#6B7B8D":"#718096";
-        const tabCards=pbActiveTab==="medicare"?MC:pbActiveTab==="aca"?AC:NQ;
+        // ── Derived ───────────────────────────────────────────────────────────
+        var allPages=clusters.flatMap(function(c){return c.posts.map(function(p,i){return {name:p.name||p.slug,slug:p.slug,status:p.status,clusterId:c.id,clusterName:c.name,idx:i,key:c.id+"-"+i,html:savedHTML[c.id+"-"+i]||null};});}).filter(function(p){return !!p.slug;});
+        var completedSet=new Set(pbCompleted);
+        var activePages=allPages.filter(function(p){return !completedSet.has(p.key);});
+        var donePages=allPages.filter(function(p){return completedSet.has(p.key);});
+        var filteredPages=pbSearch.trim()?activePages.filter(function(p){var q=pbSearch.toLowerCase();return (p.name||"").toLowerCase().indexOf(q)>-1||(p.slug||"").toLowerCase().indexOf(q)>-1;}):activePages;
+        var pct=allPages.length>0?Math.round((donePages.length/allPages.length)*100):0;
+        var pageKey=pbPage?pbPage.clusterId+"-"+pbPage.idx:null;
+        var pageHtml=pageKey&&savedHTML[pageKey]?savedHTML[pageKey]:null;
+        var appliedCount=Object.keys(pbZoneApplied).length;
+        var srcdoc=pageHtml?getSrcdoc(pageHtml,pbZoneApplied):null;
+        var scan=pbPage&&pageHtml?scan17(pageHtml):null;
+        var tabCards=pbActiveTab==="medicare"?MC:pbActiveTab==="aca"?AC:NQ;
 
         return (
-          <div style={{height:"calc(100vh - 116px)",display:"flex",flexDirection:"column",overflow:"hidden"}}>
+          <div style={{display:"flex",flexDirection:"column",height:"calc(100vh - 116px)",overflow:"hidden"}}>
+
+            {/* ── Header ── */}
             <div style={{padding:"10px 20px",borderBottom:bdr,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,background:isDark?"rgba(255,255,255,0.02)":"rgba(0,0,0,0.02)"}}>
               <div style={{display:"flex",alignItems:"center",gap:14}}>
                 <div>
                   <span style={{fontSize:16,fontWeight:800,color:tc}}>📄 Page Builder</span>
-                  <span style={{fontSize:12,color:mc,marginLeft:10}}>{appliedCount}/8 zones filled{pbPage?" · "+pbPage.name:""}</span>
+                  <span style={{fontSize:12,color:mc,marginLeft:10}}>{donePages.length}/{allPages.length} complete · {pct}%{pbPage?" · "+pbPage.name:""}</span>
                 </div>
+                {/* Zone dots */}
                 <div style={{display:"flex",gap:3}}>
                   {ZONES.map(z=>(
                     <div key={z.id} onClick={()=>{setPbActiveZone(z.id);setPbSelectedCard(null);}}
-                      style={{width:26,height:20,borderRadius:100,fontSize:9,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",
+                      style={{width:24,height:18,borderRadius:100,fontSize:9,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",
                         background:pbZoneApplied[z.id]?z.color:pbActiveZone===z.id?z.bg:"rgba(255,255,255,0.05)",
                         color:pbZoneApplied[z.id]?"#fff":pbActiveZone===z.id?z.color:mc,
                         border:`1.5px solid ${pbActiveZone===z.id||pbZoneApplied[z.id]?z.color:"rgba(255,255,255,0.1)"}`,
@@ -3775,64 +3719,116 @@ ${CT}`;
                   ))}
                 </div>
               </div>
-              <div style={{display:"flex",gap:8}}>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                {/* Fix / New mode */}
+                <div style={{display:"flex",gap:2,background:isDark?"rgba(255,255,255,0.06)":"rgba(0,0,0,0.05)",borderRadius:10,padding:3}}>
+                  {[["fix","🔧 Fix"],["new","✨ New"]].map(m=>(
+                    <button key={m[0]} onClick={()=>setPbMode(m[0])}
+                      style={{padding:"5px 12px",borderRadius:8,border:"none",cursor:"pointer",fontSize:12,fontWeight:600,
+                        background:pbMode===m[0]?(isDark?"rgba(255,255,255,0.12)":"rgba(0,0,0,0.1)"):"transparent",
+                        color:pbMode===m[0]?"#FFF":"#6B7B8D",transition:"all 0.2s"}}
+                    >{m[1]}</button>
+                  ))}
+                </div>
+                {/* Approve / Copy */}
                 {appliedCount>0&&!pbApproved&&(
-                  <button onClick={()=>setPbApproved(true)} style={{padding:"7px 18px",borderRadius:8,border:"none",background:"#16A34A",color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}}>✓ Approve Page</button>
+                  <button onClick={()=>setPbApproved(true)} style={{padding:"6px 16px",borderRadius:8,border:"none",background:"#16A34A",color:"#fff",fontSize:12,fontWeight:700,cursor:"pointer"}}>✓ Approve Page</button>
                 )}
                 {pbApproved&&(
-                  <button onClick={()=>navigator.clipboard.writeText(buildWP())} style={{padding:"7px 18px",borderRadius:8,border:"none",background:"#FFC72C",color:"#1A2332",fontSize:12,fontWeight:800,cursor:"pointer"}}>📋 Copy for WordPress</button>
+                  <button onClick={()=>navigator.clipboard.writeText(buildWP())} style={{padding:"6px 16px",borderRadius:8,border:"none",background:"#FFC72C",color:"#1A2332",fontSize:12,fontWeight:800,cursor:"pointer"}}>📋 Copy for WordPress</button>
                 )}
                 {pbApproved&&(
-                  <button onClick={()=>{setPbApproved(false);setPbZoneApplied({});setPbSelectedCard(null);setPbActiveZone(null);}} style={{padding:"7px 14px",borderRadius:8,border:bdr,background:"transparent",color:mc,fontSize:11,cursor:"pointer"}}>Reset</button>
+                  <button onClick={()=>{setPbApproved(false);setPbZoneApplied({});setPbSelectedCard(null);setPbActiveZone(null);}} style={{padding:"6px 12px",borderRadius:8,border:bdr,background:"transparent",color:mc,fontSize:11,cursor:"pointer"}}>Reset</button>
                 )}
+                {/* API key */}
+                <div style={{position:"relative"}}>
+                  <button onClick={()=>setPbShowApiKey(p=>!p)}
+                    style={{width:34,height:34,borderRadius:10,border:bdr,background:pbApiKey?"rgba(74,222,128,0.1)":"rgba(255,255,255,0.04)",cursor:"pointer",fontSize:16}}>⚙️</button>
+                  {pbShowApiKey&&(
+                    <div style={{position:"absolute",top:40,right:0,width:280,padding:14,background:isDark?"#1A2840":"#fff",border:bdr,borderRadius:12,zIndex:999,boxShadow:"0 8px 32px rgba(0,0,0,0.2)"}}>
+                      <div style={{fontSize:11,fontWeight:700,color:mc,marginBottom:6}}>CLAUDE API KEY</div>
+                      <div style={{display:"flex",gap:6}}>
+                        <input type="password" value={pbApiKey} onChange={e=>{setPbApiKey(e.target.value);try{localStorage.setItem("gh-cc-pb-apikey",e.target.value);}catch(x){}}} placeholder="sk-ant-..." style={{flex:1,padding:"7px 10px",borderRadius:8,border:bdr,background:isDark?"rgba(255,255,255,0.04)":"#f5f5f5",color:tc,fontSize:11,outline:"none"}}/>
+                        <button onClick={()=>setPbShowApiKey(false)} style={{padding:"7px 12px",borderRadius:8,border:"none",background:"#0D9488",color:"#fff",fontSize:11,fontWeight:700,cursor:"pointer"}}>Save</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-            <div style={{flex:1,display:"grid",gridTemplateColumns:"272px 1fr 296px",overflow:"hidden"}}>
+
+            {/* ── 3-column body ── */}
+            <div style={{flex:1,display:"grid",gridTemplateColumns:"265px 1fr 300px",overflow:"hidden"}}>
+
+              {/* LEFT — page queue */}
               <div style={{borderRight:bdr,display:"flex",flexDirection:"column",overflow:"hidden"}}>
                 <div style={{padding:"10px 12px",borderBottom:bdr,flexShrink:0}}>
                   <input value={pbSearch} onChange={e=>setPbSearch(e.target.value)} placeholder="Search pages..."
-                    style={{width:"100%",padding:"7px 11px",borderRadius:8,border:bdr,background:bg,color:tc,fontSize:12,outline:"none"}}/>
-                  <div style={{fontSize:10,color:mc,marginTop:5,textAlign:"right"}}>{filteredPages.length} pages</div>
+                    style={{width:"100%",padding:"7px 10px",borderRadius:8,border:bdr,background:isDark?"rgba(255,255,255,0.04)":"rgba(0,0,0,0.03)",color:tc,fontSize:12,outline:"none"}}/>
+                  <div style={{display:"flex",justifyContent:"space-between",marginTop:5,fontSize:10,color:mc}}>
+                    <span>{filteredPages.length} active</span>
+                    <span style={{color:"#4ADE80"}}>{donePages.length} done</span>
+                  </div>
                 </div>
-                <div style={{flex:1,overflowY:"auto",padding:8}}>
+                <div style={{flex:1,overflowY:"auto",padding:"6px 8px"}}>
                   {filteredPages.map(page=>{
                     const key=page.clusterId+"-"+page.idx;
                     const hasHtml=!!savedHTML[key];
                     const isSel=pbPage&&pbPage.key===key;
+                    const s=hasHtml?scan17(savedHTML[key]):{score:0,total:17};
+                    const sc=s.score>=14?"#4ADE80":s.score>=8?"#FFC72C":"#F87171";
                     const isFetchingThis=pbFetching&&pbPage&&pbPage.key===key;
                     return (
-                      <div key={key} onClick={()=>{setPbPage(page);setPbActiveZone(null);setPbSelectedCard(null);setPbZoneApplied({});setPbApproved(false);}}
-                        style={{padding:"9px 11px",borderRadius:8,marginBottom:3,cursor:"pointer",
-                          background:isSel?"rgba(75,156,211,0.12)":"transparent",
-                          border:`1px solid ${isSel?"rgba(75,156,211,0.3)":"transparent"}`,transition:"all .12s"}}>
-                        <div style={{fontSize:12,fontWeight:600,color:isSel?"#4B9CD3":tc,marginBottom:2,lineHeight:1.4}}>{page.name}</div>
-                        <div style={{fontSize:10,color:"#4B5C6E",marginBottom:5}}>/{page.slug}</div>
-                        {hasHtml
-                          ?<span style={{fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:100,background:"rgba(22,163,74,0.12)",color:"#16A34A"}}>✓ Ready</span>
-                          :<button onClick={e=>{e.stopPropagation();setPbPage(page);handleFetch(page);}}
-                            style={{fontSize:10,fontWeight:700,padding:"2px 9px",borderRadius:100,border:"1px solid rgba(255,199,44,0.4)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",cursor:"pointer"}}>
-                            {isFetchingThis?"Fetching…":"⬇ Fetch HTML"}</button>
-                        }
+                      <div key={key} onClick={()=>{setPbPage(page);setPbActiveZone(null);setPbSelectedCard(null);setPbZoneApplied({});setPbApproved(false);if(hasHtml)setPbScanResults(scan17(savedHTML[key]));}}
+                        style={{padding:"9px 10px",marginBottom:3,borderRadius:10,cursor:"pointer",
+                          background:isSel?(isDark?"rgba(75,156,211,0.12)":"rgba(75,156,211,0.08)"):"transparent",
+                          border:`1px solid ${isSel?"rgba(75,156,211,0.4)":"transparent"}`,transition:"all .12s"}}>
+                        <div style={{display:"flex",alignItems:"flex-start",gap:6}}>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div style={{fontSize:12,fontWeight:600,color:isSel?"#4B9CD3":tc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{page.name}</div>
+                            <div style={{fontSize:10,color:mc,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>/{page.slug}</div>
+                          </div>
+                          {hasHtml
+                            ?<span style={{fontSize:11,fontWeight:800,color:sc,flexShrink:0,padding:"2px 6px",borderRadius:6,background:sc+"18"}}>{s.score}/17</span>
+                            :<button onClick={e=>{e.stopPropagation();setPbPage(page);handleFetch(page);}}
+                              style={{fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:6,border:"1px solid rgba(255,199,44,0.4)",background:"rgba(255,199,44,0.08)",color:"#FFC72C",cursor:"pointer",flexShrink:0}}>
+                              {isFetchingThis?"…":"⬇ Fetch"}</button>
+                          }
+                        </div>
                       </div>
                     );
                   })}
+                  {donePages.length>0&&(
+                    <div style={{marginTop:10}}>
+                      <div style={{fontSize:10,fontWeight:700,color:mc,textTransform:"uppercase",letterSpacing:"0.08em",padding:"4px 0 6px"}}>✓ Completed</div>
+                      {donePages.map(page=>(
+                        <div key={page.key} onClick={()=>{setPbPage(page);if(savedHTML[page.key])setPbScanResults(scan17(savedHTML[page.key]));}}
+                          style={{padding:"6px 10px",marginBottom:2,borderRadius:8,background:"rgba(74,222,128,0.05)",border:"1px solid rgba(74,222,128,0.2)",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                          <span style={{fontSize:11,color:"#4ADE80",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{(page.name||page.slug||"").replace(/\s*\|.*$/,"")}</span>
+                          <button onClick={e=>{e.stopPropagation();setPbCompleted(prev=>prev.filter(k=>k!==page.key));setPbPage(null);setPbScanResults(null);}} style={{fontSize:9,padding:"2px 6px",borderRadius:5,border:"1px solid rgba(107,123,141,0.3)",background:"transparent",color:mc,cursor:"pointer",flexShrink:0}}>↩</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
+
+              {/* CENTER — iframe */}
               <div style={{display:"flex",flexDirection:"column",overflow:"hidden",background:isDark?"#0A1220":"#E8EDF3"}}>
                 {!pbPage&&(
                   <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10}}>
                     <div style={{fontSize:36}}>←</div>
                     <div style={{fontSize:14,color:tc,fontWeight:600}}>Select a page to begin</div>
-                    <div style={{fontSize:12,color:mc}}>Choose any page from the left panel</div>
+                    <div style={{fontSize:12,color:mc}}>Search or browse the page queue</div>
                   </div>
                 )}
                 {pbPage&&!pageHtml&&(
                   <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:14}}>
                     <div style={{fontSize:40}}>📄</div>
                     <div style={{fontSize:15,fontWeight:700,color:tc}}>{pbPage.name}</div>
-                    <div style={{fontSize:12,color:mc,textAlign:"center",maxWidth:320}}>Fetch the live page HTML to see the 8 colored zone boxes in their correct positions.</div>
+                    <div style={{fontSize:12,color:mc,textAlign:"center",maxWidth:300}}>Fetch the live page HTML to see zone boxes and run the 17-point scan.</div>
                     <button onClick={()=>handleFetch(pbPage)} disabled={pbFetching}
-                      style={{padding:"10px 28px",borderRadius:10,border:"none",background:"#4B9CD3",color:"#fff",fontSize:14,fontWeight:700,cursor:pbFetching?"wait":"pointer",opacity:pbFetching?.6:1}}>
+                      style={{padding:"10px 26px",borderRadius:10,border:"none",background:"#4B9CD3",color:"#fff",fontSize:14,fontWeight:700,cursor:pbFetching?"wait":"pointer",opacity:pbFetching?.6:1}}>
                       {pbFetching?"Fetching…":"⬇ Fetch Page HTML"}</button>
                   </div>
                 )}
@@ -3841,74 +3837,130 @@ ${CT}`;
                     style={{width:"100%",height:"100%",border:"none"}} sandbox="allow-scripts"/>
                 )}
               </div>
+
+              {/* RIGHT — scan + zone content panel */}
               <div style={{borderLeft:bdr,display:"flex",flexDirection:"column",overflow:"hidden"}}>
-                <div style={{padding:"12px 14px",borderBottom:bdr,flexShrink:0}}>
-                  <div style={{fontSize:13,fontWeight:700,color:tc}}>Content Panel</div>
-                  <div style={{fontSize:11,color:mc,marginTop:2,lineHeight:1.5}}>
+
+                {/* Scan results */}
+                {scan&&(
+                  <div style={{borderBottom:bdr,flexShrink:0,padding:"10px 12px"}}>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                      <ScoreRing score={scan.score} total={17} size={44}/>
+                      <div style={{flex:1}}>
+                        <div style={{fontSize:12,fontWeight:700,color:tc}}>17-Point Scan</div>
+                        <div style={{fontSize:11,color:mc}}>{scan.score===17?"🎯 Perfect":(17-scan.score)+" items need work"}</div>
+                      </div>
+                      {scan.score<17&&(
+                        <button onClick={fixAllIssues} disabled={!!pbFixing}
+                          style={{padding:"5px 10px",borderRadius:8,border:"none",background:pbFixing?"rgba(255,255,255,0.06)":"linear-gradient(135deg,#F59E0B,#FBBF24)",color:pbFixing?"#888":"#1a1a2e",fontSize:11,fontWeight:700,cursor:pbFixing?"not-allowed":"pointer"}}>
+                          {pbFixing?"⏳":"⚡ Fix All"}</button>
+                      )}
+                    </div>
+                    {pbFixProgress&&(
+                      <div style={{marginBottom:6}}>
+                        <div style={{fontSize:10,color:mc,marginBottom:3}}>{pbFixProgress.msg}</div>
+                        <div style={{height:4,background:"rgba(255,255,255,0.08)",borderRadius:100,overflow:"hidden"}}>
+                          <div style={{height:"100%",width:Math.round(pbFixProgress.done/pbFixProgress.total*100)+"%",background:"linear-gradient(90deg,#F59E0B,#4ADE80)",borderRadius:100,transition:"width 0.3s"}}/>
+                        </div>
+                      </div>
+                    )}
+                    {/* Checklist — scrollable, max 180px */}
+                    <div style={{maxHeight:180,overflowY:"auto",display:"flex",flexDirection:"column",gap:2}}>
+                      {scan.checks.map(c=>{
+                        const snippet=window.GH_FIX_SNIPPETS&&window.GH_FIX_SNIPPETS[c.id];
+                        return (
+                          <div key={c.id} style={{display:"flex",alignItems:"center",gap:4,fontSize:11,padding:"1px 0"}}>
+                            <span>{c.pass?"✅":"❌"}</span>
+                            <span style={{flex:1,color:c.pass?tc:mc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.label}</span>
+                            <span style={{fontSize:9,padding:"1px 4px",borderRadius:4,background:c.catColor+"20",color:c.catColor,flexShrink:0}}>{c.cat}</span>
+                            {!c.pass&&snippet&&(
+                              <button onClick={()=>{navigator.clipboard.writeText(snippet).then(()=>alert("✅ Fix snippet copied — paste into WordPress Custom HTML block.")).catch(()=>{var ta=document.createElement("textarea");ta.value=snippet;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("✅ Copied!");});}}
+                                style={{fontSize:9,padding:"1px 6px",borderRadius:5,border:"1px solid rgba(251,146,60,0.4)",background:"rgba(251,146,60,0.1)",color:"#FB923C",cursor:"pointer",flexShrink:0}}>⚡</button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Zone content panel */}
+                <div style={{padding:"10px 12px",borderBottom:bdr,flexShrink:0}}>
+                  <div style={{fontSize:12,fontWeight:700,color:tc}}>Content Panel</div>
+                  <div style={{fontSize:11,color:mc,marginTop:1}}>
                     {pbActiveZone
                       ?(()=>{const z=ZONES.find(x=>x.id===pbActiveZone);return z?z.label+" \u2014 "+z.desc+" activated":"Zone active";})()
                       :"Click a colored zone on the page to activate"}
                   </div>
                 </div>
+
                 {pbActiveZone?(
                   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
                     <div style={{display:"flex",borderBottom:bdr,flexShrink:0}}>
                       {[{id:"medicare",label:"MEDICARE"},{id:"aca",label:"ACA"},{id:"nepq",label:"NEPQ"}].map(t=>(
                         <button key={t.id} onClick={()=>{setPbActiveTab(t.id);setPbSelectedCard(null);}}
-                          style={{flex:1,padding:"9px 0",border:"none",background:"transparent",
+                          style={{flex:1,padding:"8px 0",border:"none",background:"transparent",
                             color:pbActiveTab===t.id?(isDark?"#fff":"#1A2332"):mc,
                             fontSize:11,fontWeight:700,cursor:"pointer",letterSpacing:".06em",
                             borderBottom:pbActiveTab===t.id?"2px solid #4B9CD3":"2px solid transparent"}}>
                           {t.label}</button>
                       ))}
                     </div>
-                    <div style={{flex:1,overflowY:"auto",padding:10}}>
+                    <div style={{flex:1,overflowY:"auto",padding:8}}>
                       {tabCards.map(card=>(
                         <div key={card.id} onClick={()=>setPbSelectedCard(card.id)}
-                          style={{padding:"13px",borderRadius:10,marginBottom:8,cursor:"pointer",
-                            background:pbSelectedCard===card.id?"rgba(75,156,211,0.14)":bg,
-                            border:`1.5px solid ${pbSelectedCard===card.id?"rgba(75,156,211,0.45)":"rgba(255,255,255,0.07)"}`,transition:"all .12s"}}>
-                          <div style={{fontSize:10,fontWeight:800,letterSpacing:".1em",color:"#0D9488",marginBottom:3}}>{card.tag}</div>
-                          <div style={{fontSize:11,color:mc,marginBottom:5,fontStyle:"italic"}}>{card.tagline}</div>
-                          <div style={{fontSize:12,fontWeight:700,color:isDark?"#E8ECF0":"#1A2332",marginBottom:5,lineHeight:1.5}}>&ldquo;{card.q}&rdquo;</div>
-                          <div style={{fontSize:12,lineHeight:1.6,color:mc}}>{card.a}</div>
+                          style={{padding:"11px",borderRadius:10,marginBottom:6,cursor:"pointer",
+                            background:pbSelectedCard===card.id?"rgba(75,156,211,0.14)":(isDark?"rgba(255,255,255,0.03)":"rgba(0,0,0,0.02)"),
+                            border:`1.5px solid ${pbSelectedCard===card.id?"rgba(75,156,211,0.45)":"rgba(255,255,255,0.06)"}`,transition:"all .12s"}}>
+                          <div style={{fontSize:10,fontWeight:800,letterSpacing:".1em",color:"#0D9488",marginBottom:2}}>{card.tag}</div>
+                          <div style={{fontSize:11,color:mc,marginBottom:4,fontStyle:"italic"}}>{card.tagline}</div>
+                          <div style={{fontSize:12,fontWeight:700,color:isDark?"#E8ECF0":"#1A2332",marginBottom:4,lineHeight:1.5}}>&ldquo;{card.q}&rdquo;</div>
+                          <div style={{fontSize:11,lineHeight:1.6,color:mc}}>{card.a}</div>
                         </div>
                       ))}
                     </div>
                     {pbSelectedCard&&(
-                      <div style={{padding:"10px 12px",borderTop:bdr,flexShrink:0}}>
+                      <div style={{padding:"8px 10px",borderTop:bdr,flexShrink:0}}>
                         <button onClick={applyCard}
-                          style={{width:"100%",padding:"11px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#0D9488,#14B8A6)",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>
-                          &#10003; Apply to {(ZONES.find(z=>z.id===pbActiveZone)||{}).label||pbActiveZone.toUpperCase()}</button>
-                        {pbZoneApplied[pbActiveZone]&&(
-                          <div style={{marginTop:5,fontSize:11,color:"#FFC72C",textAlign:"center"}}>Zone already has content \u2014 applying will replace it</div>
-                        )}
+                          style={{width:"100%",padding:"10px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#0D9488,#14B8A6)",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>
+                          ✓ Apply to {(ZONES.find(z=>z.id===pbActiveZone)||{}).label||pbActiveZone.toUpperCase()}</button>
+                        {pbZoneApplied[pbActiveZone]&&<div style={{marginTop:4,fontSize:11,color:"#FFC72C",textAlign:"center"}}>Replaces existing content</div>}
                       </div>
                     )}
                   </div>
                 ):(
-                  <div style={{flex:1,overflowY:"auto",padding:"14px 12px"}}>
-                    <div style={{fontSize:12,color:mc,textAlign:"center",marginBottom:14}}>
-                      {pbPage&&pageHtml?"👆 Click any colored zone box on the page":"Select a page and fetch HTML to begin"}
+                  <div style={{flex:1,overflowY:"auto",padding:"10px 10px"}}>
+                    <div style={{fontSize:11,color:mc,textAlign:"center",marginBottom:10}}>
+                      {pbPage&&pageHtml?"👆 Click any colored zone on the page":"Select a page and fetch HTML to begin"}
                     </div>
                     {ZONES.map(z=>(
                       <div key={z.id} onClick={()=>{setPbActiveZone(z.id);setPbSelectedCard(null);}}
-                        style={{display:"flex",alignItems:"center",gap:8,padding:"8px 10px",borderRadius:8,marginBottom:4,cursor:"pointer",background:bg,border:bdr,transition:"all .12s"}}>
-                        <div style={{width:10,height:10,borderRadius:"50%",background:z.color,flexShrink:0}}/>
+                        style={{display:"flex",alignItems:"center",gap:7,padding:"7px 9px",borderRadius:8,marginBottom:3,cursor:"pointer",
+                          background:isDark?"rgba(255,255,255,0.03)":"rgba(0,0,0,0.02)",
+                          border:bdr,transition:"all .12s"}}>
+                        <div style={{width:9,height:9,borderRadius:"50%",background:z.color,flexShrink:0}}/>
                         <div style={{flex:1,minWidth:0}}>
                           <div style={{fontSize:11,fontWeight:700,color:tc}}>{z.label}</div>
                           <div style={{fontSize:10,color:mc}}>{z.desc}</div>
                         </div>
-                        {pbZoneApplied[z.id]&&<div style={{fontSize:10,color:"#16A34A",fontWeight:800}}>&#10003;</div>}
+                        {pbZoneApplied[z.id]&&<div style={{fontSize:10,color:"#16A34A",fontWeight:800}}>✓</div>}
                       </div>
                     ))}
+                    {/* Mark complete */}
+                    {pbPage&&pageHtml&&(
+                      <button onClick={()=>{setPbCompleted(prev=>prev.includes(pbPage.key)?prev:[...prev,pbPage.key]);setPbPage(null);setPbScanResults(null);setPbZoneApplied({});setPbApproved(false);setHasChanges(true);}}
+                        style={{width:"100%",marginTop:8,padding:"9px",borderRadius:10,border:"1px solid rgba(74,222,128,0.3)",background:"rgba(74,222,128,0.08)",color:"#4ADE80",fontSize:12,fontWeight:700,cursor:"pointer"}}>
+                        ✓ Mark Complete</button>
+                    )}
                   </div>
                 )}
               </div>
+
             </div>
           </div>
         );
       })()}
+
 
     </div>
   </div>;
