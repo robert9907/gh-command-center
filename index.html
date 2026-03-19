@@ -3597,6 +3597,53 @@ ${OT}
 (function(){
 var ZONES=${zonesData};
 var applied=${appliedData};
+
+// Classes/tags that are off-limits for injection
+var SKIP_CLASSES=['gh-hero','gh-cta-modal','gh-cta-card','gh-quiz','gh-float-call',
+  'gh-costs','gh-header','elementor-widget','nav','header','footer',
+  'wp-block-buttons','wp-block-button','gh-trust-badge','gh-author-header'];
+var SKIP_TAGS=['button','a','input','select','textarea','svg','img','form','nav','header','footer'];
+
+function isInsideSkipped(el){
+  var node=el.parentNode;
+  while(node&&node!==document.body){
+    // Skip by tag
+    if(node.tagName&&SKIP_TAGS.indexOf(node.tagName.toLowerCase())>-1) return true;
+    // Skip by class
+    if(node.classList){
+      for(var i=0;i<SKIP_CLASSES.length;i++){
+        if(node.classList.contains(SKIP_CLASSES[i])) return true;
+      }
+    }
+    // Skip dark/colored background sections (CTA blocks, quiz, etc.)
+    var bg=node.style&&node.style.background||'';
+    var bgc=node.style&&node.style.backgroundColor||'';
+    // Skip elements inside anything with a dark background (rgb values < 80 avg)
+    if(bg.indexOf('linear-gradient')>-1&&(bg.indexOf('#0B25')>-1||bg.indexOf('#162')>-1||bg.indexOf('#00529')>-1||bg.indexOf('0,82,')>-1)) return true;
+    node=node.parentNode;
+  }
+  return false;
+}
+
+function isGoodCandidate(el){
+  if(!el||!el.parentNode) return false;
+  if(el.classList&&el.classList.contains('gh-zone-box')) return false;
+  if(SKIP_TAGS.indexOf(el.tagName.toLowerCase())>-1) return false;
+  if(el.offsetHeight<8||!el.offsetParent) return false;
+  if(isInsideSkipped(el)) return false;
+  // Must be a direct content element
+  var tag=el.tagName.toLowerCase();
+  var goodTags=['p','h1','h2','h3','h4','h5','li','blockquote','details'];
+  var goodClasses=['gh-answer','gh-tip','gh-warning','gh-related','gh-faq','gh-last-updated','gh-footer-trust'];
+  if(goodTags.indexOf(tag)>-1) return true;
+  if(el.classList){
+    for(var i=0;i<goodClasses.length;i++){
+      if(el.classList.contains(goodClasses[i])) return true;
+    }
+  }
+  return false;
+}
+
 function mkBox(z){
   var d=document.createElement('div');
   d.className='gh-zone-box';
@@ -3638,35 +3685,45 @@ function mkBox(z){
   });
   return d;
 }
+
 function findInsertPoint(pct){
   var totalH=Math.max(document.body.scrollHeight,document.body.offsetHeight,2000);
   var targetY=totalH*pct;
-  var candidates=Array.from(document.querySelectorAll('p,h1,h2,h3,h4,li,section,article,div.gh-container,div.entry-content>div'));
-  candidates=candidates.filter(function(el){
-    return el.offsetHeight>10 && el.offsetParent!==null && !el.classList.contains('gh-zone-box');
+  // Get all good candidates sorted by their distance from target
+  var all=Array.from(document.querySelectorAll('p,h2,h3,h4,li,.gh-answer,.gh-tip,.gh-warning,.gh-related,.gh-faq,.gh-last-updated'));
+  var good=all.filter(isGoodCandidate);
+  if(!good.length) return null;
+  // Sort by distance to target position
+  good.sort(function(a,b){
+    var ay=a.getBoundingClientRect().top+window.pageYOffset;
+    var by=b.getBoundingClientRect().top+window.pageYOffset;
+    return Math.abs(ay-targetY)-Math.abs(by-targetY);
   });
-  var best=null,bestDist=Infinity;
-  candidates.forEach(function(el){
-    var rect=el.getBoundingClientRect();
-    var top=rect.top+window.pageYOffset;
-    var dist=Math.abs(top-targetY);
-    if(dist<bestDist){bestDist=dist;best=el;}
-  });
-  return best;
+  return good[0]||null;
 }
+
 function init(){
-  var totalH=Math.max(document.body.scrollHeight,document.body.offsetHeight,2000);
   ZONES.forEach(function(z){
     var el=findInsertPoint(z.pct);
     if(el&&el.parentNode){
       el.parentNode.insertBefore(mkBox(z),el);
-    }else{
-      document.body.appendChild(mkBox(z));
+    } else {
+      // Last resort: find any paragraph in the main content area
+      var fallback=document.querySelector('article p, main p, .entry-content p');
+      if(fallback&&fallback.parentNode){
+        fallback.parentNode.appendChild(mkBox(z));
+      } else {
+        document.body.appendChild(mkBox(z));
+      }
     }
   });
 }
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',function(){setTimeout(init,200);});}
-else{setTimeout(init,200);}
+
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});
+}else{
+  setTimeout(init,300);
+}
 })();
 ${CT}`;
           return rawHtml.replace(/<\/body>\s*<\/html>\s*$/i,'')+inject+'\n</body></html>';
@@ -3698,8 +3755,6 @@ ${CT}`;
 
         return (
           <div style={{height:"calc(100vh - 116px)",display:"flex",flexDirection:"column",overflow:"hidden"}}>
-
-            {/* Header */}
             <div style={{padding:"10px 20px",borderBottom:bdr,display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0,background:isDark?"rgba(255,255,255,0.02)":"rgba(0,0,0,0.02)"}}>
               <div style={{display:"flex",alignItems:"center",gap:14}}>
                 <div>
@@ -3730,11 +3785,7 @@ ${CT}`;
                 )}
               </div>
             </div>
-
-            {/* 3-column body */}
             <div style={{flex:1,display:"grid",gridTemplateColumns:"272px 1fr 296px",overflow:"hidden"}}>
-
-              {/* LEFT — page list */}
               <div style={{borderRight:bdr,display:"flex",flexDirection:"column",overflow:"hidden"}}>
                 <div style={{padding:"10px 12px",borderBottom:bdr,flexShrink:0}}>
                   <input value={pbSearch} onChange={e=>setPbSearch(e.target.value)} placeholder="Search pages..."
@@ -3765,8 +3816,6 @@ ${CT}`;
                   })}
                 </div>
               </div>
-
-              {/* CENTER — iframe */}
               <div style={{display:"flex",flexDirection:"column",overflow:"hidden",background:isDark?"#0A1220":"#E8EDF3"}}>
                 {!pbPage&&(
                   <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:10}}>
@@ -3790,8 +3839,6 @@ ${CT}`;
                     style={{width:"100%",height:"100%",border:"none"}} sandbox="allow-scripts"/>
                 )}
               </div>
-
-              {/* RIGHT — content panel */}
               <div style={{borderLeft:bdr,display:"flex",flexDirection:"column",overflow:"hidden"}}>
                 <div style={{padding:"12px 14px",borderBottom:bdr,flexShrink:0}}>
                   <div style={{fontSize:13,fontWeight:700,color:tc}}>Content Panel</div>
@@ -3801,7 +3848,6 @@ ${CT}`;
                       :"Click a colored zone on the page to activate"}
                   </div>
                 </div>
-
                 {pbActiveZone?(
                   <div style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
                     <div style={{display:"flex",borderBottom:bdr,flexShrink:0}}>
@@ -3857,7 +3903,6 @@ ${CT}`;
                   </div>
                 )}
               </div>
-
             </div>
           </div>
         );
