@@ -3679,7 +3679,75 @@ function App() {
         }
 
         function buildWP(){
-          return ZONES.filter(function(z){return pbZoneApplied[z.id];}).sort(function(a,b){return parseInt(a.id.slice(1))-parseInt(b.id.slice(1));}).map(function(z){return '<div class="gh-nepq-block" style="padding:28px 32px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;margin:32px 0"><p style="font-size:17px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 12px;line-height:1.6">\u201c'+pbZoneApplied[z.id].q+'\u201d</p><p style="font-size:17px;line-height:1.78;color:#3A4553;margin:0">'+pbZoneApplied[z.id].a+'</p></div>';}).join('\n\n');
+          // Build full merged HTML — inject all applied zones into the fetched page HTML
+          var html = pageHtml || '';
+          if(!html) return '<!-- No page HTML fetched — use Fetch Page HTML first -->';
+          var today = new Date().toISOString().split('T')[0];
+          var slug = pbPage ? pbPage.slug || '' : '';
+          var score = scan ? scan.score : 0;
+          var header = '<!-- GH Page Builder \u00b7 '+slug+' \u00b7 '+today+' \u00b7 Score:'+score+'/17 -->\n';
+
+          // Sort zones in REVERSE order so injecting higher zones doesn't shift lower ones
+          var applied = ZONES.filter(function(z){return pbZoneApplied[z.id];})
+            .slice().reverse();
+
+          function mkBlock(zid){
+            var d = pbZoneApplied[zid];
+            if(!d) return '';
+            return '<div class="gh-nepq-block" style="padding:28px 32px;background:rgba(13,148,136,0.06);border-left:4px solid #0D9488;margin:32px 0 32px">'+
+              '<p style="font-size:17px;font-weight:700;font-style:italic;color:#1A2332;margin:0 0 12px;line-height:1.6">\u201c'+d.q+'\u201d</p>'+
+              '<p style="font-size:17px;line-height:1.78;color:#3A4553;margin:0">'+d.a+'</p>'+
+              '</div>';
+          }
+
+          // For each applied zone (in reverse), find its box in the srcdoc by zone id
+          // and inject the block at the same relative position in the real HTML
+          // Strategy: find the heading that each zone was placed before (by index)
+          // Re-run the same heading distribution logic on the real HTML to find insert positions
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(html, 'text/html');
+
+          // Get headings from real DOM (same logic as injection)
+          var hSel = 'h2,h3,.gh-related,.gh-faq,.gh-author,.gh-trust-strip,.gh-last-updated,.gh-cta-modal,.gh-footer-trust';
+          var headings = Array.from(doc.querySelectorAll(hSel));
+          var BAD_CLS = ['gh-hero','gh-cta-modal','gh-cta-card','gh-cta-grid','gh-float-call','gh-header','gh-header-inner','elementor-widget-call-to-action','wp-block-button','wp-block-buttons','site-header'];
+          headings = headings.filter(function(el){
+            var n = el.parentNode;
+            while(n && n.tagName && n.tagName.toLowerCase() !== 'body'){
+              if(n.classList){for(var i=0;i<BAD_CLS.length;i++){if(n.classList.contains(BAD_CLS[i]))return false;}}
+              n = n.parentNode;
+            }
+            return true;
+          });
+
+          // Map each zone to its target heading index (same formula as injection)
+          var usedIdx = [];
+          var zoneHeadingMap = {};
+          ZONES.forEach(function(z, i){
+            if(!pbZoneApplied[z.id]) return;
+            var idx = Math.floor(i / ZONES.length * headings.length);
+            // Find nearest unused
+            var found = -1;
+            for(var j=idx; j<headings.length; j++){if(usedIdx.indexOf(j)===-1){found=j;break;}}
+            if(found===-1){for(var k=idx-1;k>=0;k--){if(usedIdx.indexOf(k)===-1){found=k;break;}}}
+            if(found > -1){usedIdx.push(found);zoneHeadingMap[z.id]=found;}
+          });
+
+          // Inject blocks by inserting before the target heading in the real DOM
+          // Process in reverse zone order to preserve positions
+          var zonesApplied = ZONES.filter(function(z){return pbZoneApplied[z.id] && zoneHeadingMap[z.id]!==undefined;});
+          zonesApplied.slice().reverse().forEach(function(z){
+            var hIdx = zoneHeadingMap[z.id];
+            var heading = headings[hIdx];
+            if(!heading || !heading.parentNode) return;
+            var blockEl = doc.createElement('div');
+            blockEl.innerHTML = mkBlock(z.id);
+            var block = blockEl.firstChild;
+            heading.parentNode.insertBefore(block, heading);
+          });
+
+          var merged = header + doc.documentElement.outerHTML;
+          return merged;
         }
 
         // ── Derived ───────────────────────────────────────────────────────────
