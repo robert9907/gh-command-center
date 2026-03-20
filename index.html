@@ -3689,6 +3689,36 @@ function App() {
           }catch(e){return null;}
         }
 
+        // ── cleanOrphanedContent — strips junk injected after footer by old Fix All ──
+        function cleanOrphanedContent(html){
+          var lower=html.toLowerCase();
+          // Find the last occurrence of the footer container or closing tag
+          var footerIdx=lower.lastIndexOf('class="gh-footer-trust"');
+          if(footerIdx===-1) footerIdx=lower.lastIndexOf('</footer>');
+          if(footerIdx===-1) return {html:html,cleaned:false,count:0};
+          // Find the end of that footer tag/block — scan forward for its closing tag
+          var searchFrom=footerIdx;
+          var footerClose=-1;
+          // Try to find </div> that closes gh-footer-trust, or </footer>
+          var closeFooterDiv=html.indexOf('</footer>',searchFrom);
+          var closeFooterDivAlt=html.indexOf('</div>',searchFrom+50); // skip the opening tag itself
+          // Use whichever comes first and is valid
+          if(closeFooterDiv>-1) footerClose=closeFooterDiv+'</footer>'.length;
+          else if(closeFooterDivAlt>-1) footerClose=closeFooterDivAlt+'</div>'.length;
+          else footerClose=footerIdx+200; // fallback: 200 chars past footer marker
+          if(footerClose===-1||footerClose>=html.length) return {html:html,cleaned:false,count:0};
+          var afterFooter=html.slice(footerClose);
+          // Count orphaned block elements
+          var orphanMatches=(afterFooter.match(/<(ol|ul|div|section|p)[\s>]/gi)||[]).length;
+          if(orphanMatches===0) return {html:html,cleaned:false,count:0};
+          // Strip everything after footer close, preserve only script tags needed for page function
+          var cleaned=html.slice(0,footerClose);
+          // Re-append any closing </body></html> if present
+          var bodyClose=afterFooter.lastIndexOf('</body>');
+          if(bodyClose>-1) cleaned+=afterFooter.slice(bodyClose);
+          return {html:cleaned,cleaned:true,count:orphanMatches};
+        }
+
         async function fixAllIssues(){
           if(!pbPage||!pbScanResults) return;
           var FIX_SNIPPETS=window.GH_FIX_SNIPPETS||{};
@@ -3698,6 +3728,13 @@ function App() {
           setPbFixing(true);
           var html=pbPage.html||"";
           var topic=(pbPage.slug||"").replace(/-/g," ");
+          // ── PRE-PASS: strip orphaned content after footer before doing anything else ──
+          var cleanResult=cleanOrphanedContent(html);
+          if(cleanResult.cleaned){
+            html=cleanResult.html;
+            setPbFixProgress({msg:"🧹 Removed "+cleanResult.count+" orphaned block(s) after footer",done:0,total:1});
+            await new Promise(function(r){setTimeout(r,800);});
+          }
           var done=0,total=failing.length;
           for(var i=0;i<failing.length;i++){
             var check=failing[i];
