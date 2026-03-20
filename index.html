@@ -3613,6 +3613,71 @@ function App() {
           }catch(e){return null;}
         }
 
+        // ── injectTableHtml: smart mid-page placement ─────────────────────────
+        function injectTableHtml(html,snippet){
+          // Preferred: just before the first gh-cta-modal block (mid-page CTA)
+          var ctaIdx=html.indexOf('gh-cta-modal');
+          if(ctaIdx>-1){var divIdx=html.lastIndexOf('<div',ctaIdx);if(divIdx>-1)return html.slice(0,divIdx)+snippet+'\n'+html.slice(divIdx);}
+          // Fallback 1: just before the gh-faq section
+          var faqIdx=html.indexOf('gh-faq');
+          if(faqIdx>-1){var divIdx2=html.lastIndexOf('<div',faqIdx);if(divIdx2>-1)return html.slice(0,divIdx2)+snippet+'\n'+html.slice(divIdx2);}
+          // Fallback 2: just before </body>
+          var bodyEnd=html.lastIndexOf('</body>');
+          if(bodyEnd>-1)return html.slice(0,bodyEnd)+snippet+'\n'+html.slice(bodyEnd);
+          // Last resort: append
+          return html+'\n'+snippet;
+        }
+
+        // ── fixSingleTableCheck: ⚡ button handler for aeo-table ──────────────
+        async function fixSingleTableCheck(){
+          if(!pbPage||!pbApiKey){alert("API key required — enter it in the ⚙️ gear menu.");return;}
+          var html=pbPage.html||'';
+          var topic=(pbPage.slug||'').replace(/-/g,' ');
+          var FIX_SNIPPETS2=window.GH_FIX_SNIPPETS||{};
+          setPbFixing(true);
+          setPbFixProgress({msg:'Generating comparison table...',done:0,total:1});
+          var rows=await generateFixContent('aeo-table',topic,pbApiKey);
+          if(rows){
+            var hasPlaceholders=html.indexOf('[Option 1]')>-1||html.indexOf('[Option1]')>-1;
+            if(hasPlaceholders){
+              var tmpDoc2=document.createElement('div');
+              tmpDoc2.innerHTML='<table>'+rows+'</table>';
+              var aiRows2=tmpDoc2.querySelectorAll('tr');
+              var rowData2=[];
+              aiRows2.forEach(function(r){var cells=Array.from(r.querySelectorAll('td'));if(cells.length>=4)rowData2.push(cells.map(function(c){return c.textContent.trim();}));});
+              if(rowData2.length>=3){
+                html=html
+                  .replace(/\[Option 1\]/g,rowData2[0][0]||'Medicare Advantage')
+                  .replace(/\[Best for\.\.\.\]/g,rowData2[0][1]||'Budget plans')
+                  .replace(/\[Cost\]/g,rowData2[0][2]||'$0/mo premium')
+                  .replace(/\[Coverage\]/g,rowData2[0][3]||'Network-based');
+                if(html.match(/\[Option 2\]/)){html=html.replace(/\[Option 2\]/,rowData2[1][0]||'Medigap Plan G').replace(/\[Best for\.\.\.\]/,rowData2[1][1]||'Comprehensive').replace(/\[Cost\]/,rowData2[1][2]||'$110-170/mo').replace(/\[Coverage\]/,rowData2[1][3]||'Nationwide');}
+                if(html.match(/\[Option 3\]/)){html=html.replace(/\[Option 3\]/,rowData2[2][0]||'$0 vs $35 MA Plan').replace(/\[Best for\.\.\.\]/,rowData2[2][1]||'Healthy vs Drug users').replace(/\[Cost\]/,rowData2[2][2]||'$0 vs $35/mo').replace(/\[Coverage\]/,rowData2[2][3]||'Varies by formulary');}
+              }
+            } else {
+              // No existing table — build filled snippet and inject mid-page
+              var tbS0=html.indexOf('<tbody>');var tbE0=html.indexOf('</tbody>');
+              if(tbS0>-1&&tbE0>-1){
+                html=html.slice(0,tbS0+7)+rows+html.slice(tbE0);
+              } else {
+                var baseSnippet=FIX_SNIPPETS2['aeo-table']||'';
+                var bS=baseSnippet.indexOf('<tbody>');var bE=baseSnippet.indexOf('</tbody>');
+                var filledSnippet=bS>-1&&bE>-1?baseSnippet.slice(0,bS+7)+rows+baseSnippet.slice(bE):baseSnippet;
+                html=injectTableHtml(html,filledSnippet);
+              }
+            }
+          } else {
+            // API failed — inject the base snippet mid-page as fallback
+            html=injectTableHtml(html,FIX_SNIPPETS2['aeo-table']||'');
+          }
+          var key3=pbPage.clusterId+'-'+pbPage.idx;
+          setSavedHTML(function(prev){var n=Object.assign({},prev);n[key3]=html;return n;});
+          setPbPage(function(p){return Object.assign({},p,{html:html});});
+          setPbScanResults(scan17(html));
+          setPbFixProgress({msg:'✅ Comparison table applied',done:1,total:1});
+          setTimeout(function(){setPbFixProgress(null);setPbFixing(false);},2000);
+        }
+
         async function fixAllIssues(){
           if(!pbPage||!pbScanResults) return;
           var FIX_SNIPPETS=window.GH_FIX_SNIPPETS||{};
@@ -3670,20 +3735,18 @@ function App() {
                   if(tbS>-1&&tbE>-1){
                     html=html.slice(0,tbS+7)+rows+html.slice(tbE);
                   } else {
-                    // Strategy 3: after header row
-                    var tblS=html.indexOf("<table");var tblE=html.indexOf("</table>");
-                    if(tblS>-1&&tblE>-1){
-                      var firstRowEnd=html.indexOf("</tr>",tblS);
-                      if(firstRowEnd>-1&&firstRowEnd<tblE){
-                        var lastRowEnd2=html.lastIndexOf("</tr>",tblE);
-                        if(lastRowEnd2>firstRowEnd){html=html.slice(0,firstRowEnd+5)+"\n"+rows+html.slice(lastRowEnd2+5);}
-                        else html+="\n"+FIX_SNIPPETS[check.id];
-                      } else html+="\n"+FIX_SNIPPETS[check.id];
-                    } else html+="\n"+FIX_SNIPPETS[check.id];
+                    // No existing table — build filled snippet and inject mid-page
+                    var baseSnip=FIX_SNIPPETS["aeo-table"]||"";
+                    var bS2=baseSnip.indexOf("<tbody>");var bE2=baseSnip.indexOf("</tbody>");
+                    var filledSnip=bS2>-1&&bE2>-1?baseSnip.slice(0,bS2+7)+rows+baseSnip.slice(bE2):baseSnip;
+                    html=injectTableHtml(html,filledSnip);
                   }
                 }
               }
-              else html+="\n"+FIX_SNIPPETS[check.id];
+              else{
+                // API returned nothing — inject base snippet mid-page
+                html=injectTableHtml(html,FIX_SNIPPETS["aeo-table"]||"");
+              }
             } else if(check.id==="aeo-howto"&&apiKey){
               setPbFixProgress({msg:"Generating HowTo steps...",done:done,total:total});
               var stepsRaw=await generateFixContent("aeo-howto",topic,apiKey);
@@ -4041,7 +4104,7 @@ function App() {
                             <span style={{flex:1,color:c.pass?tc:mc,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.label}</span>
                             <span style={{fontSize:9,padding:"1px 4px",borderRadius:4,background:c.catColor+"20",color:c.catColor,flexShrink:0}}>{c.cat}</span>
                             {!c.pass&&snippet&&(
-                              <button onClick={()=>{navigator.clipboard.writeText(snippet).then(()=>alert("✅ Fix snippet copied — paste into WordPress Custom HTML block.")).catch(()=>{var ta=document.createElement("textarea");ta.value=snippet;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("✅ Copied!");});}}
+                              <button onClick={()=>{if(c.id==="aeo-table"){fixSingleTableCheck();}else{navigator.clipboard.writeText(snippet).then(()=>alert("✅ Fix snippet copied — paste into WordPress Custom HTML block.")).catch(()=>{var ta=document.createElement("textarea");ta.value=snippet;document.body.appendChild(ta);ta.select();document.execCommand("copy");document.body.removeChild(ta);alert("✅ Copied!");});}}}
                                 style={{fontSize:9,padding:"1px 6px",borderRadius:5,border:"1px solid rgba(251,146,60,0.4)",background:"rgba(251,146,60,0.1)",color:"#FB923C",cursor:"pointer",flexShrink:0}}>⚡</button>
                             )}
                           </div>
