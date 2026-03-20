@@ -3564,7 +3564,7 @@ function App() {
           var checks=[
             {id:"aeo-instant",label:"Instant answer block (first 100 words)",cat:"AEO",catColor:"#60A5FA",pass:words.slice(0,120).join(" ").length>200},
             {id:"aeo-faq",label:"FAQ schema JSON-LD",cat:"AEO",catColor:"#60A5FA",pass:html.indexOf('"FAQPage"')>-1},
-            {id:"aeo-table",label:"Comparison table present",cat:"AEO",catColor:"#60A5FA",pass:html.indexOf("<table")>-1||html.indexOf("gh-compare")>-1},
+            {id:"aeo-table",label:"Comparison table present",cat:"AEO",catColor:"#60A5FA",pass:(html.indexOf("<table")>-1||html.indexOf("gh-compare")>-1)&&html.indexOf("[Option 1]")===-1&&html.indexOf("[Option1]")===-1},
             {id:"aeo-howto",label:"HowTo schema or numbered steps",cat:"AEO",catColor:"#60A5FA",pass:html.indexOf("HowTo")>-1||html.indexOf("<ol")>-1},
             {id:"seo-h1",label:"Single H1 with keyword",cat:"SEO",catColor:"#4ADE80",pass:(html.split("<h1").length-1)===1},
             {id:"seo-h2",label:"H2 structure (3+ headings)",cat:"SEO",catColor:"#4ADE80",pass:(html.split("<h2").length-1)>=3},
