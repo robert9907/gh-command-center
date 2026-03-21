@@ -1,9 +1,4 @@
-// Vercel config — request up to 60s on Pro, 10s on Hobby
-export const config = {
-  maxDuration: 60,
-};
-
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
   const { url, key } = req.query;
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -18,7 +13,6 @@ module.exports = async (req, res) => {
   }
   try {
     const controller = new AbortController();
-    // 8s timeout — safely under Vercel Hobby's 10s limit
     const timeout = setTimeout(() => controller.abort(), 8000);
 
     const response = await fetch(url, {
@@ -33,18 +27,17 @@ module.exports = async (req, res) => {
     clearTimeout(timeout);
 
     if (!response.ok) {
-      return res.status(502).json({ error: `HTTP ${response.status} from WordPress` });
+      return res.status(502).json({ error: 'WordPress returned HTTP ' + response.status });
     }
 
     const html = await response.text();
 
     if (!html || html.length < 500) {
-      return res.status(502).json({ error: 'Empty or too-short response from WordPress' });
+      return res.status(502).json({ error: 'Empty response from WordPress' });
     }
 
-    // Guard against Vercel's ~4.5MB response limit
     if (html.length > 4000000) {
-      return res.status(502).json({ error: `Page too large (${Math.round(html.length/1024)}KB) — Vercel limit exceeded` });
+      return res.status(502).json({ error: 'Page too large (' + Math.round(html.length / 1024) + 'KB)' });
     }
 
     res.setHeader('Cache-Control', 'no-store');
@@ -52,8 +45,14 @@ module.exports = async (req, res) => {
     return res.status(200).json({ html });
   } catch (error) {
     const msg = error.name === 'AbortError'
-      ? 'WordPress took too long to respond (>8s) — try again, page may be slow'
+      ? 'WordPress too slow (>8s) — try again'
       : (error.message || 'Fetch failed');
     return res.status(502).json({ error: msg });
   }
+};
+
+module.exports = handler;
+
+module.exports.config = {
+  maxDuration: 60,
 };
