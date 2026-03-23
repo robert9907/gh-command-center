@@ -4697,16 +4697,20 @@ function App() {
                 {/* Copy for Elementor — always visible when page HTML is loaded */}
                 {pageHtml&&(
                   <button onClick={()=>{
-                    var raw=buildWP();
-                    var output=window.flattenForElementor(raw);
-                    navigator.clipboard.writeText(output).then(function(){
-                      alert("\u2705 Elementor-safe HTML copied!\n\nPaste into Elementor HTML widget.\nAll styles inlined. All variables resolved.\n0 scripts. 0 wrappers.\nMobile-responsive \u2713");
-                      // Mark page complete
-                      if(pbPage&&pbPage.key){
-                        setPbCompleted(function(prev){return prev.includes(pbPage.key)?prev:[...prev,pbPage.key];});
-                        setHasChanges(true);
-                      }
-                    });
+                    try{
+                      var raw=buildWP();
+                      if(!raw||raw.length<100){alert("⚠ buildWP() returned empty or too-short HTML. Check page template.");return;}
+                      var output=window.flattenForElementor(raw);
+                      if(!output||output.length<100){alert("⚠ flattenForElementor returned empty. Check flattener function.");return;}
+                      navigator.clipboard.writeText(output).then(function(){
+                        alert("\u2705 Elementor-safe HTML copied!\n\nPaste into Elementor HTML widget.\nAll styles inlined. All variables resolved.\n0 scripts. 0 wrappers.\nMobile-responsive \u2713");
+                        // Mark page complete
+                        if(pbPage&&pbPage.key){
+                          setPbCompleted(function(prev){return prev.includes(pbPage.key)?prev:[...prev,pbPage.key];});
+                          setHasChanges(true);
+                        }
+                      }).catch(function(err){alert("⚠ Clipboard write failed: "+err.message+"\n\nTry clicking inside the page first, then click Copy again.");});
+                    }catch(ex){alert("⚠ Flattener error:\n"+ex.message+"\n\nLine: "+(ex.lineNumber||"unknown"));}
                   }} style={{padding:"6px 16px",borderRadius:8,border:"none",
                     background:"#FFC72C",color:"#1A2332",
                     fontSize:12,fontWeight:800,cursor:"pointer",transition:"all 0.2s"}}>
@@ -4730,13 +4734,17 @@ function App() {
                       Full Page</button>
                   </div>
                   <button onClick={()=>{
-                    var raw=buildWP();
-                    var output=pbCopyMode==="elementor"?window.flattenForElementor(raw):raw;
-                    navigator.clipboard.writeText(output).then(function(){
-                      alert(pbCopyMode==="elementor"
-                        ?"\u2705 Elementor-safe HTML copied!\n\nPaste into Elementor HTML widget.\nAll styles inlined. All variables resolved.\n0 scripts. 0 wrappers.\nMobile-responsive \u2713"
-                        :"\ud83d\udcc4 Full page HTML copied.\n\nRaw document \u2014 use for Bluehost hosting or debugging.");
-                    });
+                    try{
+                      var raw=buildWP();
+                      if(!raw||raw.length<100){alert("⚠ buildWP() returned empty or too-short HTML.");return;}
+                      var output=pbCopyMode==="elementor"?window.flattenForElementor(raw):raw;
+                      if(!output||output.length<100){alert("⚠ Flattener returned empty.");return;}
+                      navigator.clipboard.writeText(output).then(function(){
+                        alert(pbCopyMode==="elementor"
+                          ?"\u2705 Elementor-safe HTML copied!\n\nPaste into Elementor HTML widget.\nAll styles inlined. All variables resolved.\n0 scripts. 0 wrappers.\nMobile-responsive \u2713"
+                          :"\ud83d\udcc4 Full page HTML copied.\n\nRaw document \u2014 use for Bluehost hosting or debugging.");
+                      }).catch(function(err){alert("⚠ Clipboard write failed: "+err.message);});
+                    }catch(ex){alert("⚠ Flattener error:\n"+ex.message);}
                   }} style={{padding:"6px 16px",borderRadius:8,border:"none",
                     background:pbCopyMode==="elementor"?"#FFC72C":"#4B9CD3",
                     color:pbCopyMode==="elementor"?"#1A2332":"#fff",
