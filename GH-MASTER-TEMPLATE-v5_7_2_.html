@@ -1,4 +1,8 @@
-<!DOCTYPE html>
+// GH Master Template v5.7.2 — THE LAW
+// Claude fills placeholder values. assembleHTML does string replacement.
+// This template is NEVER modified. Only placeholder values change.
+
+export const MASTER_TEMPLATE = `<!DOCTYPE html>
 <!-- ═══════════════════════════════════════════════════════════
      PAGE TYPE DETECTION — SET ONE OF THESE:
      
@@ -635,7 +639,7 @@ article li::before{content:'';position:absolute;left:0;top:10px;width:8px;height
 .gh-col-list{list-style:none;margin:0 !important;padding:0 !important;}
 .gh-col-list li{padding:7px 0 7px 20px !important;position:relative;border-bottom:1px solid rgba(0,0,0,.05);font-size:13px !important;line-height:1.6 !important;color:var(--charcoal) !important;}
 .gh-col-list li:last-child{border-bottom:none;}
-.gh-col-list li::before{content:"\2192" !important;position:absolute;left:0;color:var(--carolina);font-size:12px;top:8px !important;width:auto !important;height:auto !important;background:none !important;border-radius:0 !important;}
+.gh-col-list li::before{content:"→" !important;position:absolute;left:0;color:var(--carolina);font-size:12px;top:8px !important;width:auto !important;height:auto !important;background:none !important;border-radius:0 !important;}
 
 
 /* ════════════════════════
@@ -689,7 +693,7 @@ article li::before{content:'';position:absolute;left:0;top:10px;width:8px;height
    TESTIMONIAL
    ════════════════════════ */
 .gh-testimonial{background:var(--white);border:1.5px solid rgba(0,0,0,.08);border-radius:var(--r-xl);padding:36px;margin:48px 0;max-width:var(--prose);box-shadow:var(--sh-md);position:relative;}
-.gh-testimonial::before{content:'\201C';position:absolute;top:-8px;left:24px;font-size:72px;color:var(--carolina);opacity:.2;font-family:Georgia,serif;line-height:1;}
+.gh-testimonial::before{content:'\\201C';position:absolute;top:-8px;left:24px;font-size:72px;color:var(--carolina);opacity:.2;font-family:Georgia,serif;line-height:1;}
 .gh-testimonial blockquote{font-style:italic;font-size:16px;line-height:1.75;color:var(--charcoal);margin-bottom:16px;}
 .gh-testimonial-author{font-size:14px;font-weight:600;color:var(--slate);}
 .gh-testimonial-link{margin-top:12px;font-size:14px;}
@@ -745,13 +749,13 @@ article li::before{content:'';position:absolute;left:0;top:10px;width:8px;height
 .gh-related>h3{font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--midnight);margin:0 0 24px;}
 .gh-related-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .gh-rlink{display:flex;align-items:center;gap:7px;padding:10px 14px;background:var(--white);border:1px solid rgba(0,0,0,.06);border-radius:var(--r-md);font-size:14px;font-weight:500;color:var(--charcoal);text-decoration:none;transition:all 180ms var(--ease);}
-.gh-rlink::before{content:"\2192";color:var(--carolina);font-size:12px;flex-shrink:0;}
+.gh-rlink::before{content:"→";color:var(--carolina);font-size:12px;flex-shrink:0;}
 .gh-rlink:hover{color:var(--carolina);border-color:var(--carolina);}
 .gh-county-hd{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--carolina);margin:24px 0 12px;padding-top:24px;border-top:1px solid var(--mist);}
 .gh-county-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
 .gh-clink{display:flex;align-items:center;gap:5px;padding:9px 12px;background:var(--white);border:1px solid rgba(0,0,0,.06);border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--carolina);text-decoration:none;transition:all 180ms var(--ease);}
 .gh-clink:hover{background:var(--blue-50);border-color:var(--carolina);}
-.gh-clink::before{content:"\1F4CD";font-size:10px;}
+.gh-clink::before{content:"📍";font-size:10px;}
 
 
 /* ════════════════════════
@@ -2636,11 +2640,11 @@ article li::before{content:'';position:absolute;left:0;top:10px;width:8px;height
      ═══════════════════════════════════════════════════════════ -->
 <div class="gh-container">
   <div class="gh-author">
-    <div class="gh-author-header">
+    <div class="gh-author-header" style="background:linear-gradient(135deg,#2563EB,#1D4ED8);color:#fff;padding:40px 36px;text-align:center;">
       <!-- MEDICARE: "Licensed Medicare Broker" | ACA: "Licensed Health Insurance Advisor" -->
-      <h2>Robert Simm, [MEDICARE: Licensed Medicare Broker | ACA: Licensed Health Insurance Advisor]</h2>
-      <p>NC License #10447418 &middot; NPN #10447418 &middot; AHIP Certified</p>
-      <p>12+ Years &middot; 500+ NC Families &middot; Your Data Never Shared</p>
+      <h2 style="font-family:Fraunces,Georgia,serif;font-size:26px;font-weight:700;color:#fff !important;margin:0 0 8px;">Robert Simm, [MEDICARE: Licensed Medicare Broker | ACA: Licensed Health Insurance Advisor]</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,.9) !important;margin:0 0 6px;max-width:none;">NC License #10447418 &middot; NPN #10447418 &middot; AHIP Certified</p>
+      <p style="font-size:15px;color:rgba(255,255,255,.9) !important;margin:0 0 6px;max-width:none;">12+ Years &middot; 500+ NC Families &middot; Your Data Never Shared</p>
       <div class="gh-author-contact-row">
         <span>📞 <a href="tel:828-761-3326">828-761-3326</a></span>
         <span>📍 2731 Meridian Pkwy, Durham, NC 27713</span>
@@ -2902,4 +2906,112 @@ article li::before{content:'';position:absolute;left:0;top:10px;width:8px;height
 })();
 </script>
 </body>
-</html>
+</html>`;
+
+// All placeholders in the template
+export const TEMPLATE_PLACEHOLDERS = [
+  'ALERT BODY',
+  'ALERT TITLE',
+  'ATTRIBUTE',
+  'BADGE 2',
+  'BADGE 3',
+  'BAR DESCRIPTION',
+  'BAR LABEL',
+  'BRACKET',
+  'BREADCRUMB PAGE',
+  'CARD 1 TITLE',
+  'CARD 2 BODY',
+  'CARD 2 TITLE',
+  'CARD 3 BODY',
+  'CARD 3 TITLE',
+  'CARD 4 BODY',
+  'CARD 4 TITLE',
+  'CARD 5 BODY',
+  'CARD 5 TITLE',
+  'CARD 6 BODY',
+  'CARD 6 TITLE',
+  'CATEGORY-SLUG',
+  'CHART SUBTITLE',
+  'CHART TITLE',
+  'COL CARD 1 TITLE',
+  'COL CARD 2 TITLE',
+  'COUNTY',
+  'DATES',
+  'FAQ ANSWER 1',
+  'FAQ ANSWER 2',
+  'FAQ ANSWER 3',
+  'FAQ ANSWER 4',
+  'FAQ ANSWER 5',
+  'FAQ ANSWER 6',
+  'FAQ QUESTION 1',
+  'FAQ QUESTION 2',
+  'FAQ QUESTION 3',
+  'FAQ QUESTION 4',
+  'FAQ QUESTION 5',
+  'FAQ QUESTION 6',
+  'FIRST NAME OR INITIALS',
+  'ITEM 1',
+  'ITEM 2',
+  'ITEM 3',
+  'ITEM 4',
+  'ITEM 5',
+  'PAGE META DESCRIPTION',
+  'PAGE TITLE',
+  'PAGE-SLUG',
+  'RELATED GUIDE',
+  'RELATED GUIDE 1',
+  'RELATED GUIDE 2',
+  'RELATED GUIDE 3',
+  'RELATED GUIDE 4',
+  'RELATED GUIDE 5',
+  'RELATED GUIDE 6',
+  'RELATED GUIDE 7',
+  'RELATED GUIDE 8',
+  'RELATED-SLUG',
+  'RELATED-SLUG-1',
+  'RELATED-SLUG-2',
+  'RELATED-SLUG-3',
+  'RELATED-SLUG-4',
+  'RELATED-SLUG-5',
+  'RELATED-SLUG-6',
+  'RELATED-SLUG-7',
+  'RELATED-SLUG-8',
+  'REVIEW 2 TEXT',
+  'REVIEW 3 TEXT',
+  'SCENARIO 2 TITLE',
+  'SCENARIO 3 TITLE',
+  'SOURCE CITATION',
+  'STEP 1 TITLE',
+  'STEP 2 BODY',
+  'STEP 2 TITLE',
+  'STEP 3 BODY',
+  'STEP 3 TITLE',
+  'STEP 4 BODY',
+  'STEP 4 TITLE',
+  'TITLE',
+  'URGENT DESCRIPTION',
+  'URGENT WINDOW NAME',
+  'VALUE',
+  'WINDOW DESCRIPTION',
+  'WINDOW NAME',
+  'XX',
+  'YYYY-MM-DD',
+] as const;
+
+export type TemplatePlaceholder = typeof TEMPLATE_PLACEHOLDERS[number];
+
+/**
+ * assembleHTML — String replacement ONLY.
+ * Takes the master template and a map of placeholder values.
+ * Replaces [PLACEHOLDER] with the provided value.
+ * Does NOT construct HTML. Does NOT modify template structure.
+ */
+export function assembleHTML(values: Record<string, string>): string {
+  let html = MASTER_TEMPLATE;
+  for (const [key, value] of Object.entries(values)) {
+    // Replace all occurrences of [KEY] with value
+    const pattern = new RegExp('\\[' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\]', 'g');
+    html = html.replace(pattern, value);
+  }
+  return html;
+}
