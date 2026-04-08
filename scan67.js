@@ -2,6 +2,7 @@
 // scan67 — 67-Point Scanner for GH Command Center
 // Reads all thresholds from window.GH_HARD_RULES
 // Returns scored results per category + overall score
+// v1.1 — Added Rule 68 (CSS Content Escape Blocker) + Rule 69 (Dead Placeholder URL Blocker)
 // ═══════════════════════════════════════════════════════════════════════════
 
 // Standalone script — adds GH_1000.scan67 when loaded via <script src>
@@ -90,7 +91,6 @@ window.GH_1000.scan67 = function(html) {
   var metaDesc = html.match(/meta[^>]*description[^>]*content="([^"]*)"/i) || html.match(/meta_description[^"]*"([^"]*)"/i);
   check("SEO", "Meta description present", !!metaDesc, metaDesc ? "Found" : "Missing meta description");
   
-  // LSI: check for variety of related terms
   var lsiTerms = ["coverage", "premium", "deductible", "enrollment", "plan", "benefits", "costs", "network", "copay", "coinsurance", "out-of-pocket", "formulary", "provider"];
   var lsiFound = lsiTerms.filter(function(t) { return hasLower(t); });
   check("SEO", "LSI terms (5+)", lsiFound.length >= 5, lsiFound.length + " LSI terms found");
@@ -193,14 +193,12 @@ window.GH_1000.scan67 = function(html) {
   var hasHealthsherpa = has("healthsherpa.com");
   check("CONV", "Compare plans link", hasSunfire || hasHealthsherpa, (hasSunfire ? "SunFire ✓" : "") + (hasHealthsherpa ? " HealthSherpa ✓" : "") || "Missing");
   
-  // CTA in first 35% — check if gh-cta-modal or compare link appears in first third
   var firstThird = html.substring(0, Math.floor(html.length * 0.35));
   var ctaEarly = firstThird.indexOf("gh-hero-btn") !== -1 || firstThird.indexOf("gh-cta-modal") !== -1;
   check("CONV", "CTA in first 35%", ctaEarly, ctaEarly ? "Early CTA present" : "No CTA in first 35% of page");
   
   check("CONV", "Multiple CTAs (2+)", ctaModalCount >= 2, ctaModalCount + " CTA modals");
   
-  // GA4 — no blocking sync scripts
   var blockingScripts = count(/<script(?![^>]*async)(?![^>]*defer)(?![^>]*type="application\/ld\+json")[^>]*src=/gi);
   check("CONV", "GA4 tracking ready", blockingScripts === 0, blockingScripts === 0 ? "No blocking scripts" : blockingScripts + " blocking scripts found");
   
@@ -213,15 +211,12 @@ window.GH_1000.scan67 = function(html) {
   var socialProof = (has("5.0") || has(B.google_rating)) && (has(B.families_helped) || has("families"));
   check("CONV", "Social proof signals", socialProof || ratingSignals, socialProof ? "Rating + families helped" : "Partial social proof");
   
-  // Clean DOM for retargeting
   var iframeCount = count(/<iframe/gi);
   check("CONV", "Retargeting ready", iframeCount === 0, iframeCount === 0 ? "Clean DOM" : iframeCount + " iframes found");
   
-  // Scroll depth — check for section landmarks
   var landmarks = count(/aria-label/g);
   check("CONV", "Scroll depth tracking", landmarks >= 3, landmarks + " aria-label landmarks");
   
-  // Lead capture flow — phone + text + calendly + compare
   var hasPhone = has("tel:");
   var hasSMS = has("sms:");
   var hasCalendly = has("calendly.com");
@@ -263,17 +258,14 @@ window.GH_1000.scan67 = function(html) {
   var isMedicare = hasLower("medicare");
   var isACA = hasLower("aca") || hasLower("marketplace");
   
-  // CMS disclaimer
   var cmsDisclaimer = has("do not offer every plan") || has("We do not offer every plan");
   check("COMPLIANCE", "CMS disclaimer", cmsDisclaimer, cmsDisclaimer ? "Present" : "Missing 'We do not offer every plan' disclaimer");
   
   check("COMPLIANCE", "License number visible", has(B.license_number), has(B.license_number) ? "#" + B.license_number + " found" : "Missing license number");
   
-  // Gov reference
   var govRef = has("Medicare.gov") || has("Healthcare.gov");
   check("COMPLIANCE", ".gov reference", govRef, govRef ? "Present" : "Missing Medicare.gov or Healthcare.gov");
   
-  // Gov phone
   var govPhonePresent = has("1-800-MEDICARE") || has("1-800-633-4227") || has("1-800-318-2596");
   check("COMPLIANCE", "Government phone", govPhonePresent, govPhonePresent ? "Present" : "Missing gov phone number");
   
@@ -283,12 +275,10 @@ window.GH_1000.scan67 = function(html) {
   var educational = hasLower("educational") || hasLower("informational purposes");
   check("COMPLIANCE", "Educational purpose", educational || cmsDisclaimer, educational ? "Present" : "Implied by CMS disclaimer");
   
-  // No guarantee language
   var guaranteeWords = ["guaranteed", "promise", "ensure you will", "you will save", "you will pay less"];
   var hasGuarantee = guaranteeWords.some(function(w) { return hasLower(w); });
   check("COMPLIANCE", "No guarantee language", !hasGuarantee, hasGuarantee ? "WARNING: Guarantee-type language found" : "Clean");
   
-  // No stale figures
   var staleFigures = [];
   FT.stale_part_b.forEach(function(v) { if (has(v)) staleFigures.push(v); });
   FT.stale_part_b_deductible.forEach(function(v) { if (has(v)) staleFigures.push(v); });
@@ -296,7 +286,42 @@ window.GH_1000.scan67 = function(html) {
   FT.stale_ma_oop.forEach(function(v) { if (has(v)) staleFigures.push(v); });
   FT.stale_year_patterns.forEach(function(v) { if (has(v)) staleFigures.push(v); });
   check("COMPLIANCE", "No stale figures", staleFigures.length === 0, staleFigures.length === 0 ? "All figures current" : "STALE: " + staleFigures.join(", "));
-  
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // PUBLISH BLOCKERS — v1.1 additions (2 checks — Rules 68 & 69)
+  // Hard stops: a single failure in this category blocks publish entirely.
+  // ═══════════════════════════════════════════════════════════════════════
+
+  // Rule 68: CSS Content Escape Blocker
+  // Detects CSS content: properties using backslash Unicode escapes
+  // (e.g. content:"\2192", content:'\1F4CD') which Elementor strips on paste,
+  // causing raw codes like \2192 to render as visible text on the live page.
+  // Fix: bake the character into HTML as <span aria-hidden="true"> with a
+  // real Unicode character or HTML entity (e.g. &#x2192;).
+  var styleBlocks = html.match(/<style[\s\S]*?<\/style>/gi) || [];
+  var cssEscapeFound = styleBlocks.some(function(block) {
+    return /content\s*:\s*["']\\[0-9a-fA-F]/i.test(block);
+  });
+  check("PUBLISH BLOCKERS", "No CSS content escape sequences (Rule 68)", !cssEscapeFound,
+    cssEscapeFound
+      ? "BLOCKED: CSS content: property contains \\XXXX escape — Elementor strips it on paste. Replace with inline <span aria-hidden=\"true\"> using real character or HTML entity."
+      : "Clean — no CSS escape sequences in content: properties");
+
+  // Rule 69: No Dead Placeholder URLs
+  // Detects href="" or src="" attributes still containing bracket placeholders
+  // (e.g. [RELATED-SLUG-1], [MEDICARE: medicare-nc | ACA: ...], [PAGE-SLUG]).
+  // These produce guaranteed 404s on the live page.
+  // Body text placeholders like [FAQ QUESTION 1] are intentionally ignored —
+  // only href and src attributes are scanned.
+  var urlAttrMatches = html.match(/(?:href|src)\s*=\s*["'][^"']*\[[^\]]+\][^"']*["']/gi) || [];
+  var deadUrls = urlAttrMatches.filter(function(match) {
+    return !/(?:href|src)\s*=\s*["'](?:data:|javascript:)/i.test(match);
+  });
+  check("PUBLISH BLOCKERS", "No dead placeholder URLs (Rule 69)", deadUrls.length === 0,
+    deadUrls.length === 0
+      ? "Clean — all href/src attributes contain real URLs"
+      : "BLOCKED: " + deadUrls.length + " unfilled URL placeholder(s) — guaranteed 404s: " + deadUrls.slice(0, 3).join(" | ") + (deadUrls.length > 3 ? " (+" + (deadUrls.length - 3) + " more)" : ""));
+
   // ═══════════════════════════════════════════════════════════════════════
   // SCORE SUMMARY
   // ═══════════════════════════════════════════════════════════════════════
@@ -308,7 +333,7 @@ window.GH_1000.scan67 = function(html) {
     if (r.passed) categories[r.category].pass++;
   });
   
-  var grade = pass >= 64 ? "A+" : pass >= 60 ? "A" : pass >= 55 ? "B+" : pass >= 50 ? "B" : pass >= 45 ? "C" : pass >= 40 ? "D" : "F";
+  var grade = pass >= 66 ? "A+" : pass >= 62 ? "A" : pass >= 57 ? "B+" : pass >= 52 ? "B" : pass >= 47 ? "C" : pass >= 42 ? "D" : "F";
   
   return {
     score: pass,
@@ -318,8 +343,9 @@ window.GH_1000.scan67 = function(html) {
     categories: categories,
     results: results,
     failures: results.filter(function(r) { return !r.passed; }),
+    publishBlocked: results.filter(function(r) { return r.category === "PUBLISH BLOCKERS" && !r.passed; }).length > 0,
     timestamp: new Date().toISOString()
   };
 };
 
-console.log("[GH] scan67 loaded — 67-point scanner reads from GH_HARD_RULES");
+console.log("[GH] scan67 loaded — 69-point scanner (v1.1) reads from GH_HARD_RULES");
