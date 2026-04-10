@@ -5433,38 +5433,29 @@ function App() {
     setPbAiGenerating(true);
     setPbGenerating("Building prompt...");
     try{
-      var systemPrompt = "You are building a healthcare insurance page for GenerationHealth.me, operated by Robert Simm, licensed Medicare and ACA broker in Durham, NC (NC License #10447418, NPN #10447418, phone (828) 761-3326). You write with NEPQ persuasion tone.
-
-REQUIRED — all 69 checks must pass:
-
-AEO: 3+ .gh-answer blocks, FAQPage schema 4+ questions, HowTo schema 3+ steps, comparison table .gh-comparison, Speakable markup.
-
-SEO: Single H1, 5+ H2s, 2000+ words, meta description, title tag, 3+ internal generationhealth.me links, 2+ .gov citations, BreadcrumbList schema.
-
-E-E-A-T: .gh-author card with RS/Robert Simm/NC License #10447418, phone (828) 761-3326, 2026 date, AHIP Certified, Person schema, LocalBusiness schema, rating mention.
-
-2026 FIGURES: Part B $202.90, Part B deductible $283, Part A deductible $1,736, MA OOP max $9,350, Part D OOP cap $2,100.
-
-CONTENT: North Carolina, Durham, call CTA (828) 761-3326, compliance footer with 'We do not offer every plan', 1-800-MEDICARE, NEPQ persuasion arc (plant doubt/raise stakes/close), red flag tip about captive agents, real example with savings, $0 cost to client, free consultation, independent broker, multiple carriers (Humana/Aetna/UnitedHealthcare/Blue Cross).
-
-COMPLIANCE: Not affiliated with Medicare disclaimer, does not offer every plan, 1-800-MEDICARE reference, NPN #10447418 displayed, educational purposes statement.
-
-LINKS: 8 placeholder slots [RELATED-SLUG-1] through [RELATED-SLUG-8] — these will be replaced with live URLs.
-
-HUB INTRO: Include a hub intro block after 'keep reading to understand what's at stake'.
-
-FONTS: DM Sans body, Fraunces headings. COLORS: #0F2440 navy, #4B9CD3 blue, #0D9488 teal.
-
-Return complete HTML only. No markdown. No backticks. Start with <!DOCTYPE html>.";
-      var userPrompt = "Build a complete "+pbPageType+" insurance page.
-Topic: "+title+"
-Slug: "+slug+"
-Type: "+pbPageType+"
-Target: Durham and Wake County NC residents turning 65 or newly on Medicare.
-
-All 69 quality checks must pass on first generation. Include all required schemas, 2026 figures, author card, compliance footer, and 8 [RELATED-SLUG-N] placeholder links.
-
-Return complete HTML only.";
+      var sp=[];
+      sp.push("You are building a healthcare insurance page for GenerationHealth.me, operated by Robert Simm, licensed Medicare and ACA broker in Durham, NC (NC License #10447418, NPN #10447418, phone (828) 761-3326). You write with NEPQ persuasion tone.");
+      sp.push("REQUIRED — all 69 checks must pass:");
+      sp.push("AEO: 3+ .gh-answer blocks, FAQPage schema 4+ questions, HowTo schema 3+ steps, comparison table .gh-comparison, Speakable markup.");
+      sp.push("SEO: Single H1, 5+ H2s, 2000+ words, meta description, title tag, 3+ internal generationhealth.me links, 2+ .gov citations, BreadcrumbList schema.");
+      sp.push("E-E-A-T: .gh-author card with RS/Robert Simm/NC License #10447418, phone (828) 761-3326, 2026 date, AHIP Certified, Person schema, LocalBusiness schema, rating mention.");
+      sp.push("2026 FIGURES: Part B $202.90, Part B deductible $283, Part A deductible $1,736, MA OOP max $9,350, Part D OOP cap $2,100.");
+      sp.push("CONTENT: North Carolina, Durham, call CTA (828) 761-3326, compliance footer with 'We do not offer every plan', 1-800-MEDICARE, NEPQ persuasion arc (plant doubt/raise stakes/close), red flag tip about captive agents, real example with savings, $0 cost to client, free consultation, independent broker, multiple carriers (Humana/Aetna/UnitedHealthcare/Blue Cross).");
+      sp.push("COMPLIANCE: Not affiliated with Medicare disclaimer, does not offer every plan, 1-800-MEDICARE reference, NPN #10447418 displayed, educational purposes statement.");
+      sp.push("LINKS: 8 placeholder slots [RELATED-SLUG-1] through [RELATED-SLUG-8] — these will be replaced with live URLs.");
+      sp.push("HUB INTRO: Include a hub intro block after 'keep reading to understand what's at stake'.");
+      sp.push("FONTS: DM Sans body, Fraunces headings. COLORS: #0F2440 navy, #4B9CD3 blue, #0D9488 teal.");
+      sp.push("Return complete HTML only. No markdown. No backticks. Start with <!DOCTYPE html>.");
+      var systemPrompt=sp.join("\n\n");
+      var up=[];
+      up.push("Build a complete "+pbPageType+" insurance page.");
+      up.push("Topic: "+title);
+      up.push("Slug: "+slug);
+      up.push("Type: "+pbPageType);
+      up.push("Target: Durham and Wake County NC residents turning 65 or newly on Medicare.");
+      up.push("All 69 quality checks must pass. Include all required schemas, 2026 figures, author card, compliance footer, and 8 [RELATED-SLUG-N] placeholder links.");
+      up.push("Return complete HTML only.");
+      var userPrompt=up.join("\n");
       setPbGenerating("Calling Claude (30-60 seconds)...");
       var resp = await fetch("https://api.anthropic.com/v1/messages",{
         method:"POST",
