@@ -1,5 +1,6 @@
 {
   "name": "gh-command-center",
+<<<<<<< HEAD
   "version": "4.0.0",
   "private": true,
   "type": "module",
@@ -18,4 +19,8 @@
     "@vitejs/plugin-react": "^4.3.1",
     "vite": "^5.4.8"
   }
+=======
+  "version": "1.0.0",
+  "private": true
+>>>>>>> db91017aef22eb55257cab61847bb2990ac09b29
 }

@@ -1,0 +1,509 @@
+{
+  "version": "2.0",
+  "lastUpdated": "2026-04-03",
+  "totalQueries": 50,
+  "strategy": "Local-first: 62% local/regional queries where no national site competes. 3 national authority builders only.",
+  "serviceArea": {
+    "counties": ["Wake", "Durham", "Orange", "Chatham", "Person", "Granville", "Franklin", "Johnston"],
+    "cities": ["Raleigh", "Durham", "Chapel Hill", "Cary", "Apex", "Holly Springs", "Morrisville", "Hillsborough"],
+    "region": "Research Triangle / Raleigh-Durham"
+  },
+  "categories": [
+    {
+      "id": "county-city-medicare",
+      "name": "County & City Medicare",
+      "purpose": "Hyper-local queries no national site answers well. Highest win probability.",
+      "queries": [
+        {
+          "id": "local-1",
+          "query": "Medicare broker Durham NC",
+          "category": "county-city-medicare",
+          "intent": "trust",
+          "emotion": "I want someone local I can sit down with",
+          "competitors": ["Medicare.gov", "BCBS NC"]
+        },
+        {
+          "id": "local-2",
+          "query": "Medicare agent Raleigh NC",
+          "category": "county-city-medicare",
+          "intent": "trust",
+          "emotion": "I'm done with 1-800 numbers",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "local-3",
+          "query": "Medicare help Wake County NC",
+          "category": "county-city-medicare",
+          "intent": "urgency",
+          "emotion": "I need help now",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "local-4",
+          "query": "Medicare broker Chapel Hill NC",
+          "category": "county-city-medicare",
+          "intent": "trust",
+          "emotion": "I want someone who knows my area",
+          "competitors": []
+        },
+        {
+          "id": "local-5",
+          "query": "Medicare agent Cary NC",
+          "category": "county-city-medicare",
+          "intent": "trust",
+          "emotion": "I need local guidance",
+          "competitors": []
+        },
+        {
+          "id": "local-6",
+          "query": "Medicare help Orange County NC",
+          "category": "county-city-medicare",
+          "intent": "urgency",
+          "emotion": "I need hands-on help nearby",
+          "competitors": []
+        },
+        {
+          "id": "local-7",
+          "query": "best Medicare plans Durham County NC",
+          "category": "county-city-medicare",
+          "intent": "trust",
+          "emotion": "What's actually available here?",
+          "competitors": ["Medicare.gov", "BCBS NC"]
+        },
+        {
+          "id": "local-8",
+          "query": "Medicare Advantage plans Wake County 2026",
+          "category": "county-city-medicare",
+          "intent": "validation",
+          "emotion": "What are my options near me?",
+          "competitors": ["Medicare.gov", "BCBS NC"]
+        },
+        {
+          "id": "local-9",
+          "query": "Medicare enrollment help Chatham County NC",
+          "category": "county-city-medicare",
+          "intent": "urgency",
+          "emotion": "I need someone to walk me through this",
+          "competitors": []
+        },
+        {
+          "id": "local-10",
+          "query": "Medigap plans Durham NC",
+          "category": "county-city-medicare",
+          "intent": "confusion",
+          "emotion": "What supplements are available here?",
+          "competitors": []
+        },
+        {
+          "id": "local-11",
+          "query": "Medicare agent near me Apex NC",
+          "category": "county-city-medicare",
+          "intent": "trust",
+          "emotion": "I want someone close by",
+          "competitors": []
+        },
+        {
+          "id": "local-12",
+          "query": "Medicare broker Holly Springs NC",
+          "category": "county-city-medicare",
+          "intent": "trust",
+          "emotion": "I need local expertise",
+          "competitors": []
+        },
+        {
+          "id": "local-13",
+          "query": "Medicare help Johnston County NC",
+          "category": "county-city-medicare",
+          "intent": "urgency",
+          "emotion": "I need help in my county",
+          "competitors": []
+        },
+        {
+          "id": "local-14",
+          "query": "Medicare plans Person County NC",
+          "category": "county-city-medicare",
+          "intent": "confusion",
+          "emotion": "What's even available out here?",
+          "competitors": []
+        },
+        {
+          "id": "local-15",
+          "query": "Medicare enrollment help Granville County NC",
+          "category": "county-city-medicare",
+          "intent": "urgency",
+          "emotion": "I need guidance in my area",
+          "competitors": []
+        }
+      ]
+    },
+    {
+      "id": "regional-state",
+      "name": "Regional & State",
+      "purpose": "Triangle/NC framing where carriers are weak and local brokers have edge.",
+      "queries": [
+        {
+          "id": "region-1",
+          "query": "independent Medicare broker Triangle NC",
+          "category": "regional-state",
+          "intent": "trust",
+          "emotion": "I want unbiased advice",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "region-2",
+          "query": "Medicare enrollment help Raleigh-Durham",
+          "category": "regional-state",
+          "intent": "urgency",
+          "emotion": "I need hands-on help",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "region-3",
+          "query": "best Medicare broker Research Triangle",
+          "category": "regional-state",
+          "intent": "trust",
+          "emotion": "Who's the best in the Triangle?",
+          "competitors": []
+        },
+        {
+          "id": "region-4",
+          "query": "Medicare agent North Carolina",
+          "category": "regional-state",
+          "intent": "trust",
+          "emotion": "I want someone in my state",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "region-5",
+          "query": "Medigap plans North Carolina 2026",
+          "category": "regional-state",
+          "intent": "confusion",
+          "emotion": "What supplements work in NC?",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "region-6",
+          "query": "Medicare Advantage plans North Carolina 2026",
+          "category": "regional-state",
+          "intent": "validation",
+          "emotion": "What's available statewide?",
+          "competitors": ["Medicare.gov", "BCBS NC", "UnitedHealthcare"]
+        },
+        {
+          "id": "region-7",
+          "query": "NC Medicare supplement rates comparison",
+          "category": "regional-state",
+          "intent": "validation",
+          "emotion": "Am I paying too much?",
+          "competitors": []
+        },
+        {
+          "id": "region-8",
+          "query": "free Medicare help North Carolina",
+          "category": "regional-state",
+          "intent": "trust",
+          "emotion": "I just want honest help",
+          "competitors": ["Medicare.gov", "AARP"]
+        }
+      ]
+    },
+    {
+      "id": "local-decisions",
+      "name": "Decision-Stage with Local Framing",
+      "purpose": "National questions + local intent = winnable. These drive calls from people ready to decide.",
+      "queries": [
+        {
+          "id": "decide-1",
+          "query": "Medicare Advantage vs Medigap Durham NC",
+          "category": "local-decisions",
+          "intent": "confusion",
+          "emotion": "I can't figure out which is right for me here",
+          "competitors": []
+        },
+        {
+          "id": "decide-2",
+          "query": "best Medicare plan for retirees Raleigh NC",
+          "category": "local-decisions",
+          "intent": "trust",
+          "emotion": "I want the best option for where I live",
+          "competitors": []
+        },
+        {
+          "id": "decide-3",
+          "query": "Medicare plan comparison Wake County",
+          "category": "local-decisions",
+          "intent": "confusion",
+          "emotion": "I need a side-by-side for my area",
+          "competitors": []
+        },
+        {
+          "id": "decide-4",
+          "query": "should I get Medicare Advantage or Medigap in NC",
+          "category": "local-decisions",
+          "intent": "confusion",
+          "emotion": "This decision feels permanent",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "decide-5",
+          "query": "best Medicare supplement plan North Carolina 2026",
+          "category": "local-decisions",
+          "intent": "validation",
+          "emotion": "I want the best protection in my state",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "decide-6",
+          "query": "Medicare HMO vs PPO plans in NC",
+          "category": "local-decisions",
+          "intent": "confusion",
+          "emotion": "I don't understand the network rules here",
+          "competitors": []
+        },
+        {
+          "id": "decide-7",
+          "query": "Medicare plan for chronic conditions NC",
+          "category": "local-decisions",
+          "intent": "fear",
+          "emotion": "My health makes this high-stakes",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "decide-8",
+          "query": "which Medicare plan covers Duke Health",
+          "category": "local-decisions",
+          "intent": "validation",
+          "emotion": "I need to keep my doctors",
+          "competitors": []
+        }
+      ]
+    },
+    {
+      "id": "aca-local",
+      "name": "ACA / Under-65 Local",
+      "purpose": "Second revenue stream with same local advantage. No national broker owns these.",
+      "queries": [
+        {
+          "id": "aca-1",
+          "query": "ACA health insurance broker Durham NC",
+          "category": "aca-local",
+          "intent": "trust",
+          "emotion": "I need someone to walk me through this",
+          "competitors": ["BCBS NC", "UnitedHealthcare"]
+        },
+        {
+          "id": "aca-2",
+          "query": "health insurance marketplace help Wake County",
+          "category": "aca-local",
+          "intent": "confusion",
+          "emotion": "Where do I even start?",
+          "competitors": ["Healthcare.gov"]
+        },
+        {
+          "id": "aca-3",
+          "query": "ACA subsidy calculator NC 2026",
+          "category": "aca-local",
+          "intent": "validation",
+          "emotion": "How much will I save?",
+          "competitors": ["Healthcare.gov"]
+        },
+        {
+          "id": "aca-4",
+          "query": "lost job need health insurance Raleigh NC",
+          "category": "aca-local",
+          "intent": "urgency",
+          "emotion": "I just lost my coverage",
+          "competitors": ["Healthcare.gov"]
+        },
+        {
+          "id": "aca-5",
+          "query": "self-employed health insurance Durham NC",
+          "category": "aca-local",
+          "intent": "fear",
+          "emotion": "I'm on my own and it's expensive",
+          "competitors": ["BCBS NC", "UnitedHealthcare"]
+        },
+        {
+          "id": "aca-6",
+          "query": "best ACA plans North Carolina 2026",
+          "category": "aca-local",
+          "intent": "trust",
+          "emotion": "Which plan is actually best?",
+          "competitors": ["BCBS NC", "UnitedHealthcare"]
+        },
+        {
+          "id": "aca-7",
+          "query": "Obamacare enrollment help Triangle NC",
+          "category": "aca-local",
+          "intent": "urgency",
+          "emotion": "I need help enrolling now",
+          "competitors": ["Healthcare.gov"]
+        }
+      ]
+    },
+    {
+      "id": "trust-broker",
+      "name": "Trust & Broker Questions",
+      "purpose": "These drive calls from people who already want a broker but need permission to use one.",
+      "queries": [
+        {
+          "id": "trust-1",
+          "query": "are Medicare brokers free",
+          "category": "trust-broker",
+          "intent": "trust",
+          "emotion": "What's the catch?",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "trust-2",
+          "query": "do I need a Medicare broker",
+          "category": "trust-broker",
+          "intent": "trust",
+          "emotion": "Is a broker even worth it?",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "trust-3",
+          "query": "how do Medicare agents get paid",
+          "category": "trust-broker",
+          "intent": "trust",
+          "emotion": "Who's really paying for this?",
+          "competitors": []
+        },
+        {
+          "id": "trust-4",
+          "query": "independent vs captive Medicare agent NC",
+          "category": "trust-broker",
+          "intent": "trust",
+          "emotion": "I want someone who works for me, not an insurance company",
+          "competitors": []
+        },
+        {
+          "id": "trust-5",
+          "query": "free Medicare advice North Carolina",
+          "category": "trust-broker",
+          "intent": "trust",
+          "emotion": "I just want honest help",
+          "competitors": ["Medicare.gov", "AARP"]
+        }
+      ]
+    },
+    {
+      "id": "savings-programs-nc",
+      "name": "Medicare Savings / Low-Income NC",
+      "purpose": "Underserved, high-need, NC-specific. These people desperately need help and have no one.",
+      "queries": [
+        {
+          "id": "save-1",
+          "query": "Medicare Savings Program North Carolina",
+          "category": "savings-programs-nc",
+          "intent": "fear",
+          "emotion": "I can't afford my premiums",
+          "competitors": ["NCDHHS"]
+        },
+        {
+          "id": "save-2",
+          "query": "QMB eligibility NC 2026",
+          "category": "savings-programs-nc",
+          "intent": "confusion",
+          "emotion": "Do I qualify for help?",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "save-3",
+          "query": "Extra Help LIS program North Carolina",
+          "category": "savings-programs-nc",
+          "intent": "fear",
+          "emotion": "My prescriptions are too expensive",
+          "competitors": []
+        },
+        {
+          "id": "save-4",
+          "query": "Medicare premium assistance NC income limits 2026",
+          "category": "savings-programs-nc",
+          "intent": "validation",
+          "emotion": "Am I under the limit?",
+          "competitors": ["Medicare.gov"]
+        }
+      ]
+    },
+    {
+      "id": "authority-builders",
+      "name": "Authority Builders",
+      "purpose": "Only 3 national queries kept to show topical depth. Not expected to win — just to compete.",
+      "queries": [
+        {
+          "id": "auth-1",
+          "query": "Medicare Part B premium 2026",
+          "category": "authority-builders",
+          "intent": "validation",
+          "emotion": "Am I paying the right amount?",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "auth-2",
+          "query": "what happens if I miss Medicare enrollment deadline",
+          "category": "authority-builders",
+          "intent": "fear",
+          "emotion": "I think I made a mistake",
+          "competitors": ["Medicare.gov"]
+        },
+        {
+          "id": "auth-3",
+          "query": "how to choose the right Medicare plan",
+          "category": "authority-builders",
+          "intent": "confusion",
+          "emotion": "I'm overwhelmed",
+          "competitors": ["Medicare.gov"]
+        }
+      ]
+    }
+  ],
+  "competitors": [
+    {
+      "name": "Medicare.gov",
+      "url": "medicare.gov",
+      "type": "government"
+    },
+    {
+      "name": "BCBS NC",
+      "url": "bluecrossnc.com",
+      "type": "carrier"
+    },
+    {
+      "name": "Humana",
+      "url": "humana.com",
+      "type": "carrier"
+    },
+    {
+      "name": "Aetna",
+      "url": "aetna.com",
+      "type": "carrier"
+    },
+    {
+      "name": "UnitedHealthcare",
+      "url": "uhc.com",
+      "type": "carrier"
+    },
+    {
+      "name": "AARP",
+      "url": "aarp.org",
+      "type": "organization"
+    },
+    {
+      "name": "NCDHHS",
+      "url": "ncdhhs.gov",
+      "type": "government"
+    },
+    {
+      "name": "Healthcare.gov",
+      "url": "healthcare.gov",
+      "type": "government"
+    }
+  ],
+  "detectionPatterns": {
+    "url": "generationhealth.me",
+    "name": ["Rob Simm", "Robert Simm", "GenerationHealth", "Generation Health"],
+    "phone": ["828-761-3326", "8287613326", "(828) 761-3326", "828.761.3326"]
+  }
+}
