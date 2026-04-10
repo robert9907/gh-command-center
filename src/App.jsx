@@ -24,8 +24,8 @@ function LoadingSpinner() {
   );
 }
 
-// Load cluster data from baked window globals
-const clusters = (typeof window !== 'undefined' && window.clusters) ? window.clusters : [];
+import { clusters as _clusters, BAKED_DATA as _BAKED_DATA } from "./baked-data.js";
+const clusters = _clusters || [];
 
 function safeLSGet(key) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; }
@@ -39,12 +39,12 @@ export default function App() {
 
   // Shared Architecture state
   const [done, setDoneRaw] = useState(() => {
-    const baked = (typeof window !== 'undefined' && window.BAKED_DATA?.done) ? window.BAKED_DATA.done : {};
+    const baked = _BAKED_DATA?.done || {};
     const ls = safeLSGet('gh-cc-done') || {};
     return { ...baked, ...ls };
   });
   const [notes, setNotesRaw] = useState(() => {
-    const baked = (typeof window !== 'undefined' && window.BAKED_DATA?.notes) ? window.BAKED_DATA.notes : {};
+    const baked = _BAKED_DATA?.notes || {};
     const ls = safeLSGet('gh-cc-notes') || {};
     return { ...baked, ...ls };
   });
