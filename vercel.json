@@ -1,17 +1,5 @@
 {
-  "version": 2,
-  "framework": null,
   "buildCommand": "",
   "installCommand": "",
-  "outputDirectory": ".",
-  "routes": [
-    {
-      "src": "/api/fetch-page",
-      "dest": "/api/fetch-page.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ]
+  "outputDirectory": "."
 }
