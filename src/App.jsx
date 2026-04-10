@@ -24,8 +24,8 @@ function LoadingSpinner() {
   );
 }
 
-import { clusters as _clusters, BAKED_DATA as _BAKED_DATA } from "./baked-data.js";
-
+// Load cluster data from baked window globals
+const clusters = (typeof window !== 'undefined' && window.clusters) ? window.clusters : [];
 
 function safeLSGet(key) {
   try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : null; } catch { return null; }
@@ -39,8 +39,7 @@ export default function App() {
 
   // Shared Architecture state
   const [done, setDoneRaw] = useState(() => {
-    const clusters = _clusters || [];
-const baked = _BAKED_DATA?.done || {};
+    const baked = (typeof window !== 'undefined' && window.BAKED_DATA?.done) ? window.BAKED_DATA.done : {};
     const ls = safeLSGet('gh-cc-done') || {};
     return { ...baked, ...ls };
   });
