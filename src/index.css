@@ -1,0 +1,76 @@
+:root {
+  --gh-blue: #0071e3;
+  --gh-blue-2: #2563eb;
+  --gh-bg: #0b0b0d;
+  --gh-panel: #121216;
+  --gh-border: rgba(255,255,255,0.08);
+  --gh-border-strong: rgba(255,255,255,0.12);
+  --gh-text: #e5e7eb;
+  --gh-text-soft: #cbd5e1;
+  --gh-text-muted: #9ca3af;
+  --gh-text-faint: #6b7280;
+  --gh-gold: #FFC72C;
+  --gh-teal: #2dd4bf;
+  --gh-green: #4ade80;
+  --gh-red: #f87171;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background: var(--gh-bg);
+  color: var(--gh-text);
+  font-family: 'Instrument Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Bricolage Grotesque', 'Instrument Sans', system-ui, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="search"],
+select,
+textarea {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--gh-border);
+  color: var(--gh-text);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 150ms;
+  width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gh-blue);
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+@keyframes gh-spin { to { transform: rotate(360deg); } }
+@keyframes gh-pulse { 0%,100% { opacity:1; } 50% { opacity:0.35; } }
+@keyframes gh-fade-in { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+
+.gh-spin { animation: gh-spin 1s linear infinite; }
+.gh-pulse { animation: gh-pulse 1.5s ease-in-out infinite; }
+.gh-fade-in { animation: gh-fade-in 200ms ease-out forwards; }
