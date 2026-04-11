@@ -261,7 +261,7 @@ const CAT_ORDER = ["AEO","SEO","E-E-A-T","CONTENT","VQA","CONV","COMP","COMPL","
 
 // ── Main Component ─────────────────────────────────────────────────────────
 
-export default function PageBuilder({ onToggleTheme, isDark: isDarkProp,{ clusters, savedHTML, setSavedHTML, setHasChanges, pbCompleted, setPbCompleted, pbPendingPublish, setPbPendingPublish, setView, focusClusterId }) {
+export default function PageBuilder({ clusters, savedHTML, setSavedHTML, setHasChanges, pbCompleted, setPbCompleted, pbPendingPublish, setPbPendingPublish, setView, focusClusterId }) {
 
   // State
   const [pbPage, setPbPage] = useState(null);
@@ -485,7 +485,7 @@ export default function PageBuilder({ onToggleTheme, isDark: isDarkProp,{ cluste
   }, [pbPage]);
 
   // ── Render ─────────────────────────────────────────────────────────────
-  const isDark = isDarkProp !== undefined ? isDarkProp : true;
+  const isDark = !document.body.classList.contains('light');
   const tc = "#E8ECF0";
   const mc = "#6B7B8D";
   const bdr = "1px solid rgba(255,255,255,0.08)";
