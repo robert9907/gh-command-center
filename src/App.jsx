@@ -163,7 +163,7 @@ export default function App() {
           {activeTab === 'citationMonitor' && <CitationMonitor />}
       {activeTab === 'optimize' && (
         <Suspense fallback={<LoadingSpinner />}>
-          <Optimize clusters={_clusters} done={done} setDone={setDone} notes={notes} setNotes={setNotes} savedHTML={savedHTML} setSavedHTML={setSavedHTML} setHasChanges={setHasChanges} setView={setActiveTab} setPbMode={setPbMode} setPbPage={setPbPage} setPbNepqContent={setPbNepqContent} setPbScanResults={setPbScanResults} calendarWeeks={calendarWeeks} isDark={true} />
+          <Optimize clusters={_clusters} done={done} setDone={setDoneRaw} notes={notes} setNotes={setNotesRaw} setView={setActiveTab} calendarWeeks={calendarWeeks} isDark={true} />
         </Suspense>
       )}
         </Suspense>
