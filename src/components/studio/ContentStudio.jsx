@@ -7,8 +7,8 @@ const PLATFORMS = [
   {id:'email',label:'Email',icon:'📧',color:'#14B8A6',charLimit:0,tone:'Personal, direct, helpful. Subject line first. Short paragraphs. One clear ask or insight per email. Sign off as Rob. 200-300 words.'},
 ];
 const TOPICS = ['Medicare Advantage vs Medigap','Turning 65 in NC','Open Enrollment mistakes','Duke Health network coverage','Part D drug costs 2026','IRMAA and income brackets','Medicare Supplement Plan G vs N','Special Enrollment Periods','ACA marketplace subsidies','Medicare and working past 65'];
-export default function ContentStudio({isDark=true}){
-  const card=isDark?'#0F2440':'#fff',bdr=isDark?'rgba(255,255,255,0.08)':'#e2e8f0',tc=isDark?'#fff':'#000',mc=isDark?'#94a3b8':'#64748b',teal='#14B8A6';
+export default function ContentStudio(){
+  const card='var(--gh-panel)',bdr='var(--gh-border)',tc='var(--gh-text)',mc='var(--gh-text-muted)',teal='#14B8A6';
   const [platform,setPlatform]=useState('fb');
   const [topic,setTopic]=useState('');
   const [customTopic,setCustomTopic]=useState('');
@@ -31,9 +31,9 @@ export default function ContentStudio({isDark=true}){
     setLoading(false);
   };
   const copy=()=>{navigator.clipboard.writeText(output);setCopied(true);setTimeout(()=>setCopied(false),2000);};
-  const inp={width:'100%',background:isDark?'rgba(255,255,255,0.06)':'#f1f5f9',border:'1px solid '+bdr,borderRadius:8,padding:'10px 14px',color:tc,fontSize:14,outline:'none',boxSizing:'border-box'};
+  const inp={width:'100%',background:'var(--gh-border)',border:'1px solid var(--gh-border)',borderRadius:8,padding:'10px 14px',color:tc,fontSize:14,outline:'none',boxSizing:'border-box'};
   const btns=(col=teal)=>({padding:'10px 24px',borderRadius:8,border:'none',background:col,color:'#fff',fontWeight:700,fontSize:14,cursor:'pointer'});
-  return(<div style={{background:isDark?'#0a1628':'#f8fafc',minHeight:'100vh',padding:'24px 28px',color:tc}}>
+  return(<div style={{background:'var(--gh-bg)',minHeight:'100vh',padding:'24px 28px',color:tc}}>
     <div style={{marginBottom:24}}><h2 style={{fontSize:22,fontWeight:700,margin:0}}>Content Studio</h2><p style={{fontSize:13,color:mc,margin:'4px 0 0'}}>NEPQ-powered content for every platform</p></div>
     <div style={{display:'grid',gridTemplateColumns:'340px 1fr',gap:20}}>
       <div>

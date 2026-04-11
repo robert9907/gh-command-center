@@ -14,8 +14,8 @@ const SEED=[
   {weekOf:'2026-02-16',users:77,organic:20,chatgpt:27,direct:36,social:3,impressions:1869,clicks:23,calls:0,aiCited:0},
 ];
 function arw(c,p){if(!p)return{s:'-',col:'#687788'};const d=((c-p)/p*100).toFixed(0);return d>0?{s:'up '+d+'%',col:'#16A34A'}:{s:'dn '+Math.abs(d)+'%',col:'#EF4444'};}
-export default function Performance({isDark=true}){
-  const card=isDark?'#0F2440':'#fff',bdr=isDark?'rgba(255,255,255,0.08)':'#e2e8f0',tc=isDark?'#fff':'#000',mc=isDark?'#94a3b8':'#64748b',teal='#14B8A6';
+export default function Performance(){
+  const card='var(--gh-panel)',bdr='var(--gh-border)',tc='var(--gh-text)',mc='var(--gh-text-muted)',teal='#14B8A6';
   const [data,setDataRaw]=useState(()=>sget(SKEY)||SEED);
   const [tab,setTab]=useState('dashboard');
   const [entry,setEntry]=useState({weekOf:'',users:0,organic:0,chatgpt:0,direct:0,social:0,impressions:0,clicks:0,calls:0,aiCited:0});
@@ -31,9 +31,9 @@ export default function Performance({isDark=true}){
   const brief=async()=>{setAiLoading(true);setAiText('');try{const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,system:'Performance analyst for Rob Simm, Medicare broker Durham NC. Sections: WHERE YOU ARE, WHATS WORKING, THIS WEEK PRIORITIES. Specific numbers. Under 300 words.',messages:[{role:'user',content:'Data: '+JSON.stringify(weeks.slice(-8))+'. Generate briefing.'}]})});const d=await r.json();setAiText(d.content?.[0]?.text||'Error');}catch(e){setAiText('Error: '+e.message);}setAiLoading(false);};
   const tbtn=t=>({padding:'6px 16px',borderRadius:20,border:'none',cursor:'pointer',fontSize:13,fontWeight:600,background:tab===t?teal:'transparent',color:tab===t?'#fff':mc});
   const btns=(col='#0071E3')=>({padding:'8px 18px',borderRadius:8,border:'none',background:col,color:'#fff',fontWeight:600,fontSize:13,cursor:'pointer'});
-  const inp={width:'100%',background:isDark?'rgba(255,255,255,0.06)':'#f1f5f9',border:'1px solid '+bdr,borderRadius:8,padding:'8px 12px',color:tc,fontSize:14,outline:'none',boxSizing:'border-box'};
+  const inp={width:'100%',background:'var(--gh-border)',border:'1px solid var(--gh-border)',borderRadius:8,padding:'8px 12px',color:tc,fontSize:14,outline:'none',boxSizing:'border-box'};
   const SC=({l,v,p})=>{const a=arw(v,p);return(<div style={{background:card,border:'1px solid '+bdr,borderRadius:12,padding:'16px 20px'}}><div style={{fontSize:11,color:mc,textTransform:'uppercase',marginBottom:6}}>{l}</div><div style={{fontSize:26,fontWeight:700,color:tc,marginBottom:4}}>{v!=null?v.toLocaleString():'--'}</div><div style={{fontSize:12,color:a.col,fontWeight:600}}>{a.s}</div></div>);};
-  return(<div style={{background:isDark?'#0a1628':'#f8fafc',minHeight:'100vh',padding:'24px 28px',color:tc}}>
+  return(<div style={{background:'var(--gh-bg)',minHeight:'100vh',padding:'24px 28px',color:tc}}>
     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:24}}>
       <div><h2 style={{fontSize:22,fontWeight:700,margin:0}}>Performance</h2><p style={{fontSize:13,color:mc,margin:'4px 0 0'}}>{weeks.length} weeks logged</p></div>
       <div style={{display:'flex',gap:8}}>{['dashboard','table','log'].map(t=><button key={t} style={tbtn(t)} onClick={()=>setTab(t)}>{t.charAt(0).toUpperCase()+t.slice(1)}</button>)}</div>
@@ -50,7 +50,7 @@ export default function Performance({isDark=true}){
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
         <div style={{background:card,border:'1px solid '+bdr,borderRadius:12,padding:20}}>
           <div style={{fontSize:12,fontWeight:600,color:mc,marginBottom:16,textTransform:'uppercase'}}>Traffic Sources</div>
-          {lat&&[{l:'Organic',v:lat.organic,c:'#16A34A'},{l:'ChatGPT',v:lat.chatgpt,c:'#f59e0b'},{l:'Direct',v:lat.direct,c:'#3b82f6'},{l:'Social',v:lat.social,c:'#a855f7'}].map(({l,v,c})=>{const pct=lat.users>0?Math.round(v/lat.users*100):0;return(<div key={l} style={{marginBottom:10}}><div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:4}}><span style={{color:tc}}>{l}</span><span style={{color:mc}}>{v} <span style={{color:c}}>{pct}%</span></span></div><div style={{background:isDark?'rgba(255,255,255,0.06)':'#e2e8f0',borderRadius:4,height:6}}><div style={{width:pct+'%',background:c,height:6,borderRadius:4}}/></div></div>);})}
+          {lat&&[{l:'Organic',v:lat.organic,c:'#16A34A'},{l:'ChatGPT',v:lat.chatgpt,c:'#f59e0b'},{l:'Direct',v:lat.direct,c:'#3b82f6'},{l:'Social',v:lat.social,c:'#a855f7'}].map(({l,v,c})=>{const pct=lat.users>0?Math.round(v/lat.users*100):0;return(<div key={l} style={{marginBottom:10}}><div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:4}}><span style={{color:tc}}>{l}</span><span style={{color:mc}}>{v} <span style={{color:c}}>{pct}%</span></span></div><div style={{background:'var(--gh-border)',borderRadius:4,height:6}}><div style={{width:pct+'%',background:c,height:6,borderRadius:4}}/></div></div>);})}
         </div>
         <div style={{background:card,border:'1px solid '+bdr,borderRadius:12,padding:20}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}><div style={{fontSize:12,fontWeight:600,color:mc,textTransform:'uppercase'}}>AI Briefing</div><button style={btns()} onClick={brief} disabled={aiLoading}>{aiLoading?'Analyzing...':'Generate'}</button></div>

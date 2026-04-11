@@ -13,8 +13,8 @@ const SEED_KW=[
   {keyword:'medicare agent near me',group:'local',pos:2.8,clicks:67,impr:1100,notes:'Top local'},
   {keyword:'insurance broker durham nc',group:'local',pos:4.9,clicks:38,impr:720,notes:''},
 ];
-export default function KeywordWarRoom({isDark=true}){
-  const card=isDark?'#0F2440':'#fff',bdr=isDark?'rgba(255,255,255,0.08)':'#e2e8f0',tc=isDark?'#fff':'#000',mc=isDark?'#94a3b8':'#64748b',teal='#14B8A6';
+export default function KeywordWarRoom(){
+  const card='var(--gh-panel)',bdr='var(--gh-border)',tc='var(--gh-text)',mc='var(--gh-text-muted)',teal='#14B8A6';
   const [kws,setKwsRaw]=useState(()=>sget(SKEY)||SEED_KW);
   const [filter,setFilter]=useState('all');
   const [search,setSearch]=useState('');
@@ -26,10 +26,10 @@ export default function KeywordWarRoom({isDark=true}){
   const save=()=>{setKws(p=>{const i=p.findIndex(k=>k.keyword===entry.keyword);if(i>=0){const n=[...p];n[i]=entry;return n;}return[...p,entry];});setEntry({keyword:'',group:'medicare',pos:0,clicks:0,impr:0,notes:''});setShowAdd(false);};
   const del=kw=>setKws(p=>p.filter(k=>k.keyword!==kw));
   const totals={clicks:kws.reduce((a,k)=>a+k.clicks,0),impr:kws.reduce((a,k)=>a+k.impr,0),avgPos:(kws.reduce((a,k)=>a+k.pos,0)/kws.length).toFixed(1)};
-  const inp={background:isDark?'rgba(255,255,255,0.06)':'#f1f5f9',border:'1px solid '+bdr,borderRadius:6,padding:'7px 11px',color:tc,fontSize:13,outline:'none'};
+  const inp={background:'var(--gh-border)',border:'1px solid var(--gh-border)',borderRadius:6,padding:'7px 11px',color:tc,fontSize:13,outline:'none'};
   const btns=(col=teal)=>({padding:'7px 16px',borderRadius:6,border:'none',background:col,color:'#fff',fontWeight:600,fontSize:12,cursor:'pointer'});
   const posColor=p=>p<=3?'#16A34A':p<=7?'#f59e0b':'#ef4444';
-  return(<div style={{background:isDark?'#0a1628':'#f8fafc',minHeight:'100vh',padding:'24px 28px',color:tc}}>
+  return(<div style={{background:'var(--gh-bg)',minHeight:'100vh',padding:'24px 28px',color:tc}}>
     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:20}}>
       <div><h2 style={{fontSize:22,fontWeight:700,margin:0}}>Keyword War Room</h2><p style={{fontSize:13,color:mc,margin:'4px 0 0'}}>{kws.length} keywords tracked</p></div>
       <button style={btns()} onClick={()=>setShowAdd(s=>!s)}>{showAdd?'Cancel':'+ Add Keyword'}</button>
@@ -55,7 +55,7 @@ export default function KeywordWarRoom({isDark=true}){
         <div style={{marginLeft:'auto',display:'flex',gap:6,alignItems:'center'}}><span style={{fontSize:12,color:mc}}>Sort:</span>{['clicks','impr','pos'].map(s=><button key={s} onClick={()=>setSort(s)} style={{padding:'4px 10px',borderRadius:6,border:'none',cursor:'pointer',fontSize:11,fontWeight:600,background:sort===s?teal:'transparent',color:sort===s?'#fff':mc}}>{s}</button>)}</div>
       </div>
       <div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}><thead><tr style={{borderBottom:'1px solid '+bdr}}>{['Keyword','Group','Position','Clicks','Impressions','CTR','Notes',''].map(h=><th key={h} style={{padding:'10px 14px',textAlign:'left',color:mc,fontWeight:600,fontSize:11,textTransform:'uppercase'}}>{h}</th>)}</tr></thead>
-        <tbody>{filtered.map((k,i)=>{const g=GROUPS.find(g=>g.id===k.group);const ctr=k.impr>0?(k.clicks/k.impr*100).toFixed(1):'0';return(<tr key={k.keyword} style={{borderBottom:'1px solid '+bdr,background:i%2===0?'transparent':isDark?'rgba(255,255,255,0.02)':'rgba(0,0,0,0.02)'}}><td style={{padding:'10px 14px',fontWeight:500,color:tc}}>{k.keyword}</td><td style={{padding:'10px 14px'}}><span style={{padding:'2px 8px',borderRadius:20,fontSize:11,fontWeight:600,background:g?.color+'22',color:g?.color}}>{g?.label}</span></td><td style={{padding:'10px 14px',color:posColor(k.pos),fontWeight:700}}>{k.pos}</td><td style={{padding:'10px 14px',color:tc}}>{k.clicks}</td><td style={{padding:'10px 14px',color:mc}}>{k.impr.toLocaleString()}</td><td style={{padding:'10px 14px',color:parseFloat(ctr)>3?'#16A34A':mc}}>{ctr}%</td><td style={{padding:'10px 14px',color:mc,fontSize:12}}>{k.notes}</td><td style={{padding:'10px 8px'}}><button onClick={()=>del(k.keyword)} style={{background:'none',border:'none',color:'#ef4444',cursor:'pointer',fontSize:12}}>Del</button></td></tr>);})}</tbody>
+        <tbody>{filtered.map((k,i)=>{const g=GROUPS.find(g=>g.id===k.group);const ctr=k.impr>0?(k.clicks/k.impr*100).toFixed(1):'0';return(<tr key={k.keyword} style={{borderBottom:'1px solid '+bdr,background:i%2===0?'transparent':'rgba(128,128,128,0.04)'}}><td style={{padding:'10px 14px',fontWeight:500,color:tc}}>{k.keyword}</td><td style={{padding:'10px 14px'}}><span style={{padding:'2px 8px',borderRadius:20,fontSize:11,fontWeight:600,background:g?.color+'22',color:g?.color}}>{g?.label}</span></td><td style={{padding:'10px 14px',color:posColor(k.pos),fontWeight:700}}>{k.pos}</td><td style={{padding:'10px 14px',color:tc}}>{k.clicks}</td><td style={{padding:'10px 14px',color:mc}}>{k.impr.toLocaleString()}</td><td style={{padding:'10px 14px',color:parseFloat(ctr)>3?'#16A34A':mc}}>{ctr}%</td><td style={{padding:'10px 14px',color:mc,fontSize:12}}>{k.notes}</td><td style={{padding:'10px 8px'}}><button onClick={()=>del(k.keyword)} style={{background:'none',border:'none',color:'#ef4444',cursor:'pointer',fontSize:12}}>Del</button></td></tr>);})}</tbody>
       </table></div>
     </div>
   </div>);
