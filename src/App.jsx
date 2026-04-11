@@ -58,7 +58,7 @@ export default function App() {
   const toggleTheme = () => {
     setIsDark(prev => {
       const next = !prev;
-      document.body.classList.toggle('light', !next);
+      document.body.classList.toggle('light', next === false);
       try { localStorage.setItem('gh-cc-theme', next ? 'dark' : 'light'); } catch {}
       return next;
     });
