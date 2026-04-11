@@ -46,6 +46,31 @@ function safeLSSet(key, val) {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('pageBuilder');
+  // Theme toggle — drives body.light class, all CSS vars respond automatically
+  const [isDark, setIsDark] = useState(() => {
+    try {
+      const saved = localStorage.getItem('gh-cc-theme');
+      const dark = saved !== 'light';
+      if (!dark) document.body.classList.add('light');
+      return dark;
+    } catch { return true; }
+  });
+  const toggleTheme = () => {
+    setIsDark(prev => {
+      const next = !prev;
+      document.body.classList.toggle('light', !next);
+      try { localStorage.setItem('gh-cc-theme', next ? 'dark' : 'light'); } catch {}
+      return next;
+    });
+  };
+
+  // Shared Page Builder / Optimize state
+  const [savedHTML, setSavedHTML] = useState(() => safeLSGet('gh-cc-savedHTML') || {});
+  const [hasChanges, setHasChanges] = useState(false);
+  const [pbMode, setPbMode] = useState('new');
+  const [pbPage, setPbPage] = useState(null);
+  const [pbNepqContent, setPbNepqContent] = useState({});
+  const [pbScanResults, setPbScanResults] = useState(null);
 
   // Shared Architecture state
   const [done, setDoneRaw] = useState(() => {
@@ -86,7 +111,8 @@ export default function App() {
       {/* ── Nav ── */}
       <nav style={{
         position: 'sticky', top: 0, zIndex: 100,
-        background: 'rgba(11,11,13,0.92)',
+        background: 'var(--gh-panel)',
+        opacity: 0.97,
         backdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--gh-border)',
         padding: '0 24px',
@@ -99,7 +125,7 @@ export default function App() {
             GenerationHealth.me
           </span>
           <span style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em',
-            fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+            fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--gh-text)' }}>
             Command Center
           </span>
           <span style={{ fontSize: 11, color: 'var(--gh-text-muted)' }}>
@@ -108,7 +134,7 @@ export default function App() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 2, height: '100%', alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 2, height: '100%', alignItems: 'center', overflowX: 'auto', flex: 1, margin: '0 16px', scrollbarWidth: 'none' }}>
           {TABS.map(tab => {
             const active = activeTab === tab.id;
             return (
@@ -120,7 +146,7 @@ export default function App() {
                   padding: '14px 18px',
                   border: 'none',
                   background: 'transparent',
-                  color: active ? '#fff' : 'var(--gh-text-muted)',
+                  color: active ? 'var(--gh-text)' : 'var(--gh-text-muted)',
                   fontSize: 13,
                   fontWeight: active ? 700 : 500,
                   cursor: 'pointer',
@@ -136,19 +162,24 @@ export default function App() {
           })}
         </div>
 
-        {/* Status badge */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          padding: '6px 12px', borderRadius: 20,
-          background: 'rgba(74,222,128,0.08)',
-          border: '1px solid rgba(74,222,128,0.2)',
-        }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+
+          {/* Theme toggle — always visible, never scrolls */}
+          <button onClick={toggleTheme} className="gh-theme-toggle" title={isDark ? 'Light mode' : 'Dark mode'}>
+            {isDark ? '☀️' : '🌙'}
+          </button>
+
+          {/* Status badge */}
           <div style={{
-            width: 6, height: 6, borderRadius: '50%',
-            background: '#4ade80',
-            boxShadow: '0 0 6px #4ade80',
-          }} />
-          <span style={{ fontSize: 11, fontWeight: 600, color: '#4ade80' }}>Live</span>
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '6px 12px', borderRadius: 20,
+            background: 'rgba(74,222,128,0.08)',
+            border: '1px solid rgba(74,222,128,0.2)',
+            flexShrink: 0,
+          }}>
+            <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 6px #4ade80' }} />
+            <span style={{ fontSize: 11, fontWeight: 600, color: '#4ade80' }}>Live</span>
+          </div>
         </div>
       </nav>
 
@@ -167,25 +198,25 @@ export default function App() {
               setView={setActiveTab}
             />
           )}
-          {activeTab === 'pageBuilder'     && <PageBuilder />}
+          {activeTab === 'pageBuilder' && <PageBuilder onToggleTheme={toggleTheme} />}
           {activeTab === 'citationMonitor' && <CitationMonitor />}
       {activeTab === 'studio' && (
-        <Suspense fallback={<LoadingSpinner />}><ContentStudio isDark={true} /></Suspense>
+        <Suspense fallback={<LoadingSpinner />}><ContentStudio /></Suspense>
       )}
       {activeTab === 'keywords' && (
-        <Suspense fallback={<LoadingSpinner />}><KeywordWarRoom isDark={true} /></Suspense>
+        <Suspense fallback={<LoadingSpinner />}><KeywordWarRoom /></Suspense>
       )}
       {activeTab === 'indexing' && (
-        <Suspense fallback={<LoadingSpinner />}><Indexing isDark={true} /></Suspense>
+        <Suspense fallback={<LoadingSpinner />}><Indexing /></Suspense>
       )}
       {activeTab === 'performance' && (
         <Suspense fallback={<LoadingSpinner />}>
-          <Performance isDark={true} />
+          <Performance />
         </Suspense>
       )}
       {activeTab === 'optimize' && (
         <Suspense fallback={<LoadingSpinner />}>
-          <Optimize clusters={_clusters} done={done} setDone={setDoneRaw} notes={notes} setNotes={setNotesRaw} setView={setActiveTab} calendarWeeks={calendarWeeks} isDark={true} />
+          <Optimize clusters={_clusters} done={done} setDone={setDone} notes={notes} setNotes={setNotes} savedHTML={savedHTML} setSavedHTML={setSavedHTML} setHasChanges={setHasChanges} setView={setActiveTab} setPbMode={setPbMode} setPbPage={setPbPage} setPbNepqContent={setPbNepqContent} setPbScanResults={setPbScanResults} calendarWeeks={calendarWeeks} />
         </Suspense>
       )}
         </Suspense>
