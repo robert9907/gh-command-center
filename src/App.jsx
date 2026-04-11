@@ -7,6 +7,9 @@ const CitationMonitor = lazy(() => import('./components/citation/CitationMonitor
 const Architecture = lazy(() => import('./components/architecture/Architecture.jsx'));
 const Optimize = lazy(() => import('./components/optimize/Optimize.jsx'));
 const Performance = lazy(() => import('./components/performance/Performance.jsx'));
+const ContentStudio = lazy(() => import('./components/studio/ContentStudio.jsx'));
+const KeywordWarRoom = lazy(() => import('./components/keywords/KeywordWarRoom.jsx'));
+const Indexing = lazy(() => import('./components/indexing/Indexing.jsx'));
 
 const TABS = [
   { id: 'architecture',     label: 'Architecture',      icon: 'layout-grid' },
@@ -14,6 +17,9 @@ const TABS = [
   { id: 'citationMonitor',  label: 'Citation Monitor',  icon: 'activity'    },
   { id: 'optimize', label: 'Optimize', icon: 'trending-up' },
   { id: 'performance', label: 'Performance', icon: 'bar-chart-2' },
+  { id: 'studio', label: 'Content Studio', icon: 'edit-3' },
+  { id: 'keywords', label: 'Keyword War Room', icon: 'target' },
+  { id: 'indexing', label: 'Indexing', icon: 'zap' },
 ];
 
 function LoadingSpinner() {
@@ -163,6 +169,15 @@ export default function App() {
           )}
           {activeTab === 'pageBuilder'     && <PageBuilder />}
           {activeTab === 'citationMonitor' && <CitationMonitor />}
+      {activeTab === 'studio' && (
+        <Suspense fallback={<LoadingSpinner />}><ContentStudio isDark={true} /></Suspense>
+      )}
+      {activeTab === 'keywords' && (
+        <Suspense fallback={<LoadingSpinner />}><KeywordWarRoom isDark={true} /></Suspense>
+      )}
+      {activeTab === 'indexing' && (
+        <Suspense fallback={<LoadingSpinner />}><Indexing isDark={true} /></Suspense>
+      )}
       {activeTab === 'performance' && (
         <Suspense fallback={<LoadingSpinner />}>
           <Performance isDark={true} />
