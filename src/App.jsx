@@ -5,6 +5,7 @@ import Icon from './components/shared/Icon.jsx';
 const PageBuilder = lazy(() => import('./components/pagebuilder/PageBuilder.jsx'));
 const CitationMonitor = lazy(() => import('./components/citation/CitationMonitor.jsx'));
 const Architecture = lazy(() => import('./components/architecture/Architecture.jsx'));
+const Optimize = lazy(() => import('./components/optimize/Optimize.jsx'));
 
 const TABS = [
   { id: 'architecture',     label: 'Architecture',      icon: 'layout-grid' },
@@ -24,7 +25,7 @@ function LoadingSpinner() {
   );
 }
 
-import { clusters as _clusters, BAKED_DATA as _BAKED_DATA } from "./baked-data.js";
+import { clusters as _clusters, BAKED_DATA as _BAKED_DATA, calendarWeeks } from "./baked-data.js";
 const clusters = _clusters || [];
 
 function safeLSGet(key) {
@@ -159,6 +160,11 @@ export default function App() {
           )}
           {activeTab === 'pageBuilder'     && <PageBuilder />}
           {activeTab === 'citationMonitor' && <CitationMonitor />}
+      {activeTab === 'optimize' && (
+        <Suspense fallback={<LoadingSpinner />}>
+          <Optimize clusters={_clusters} done={done} setDone={setDone} notes={notes} setNotes={setNotes} savedHTML={savedHTML} setSavedHTML={setSavedHTML} setHasChanges={setHasChanges} setView={setActiveTab} setPbMode={setPbMode} setPbPage={setPbPage} setPbNepqContent={setPbNepqContent} setPbScanResults={setPbScanResults} calendarWeeks={calendarWeeks} isDark={true} />
+        </Suspense>
+      )}
         </Suspense>
       </main>
     </div>
