@@ -15,6 +15,92 @@
   --gh-red: #f87171;
 }
 
+body.light {
+  --gh-bg: #f1f5f9;
+  --gh-panel: #ffffff;
+  --gh-border: rgba(0,0,0,0.08);
+  --gh-border-strong: rgba(0,0,0,0.14);
+  --gh-text: #1a2332;
+  --gh-text-soft: #2d3748;
+  --gh-text-muted: #64748b;
+  --gh-text-faint: #94a3b8;
+  --gh-blue: #0071e3;
+  --gh-blue-2: #2563eb;
+  --gh-gold: #D4A017;
+  --gh-teal: #0d9488;
+  --gh-green: #16a34a;
+  --gh-red: #ef4444;
+}
+
+/* ── Global light mode overrides ── */
+/* Forces all hardcoded dark backgrounds to light equivalents */
+body.light * {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+body.light [style*="background: #121"],
+body.light [style*="background:#121"],
+body.light [style*="background: #0b0"],
+body.light [style*="background:#0b0"],
+body.light [style*="background: #1A2"],
+body.light [style*="background:#1A2"],
+body.light [style*="background: #121C28"],
+body.light [style*="background:#121C28"] {
+  background: #ffffff !important;
+}
+body.light [style*="color: #E8ECF0"],
+body.light [style*="color:#E8ECF0"] {
+  color: #1a2332 !important;
+}
+body.light [style*="color: #6B7B8D"],
+body.light [style*="color:#6B7B8D"] {
+  color: #64748b !important;
+}
+body.light [style*="rgba(255,255,255,0.04)"] {
+  background: rgba(0,0,0,0.03) !important;
+}
+body.light [style*="rgba(255,255,255,0.08)"] {
+  background: rgba(0,0,0,0.06) !important;
+}
+body.light [style*="rgba(255,255,255,0.1)"] {
+  background: rgba(0,0,0,0.08) !important;
+}
+body.light [style*="rgba(255,255,255,0.12)"] {
+  background: rgba(0,0,0,0.1) !important;
+}
+body.light input[type="text"],
+body.light input[type="password"],
+body.light input[type="search"],
+body.light select,
+body.light textarea {
+  background: rgba(0,0,0,0.03);
+  color: var(--gh-text);
+}
+body.light ::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.12);
+}
+body.light ::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,0,0,0.2);
+}
+
+/* ── Theme toggle button ── */
+.gh-theme-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--gh-border);
+  background: var(--gh-panel);
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 150ms, border-color 150ms;
+}
+.gh-theme-toggle:hover {
+  background: var(--gh-border);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
