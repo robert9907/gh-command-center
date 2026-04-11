@@ -11,6 +11,7 @@ const TABS = [
   { id: 'architecture',     label: 'Architecture',      icon: 'layout-grid' },
   { id: 'pageBuilder',      label: 'Page Builder',      icon: 'file-text'   },
   { id: 'citationMonitor',  label: 'Citation Monitor',  icon: 'activity'    },
+  { id: 'optimize', label: 'Optimize', icon: 'trending-up' },
 ];
 
 function LoadingSpinner() {
