@@ -6,12 +6,14 @@ const PageBuilder = lazy(() => import('./components/pagebuilder/PageBuilder.jsx'
 const CitationMonitor = lazy(() => import('./components/citation/CitationMonitor.jsx'));
 const Architecture = lazy(() => import('./components/architecture/Architecture.jsx'));
 const Optimize = lazy(() => import('./components/optimize/Optimize.jsx'));
+const Performance = lazy(() => import('./components/performance/Performance.jsx'));
 
 const TABS = [
   { id: 'architecture',     label: 'Architecture',      icon: 'layout-grid' },
   { id: 'pageBuilder',      label: 'Page Builder',      icon: 'file-text'   },
   { id: 'citationMonitor',  label: 'Citation Monitor',  icon: 'activity'    },
   { id: 'optimize', label: 'Optimize', icon: 'trending-up' },
+  { id: 'performance', label: 'Performance', icon: 'bar-chart-2' },
 ];
 
 function LoadingSpinner() {
@@ -161,6 +163,11 @@ export default function App() {
           )}
           {activeTab === 'pageBuilder'     && <PageBuilder />}
           {activeTab === 'citationMonitor' && <CitationMonitor />}
+      {activeTab === 'performance' && (
+        <Suspense fallback={<LoadingSpinner />}>
+          <Performance isDark={true} />
+        </Suspense>
+      )}
       {activeTab === 'optimize' && (
         <Suspense fallback={<LoadingSpinner />}>
           <Optimize clusters={_clusters} done={done} setDone={setDoneRaw} notes={notes} setNotes={setNotesRaw} setView={setActiveTab} calendarWeeks={calendarWeeks} isDark={true} />
