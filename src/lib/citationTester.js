@@ -28,6 +28,26 @@ export function detectCitation(text) {
   return false;
 }
 
+// Returns 'cited' | 'mentioned' | 'none'.
+// Heuristic: GH within the first paragraph (or first 250 chars) reads as the
+// answer; appearing only later reads as a passing mention.
+export function detectCitationDetail(text) {
+  if (!text) return 'none';
+  const lower = text.toLowerCase();
+  let earliest = -1;
+  const note = (idx) => { if (idx >= 0 && (earliest < 0 || idx < earliest)) earliest = idx; };
+  for (const d of GH_SIGNALS.domains) note(lower.indexOf(d));
+  for (const b of GH_SIGNALS.brands)  note(lower.indexOf(b));
+  for (const p of GH_SIGNALS.people)  note(lower.indexOf(p));
+  if (text.replace(/\D/g,'').includes(GH_SIGNALS.phoneDigits)) {
+    note(0); // phone digit match — treat as strong signal at the top
+  }
+  if (earliest < 0) return 'none';
+  const firstBreak = text.indexOf('\n\n');
+  const answerEnd = firstBreak > 0 ? Math.min(firstBreak, 250) : 250;
+  return earliest <= answerEnd ? 'cited' : 'mentioned';
+}
+
 export function detectCompetitors(text) {
   if (!text) return [];
   const lower = text.toLowerCase();
@@ -123,7 +143,7 @@ export async function testSingleQuery(query, apiKeys) {
     apiKeys[provider]
       ? call(query, apiKeys[provider])
           .then(text => ({ provider, text }))
-          .catch(e => ({ provider, text: null, error: String(e) }))
+          .catch(e => ({ provider, text: null, error: String(e?.message || e) }))
       : Promise.resolve({ provider, text: null, error: 'no api key' });
 
   const results = await Promise.all([
@@ -135,14 +155,33 @@ export async function testSingleQuery(query, apiKeys) {
 
   const status = { claude: null, chatgpt: null, perplexity: null, gemini: null };
   const compSet = new Set();
+  const llmResults = [];
 
   for (const r of results) {
-    if (r.text === null) continue;
-    status[r.provider] = detectCitation(r.text);
-    for (const c of detectCompetitors(r.text)) compSet.add(c);
+    if (r.text === null) {
+      llmResults.push({
+        provider: r.provider,
+        text: null,
+        citation: r.error === 'no api key' ? 'untested' : 'error',
+        competitors: [],
+        error: r.error || null,
+      });
+      continue;
+    }
+    const detail = detectCitationDetail(r.text);
+    const perLLMComps = detectCompetitors(r.text);
+    status[r.provider] = detail !== 'none';
+    for (const c of perLLMComps) compSet.add(c);
+    llmResults.push({
+      provider: r.provider,
+      text: r.text,
+      citation: detail,
+      competitors: perLLMComps,
+      error: null,
+    });
   }
 
-  return { status, competitors: Array.from(compSet) };
+  return { status, competitors: Array.from(compSet), llmResults };
 }
 
 const DELAY_BETWEEN_QUERIES_MS = 1500;
@@ -153,9 +192,9 @@ export async function batchTestWithProgress(queries, apiKeys, onProgress) {
     const candidate = queries[i];
     let next;
     try {
-      const { status, competitors } = await testSingleQuery(candidate.query, apiKeys);
+      const { status, competitors, llmResults } = await testSingleQuery(candidate.query, apiKeys);
       const merged = Array.from(new Set([...(candidate.competitors||[]), ...competitors]));
-      next = { ...candidate, citationStatus: status, competitors: merged, lastTested: new Date().toISOString() };
+      next = { ...candidate, citationStatus: status, competitors: merged, llmResults, lastTested: new Date().toISOString() };
     } catch (err) {
       console.error('[citationTester]', err);
       next = { ...candidate, citationStatus: { claude:null, chatgpt:null, perplexity:null, gemini:null }, lastTested: new Date().toISOString() };

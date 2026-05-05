@@ -151,28 +151,191 @@ function PipelineBadge({ status }) {
   );
 }
 
+// ── Per-LLM citation pill (used in detail panel) ─────────────────────────────
+const CITATION_STATE_META = {
+  cited:     { label: 'Cited as answer', color: '#4ade80', bg: 'rgba(74,222,128,0.12)',  ring: 'rgba(74,222,128,0.35)' },
+  mentioned: { label: 'Mentioned',       color: '#fbbf24', bg: 'rgba(251,191,36,0.12)',  ring: 'rgba(251,191,36,0.35)' },
+  none:      { label: 'Not cited',       color: '#f87171', bg: 'rgba(248,113,113,0.12)', ring: 'rgba(248,113,113,0.35)' },
+  untested:  { label: 'Not tested',      color: '#6b7280', bg: 'rgba(107,114,128,0.12)', ring: 'rgba(107,114,128,0.30)' },
+  error:     { label: 'Error',           color: '#f87171', bg: 'rgba(248,113,113,0.10)', ring: 'rgba(248,113,113,0.30)' },
+};
+
+const PROVIDER_LABELS = {
+  claude:     'Claude',
+  chatgpt:    'ChatGPT',
+  perplexity: 'Perplexity',
+  gemini:     'Gemini',
+};
+
+function CitationStatePill({ state }) {
+  const m = CITATION_STATE_META[state] || CITATION_STATE_META.untested;
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999,
+      background: m.bg, color: m.color, letterSpacing: '0.04em',
+      border: `1px solid ${m.ring}`,
+    }}>
+      <span style={{ width: 7, height: 7, borderRadius: '50%', background: m.color }} />
+      {m.label}
+    </span>
+  );
+}
+
+// ── LLMResultRow ──────────────────────────────────────────────────────────────
+function LLMResultRow({ provider, result }) {
+  const [showFull, setShowFull] = useState(false);
+  const state = result?.citation || 'untested';
+  const m = CITATION_STATE_META[state] || CITATION_STATE_META.untested;
+  const text = result?.text || '';
+  const TEXT_PREVIEW = 280;
+  const isLong = text.length > TEXT_PREVIEW;
+  const shown = !text ? '' : (showFull || !isLong ? text : text.slice(0, TEXT_PREVIEW).trimEnd() + '…');
+
+  return (
+    <div style={{
+      padding: '12px 14px',
+      borderTop: '1px solid rgba(255,255,255,0.04)',
+      borderLeft: `3px solid ${m.color}`,
+      background: 'rgba(255,255,255,0.015)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, flexWrap: 'wrap' }}>
+        <strong style={{ fontSize: 12, color: '#fff', minWidth: 78 }}>
+          {PROVIDER_LABELS[provider] || provider}
+        </strong>
+        <CitationStatePill state={state} />
+        {result?.competitors?.length > 0 && (
+          <span style={{ fontSize: 10, color: 'var(--gh-text-muted)' }}>
+            Cited instead:{' '}
+            {result.competitors.map((c, i) => (
+              <span key={c} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 2,
+                fontSize: 10, fontWeight: 600, color: '#f87171',
+                marginRight: i === result.competitors.length - 1 ? 0 : 6,
+              }}>
+                ✕ {c}
+              </span>
+            ))}
+          </span>
+        )}
+      </div>
+
+      {state === 'untested' && (
+        <div style={{ fontSize: 11, color: 'var(--gh-text-faint)', fontStyle: 'italic' }}>
+          {result?.error === 'no api key'
+            ? 'No API key set for this provider — add one in Settings to test.'
+            : 'Not tested yet — run Test Citations on this row.'}
+        </div>
+      )}
+
+      {state === 'error' && (
+        <div style={{ fontSize: 11, color: '#fca5a5',
+          padding: '6px 10px', borderRadius: 6,
+          background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}>
+          {result?.error || 'Request failed.'}
+        </div>
+      )}
+
+      {text && (
+        <div style={{
+          fontSize: 12, lineHeight: 1.55, color: '#cbd5e1',
+          background: 'rgba(0,0,0,0.2)', borderRadius: 6,
+          padding: '10px 12px', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+        }}>
+          {shown}
+          {isLong && (
+            <button onClick={() => setShowFull(s => !s)}
+              style={{
+                marginLeft: 6, padding: 0, border: 'none', background: 'transparent',
+                color: '#60a5fa', fontSize: 11, fontWeight: 600, cursor: 'pointer',
+              }}>
+              {showFull ? 'Show less' : 'Show more'}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── QueryDetail (expanded panel under QueryRow) ──────────────────────────────
+const PROVIDER_ORDER = ['claude', 'chatgpt', 'perplexity', 'gemini'];
+
+function QueryDetail({ query }) {
+  const byProvider = new Map((query.llmResults || []).map(r => [r.provider, r]));
+  const hasAnyResults = (query.llmResults || []).some(r => r.text || r.error);
+  const lastTested = query.lastTested ? new Date(query.lastTested) : null;
+
+  return (
+    <div style={{
+      borderBottom: '1px solid rgba(255,255,255,0.04)',
+      background: 'rgba(0,0,0,0.18)',
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 14px', borderBottom: '1px solid rgba(255,255,255,0.04)',
+      }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--gh-text-muted)',
+          letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          LLM Detail
+        </div>
+        <div style={{ fontSize: 10, color: 'var(--gh-text-muted)' }}>
+          {lastTested
+            ? <>Last tested <span style={{ color: '#cbd5e1' }}>
+                {lastTested.toLocaleString(undefined, {
+                  month: 'short', day: 'numeric', year: 'numeric',
+                  hour: 'numeric', minute: '2-digit',
+                })}
+              </span></>
+            : 'Never tested'}
+        </div>
+      </div>
+
+      {!hasAnyResults && !lastTested && (
+        <div style={{ padding: '18px 14px', fontSize: 12, color: 'var(--gh-text-faint)' }}>
+          No test results yet. Click <strong style={{ color: '#cbd5e1' }}>Test Citations</strong> on
+          this row to query each LLM and populate detail.
+        </div>
+      )}
+
+      {PROVIDER_ORDER.map(p => (
+        <LLMResultRow key={p} provider={p}
+          result={byProvider.get(p) || { provider: p, citation: 'untested', text: null, competitors: [] }} />
+      ))}
+    </div>
+  );
+}
+
 // ── QueryRow ──────────────────────────────────────────────────────────────────
-function QueryRow({ query, selected, isTesting, onSelect, onTest, onGeneratePage, onEdit, onDelete, onRefresh }) {
+function QueryRow({ query, selected, isTesting, expanded, onToggleExpand, onSelect, onTest, onGeneratePage, onEdit, onDelete, onRefresh }) {
   const [hovered, setHovered] = useState(false);
-  const cs = query.citationStatus || {};
-  const anyCited = cs.claude === true || cs.chatgpt === true || cs.perplexity === true || cs.gemini === true;
+  const stop = (e) => e.stopPropagation();
 
   return (
     <div
+      onClick={() => onToggleExpand(query.id)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex', alignItems: 'center', gap: 10,
         padding: '10px 14px 10px 10px',
-        borderBottom: '1px solid rgba(255,255,255,0.04)',
-        background: selected
-          ? 'rgba(0,113,227,0.07)'
-          : hovered ? 'rgba(255,255,255,0.02)' : 'transparent',
+        borderBottom: expanded ? 'none' : '1px solid rgba(255,255,255,0.04)',
+        background: expanded
+          ? 'rgba(0,113,227,0.06)'
+          : selected
+            ? 'rgba(0,113,227,0.07)'
+            : hovered ? 'rgba(255,255,255,0.02)' : 'transparent',
         transition: 'background 100ms',
+        cursor: 'pointer',
       }}
     >
+      {/* Expand caret */}
+      <Icon name={expanded ? 'chevron-down' : 'chevron-right'} size={13}
+        style={{ color: 'var(--gh-text-muted)', flexShrink: 0, transition: 'transform 120ms' }} />
+
       {/* Checkbox */}
       <input type="checkbox" checked={selected}
+        onClick={stop}
         onChange={(e) => onSelect(query.id, e.target.checked, e.nativeEvent.shiftKey)}
         style={{ width: 15, height: 15, accentColor: '#0071e3', cursor: 'pointer', flexShrink: 0 }} />
 
@@ -210,7 +373,8 @@ function QueryRow({ query, selected, isTesting, onSelect, onTest, onGeneratePage
       </div>
 
       {/* Actions */}
-      <div style={{ display: 'flex', gap: 4, opacity: hovered ? 1 : 0.3, transition: 'opacity 150ms' }}>
+      <div onClick={stop}
+        style={{ display: 'flex', gap: 4, opacity: hovered ? 1 : 0.3, transition: 'opacity 150ms' }}>
         <button title="Generate page" onClick={() => onGeneratePage(query)}
           style={{ ...secondaryBtnStyle, padding: '5px 7px', fontSize: 11 }}>
           <Icon name="file-text" size={12} />
@@ -541,7 +705,12 @@ function QueueTab({ queue, setQueue, apiKeys }) {
   const [testingIds, setTestingIds] = useState(new Set());
   const [batchProgress, setBatchProgress] = useState(null);
   const [modalQuery, setModalQuery] = useState(null);
+  const [expandedId, setExpandedId] = useState(null);
   const lastClickedRef = useRef(null);
+
+  const handleToggleExpand = useCallback((id) => {
+    setExpandedId(prev => (prev === id ? null : id));
+  }, []);
 
   const filtered = useMemo(() => {
     let out = queue.slice();
@@ -599,10 +768,10 @@ function QueueTab({ queue, setQueue, apiKeys }) {
     if (!hasKey) { alert('Add at least one LLM API key in Settings.'); return; }
     setTestingIds(prev => new Set(prev).add(query.id));
     try {
-      const { status, competitors } = await testSingleQuery(query.query, apiKeys);
+      const { status, competitors, llmResults } = await testSingleQuery(query.query, apiKeys);
       const merged = Array.from(new Set([...(query.competitors||[]), ...competitors]));
       setQueue(q => q.map(x => x.id === query.id
-        ? { ...x, citationStatus: status, competitors: merged, lastTested: new Date().toISOString() }
+        ? { ...x, citationStatus: status, competitors: merged, llmResults, lastTested: new Date().toISOString() }
         : x));
     } catch (err) {
       alert('Test failed: ' + (err?.message || err));
@@ -785,15 +954,20 @@ function QueueTab({ queue, setQueue, apiKeys }) {
           </div>
         ) : (
           filtered.map(q => (
-            <QueryRow key={q.id} query={q}
-              selected={selectedIds.has(q.id)}
-              isTesting={testingIds.has(q.id)}
-              onSelect={handleSelect}
-              onTest={handleTestOne}
-              onGeneratePage={(query) => setModalQuery(query)}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onRefresh={handleRefresh} />
+            <div key={q.id}>
+              <QueryRow query={q}
+                selected={selectedIds.has(q.id)}
+                isTesting={testingIds.has(q.id)}
+                expanded={expandedId === q.id}
+                onToggleExpand={handleToggleExpand}
+                onSelect={handleSelect}
+                onTest={handleTestOne}
+                onGeneratePage={(query) => setModalQuery(query)}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onRefresh={handleRefresh} />
+              {expandedId === q.id && <QueryDetail query={q} />}
+            </div>
           ))
         )}
       </div>
