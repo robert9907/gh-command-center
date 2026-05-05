@@ -49,8 +49,8 @@ const primaryBtnStyle = {
 const secondaryBtnStyle = {
   display: 'inline-flex', alignItems: 'center', padding: '8px 12px',
   borderRadius: 8, cursor: 'pointer', fontSize: 12, fontWeight: 500,
-  background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)',
-  color: 'var(--gh-text)', transition: 'background 150ms',
+  background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)',
+  color: '#f59e0b', transition: 'background 150ms',
 };
 
 // ── Filter constants ──────────────────────────────────────────────────────────
