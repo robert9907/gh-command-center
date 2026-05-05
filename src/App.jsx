@@ -124,7 +124,7 @@ export default function App() {
             letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             GenerationHealth.me
           </span>
-          <span style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em',
+          <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '-0.02em',
             fontFamily: "'Bricolage Grotesque', sans-serif", color: 'var(--gh-text)' }}>
             Command Center
           </span>
